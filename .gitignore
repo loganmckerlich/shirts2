@@ -1,0 +1,4 @@
+*.png
+.venv/
+private.yml
+__pycache__/

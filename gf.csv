@@ -1,0 +1,90 @@
+,home_id,home,home_score,away_id,away,away_score,startdate,complete
+27,6353,Lakeland University,13.0,272,Wisconsin-Platteville,80.0,2023-08-31T23:00:00.000Z,True
+44,200,Southern Nazarene,20.0,2264,Harding,53.0,2023-08-31T23:00:00.000Z,True
+56,112335,Wheeling Jesuit,35.0,611,Seton Hill College,24.0,2023-08-31T23:00:00.000Z,True
+73,254,Utah,24.0,57,Florida,11.0,2023-09-01T00:00:00.000Z,True
+103,613,South Dakota Mines,31.0,628,Valley City State,14.0,2023-09-02T00:00:00.000Z,True
+115,2400,Mississippi Valley State,21.0,2119,Central State,24.0,2023-09-02T04:00:00.000Z,True
+130,2838,Tiffin,79.0,2816,McKendree,14.0,2023-09-02T16:00:00.000Z,True
+163,146,Grove City College,17.0,2849,Westminster PA,7.0,2023-09-02T17:00:00.000Z,True
+181,2725,Widener,42.0,2354,Lycoming,21.0,2023-09-02T17:00:00.000Z,True
+190,284,Stonehill,17.0,160,New Hampshire,51.0,2023-09-02T17:00:00.000Z,True
+290,2359,Macalester,44.0,2399,Minnesota-Morris,30.0,2023-09-02T23:00:00.000Z,True
+294,36,Colorado State,24.0,265,Washington State,50.0,2023-09-02T23:00:00.000Z,True
+300,245,Texas A&M,52.0,167,New Mexico,10.0,2023-09-02T23:00:00.000Z,True
+301,2453,North Alabama,41.0,236,Chattanooga,27.0,2023-09-02T23:00:00.000Z,True
+313,2570,Colorado State-Pueblo,37.0,2395,Midwestern State,8.0,2023-09-03T00:00:00.000Z,True
+380,264,Washington,37.0,251,Texas,31.0,2024-01-02T01:45:00.000Z,True
+400,2699,West Liberty,29.0,2986,Fairmont State,42.0,2023-09-09T04:00:00.000Z,True
+407,2306,Kansas State,42.0,2653,Troy,13.0,2023-09-09T16:00:00.000Z,True
+434,2560,Shorter,28.0,101784,Erskine,7.0,2023-09-09T16:00:00.000Z,True
+440,2506,Presbyterian College,48.0,2355,Virginia Lynchburg,17.0,2023-09-09T17:00:00.000Z,True
+463,2085,Buffalo State,23.0,3111,Apprentice School,37.0,2023-09-09T17:00:00.000Z,True
+473,2134,Clarion,7.0,2071,Bloomsburg,21.0,2023-09-09T17:00:00.000Z,True
+479,2551,Shaw,13.0,2676,Virginia Union,26.0,2023-09-09T17:00:00.000Z,True
+509,189,Bowling Green,38.0,2197,Eastern Illinois,15.0,2023-09-09T18:00:00.000Z,True
+573,264,Washington,43.0,202,Tulsa,10.0,2023-09-09T21:00:00.000Z,True
+575,2460,Northern Iowa,17.0,2692,Weber State,34.0,2023-09-09T21:00:00.000Z,True
+590,2803,Bryant,21.0,112358,Long Island University,10.0,2023-09-09T22:00:00.000Z,True
+591,2261,Hampton,23.0,2450,Norfolk State,31.0,2023-09-09T22:00:00.000Z,True
+634,2630,UT Martin,38.0,2623,Missouri State,31.0,2023-09-09T23:00:00.000Z,True
+659,2348,Louisiana Tech,51.0,2466,Northwestern State,21.0,2023-09-09T23:00:00.000Z,True
+703,2636,UT San Antonio,29.0,349,Army,37.0,2023-09-15T23:00:00.000Z,True
+742,3110,Morrisville State,20.0,2108,Catholic University,31.0,2023-09-16T16:00:00.000Z,True
+753,2368,Marist,21.0,2166,Davidson,49.0,2023-09-16T17:00:00.000Z,True
+822,2201,Eastern New Mexico,30.0,2848,Western Oregon,29.0,2023-09-16T18:00:00.000Z,True
+847,306,Illinois Wesleyan,16.0,396,Wheaton College Ill,47.0,2023-09-16T18:00:00.000Z,True
+909,26,UCLA,59.0,2428,North Carolina Central,7.0,2023-09-16T21:00:00.000Z,True
+911,2749,Worcester Polytechnic,0.0,2528,Rensselaer,25.0,2023-09-16T21:00:00.000Z,True
+939,2746,Wittenberg,56.0,352,Kenyon,17.0,2023-09-16T22:00:00.000Z,True
+940,2827,Rowan,21.0,2667,Ursinus,44.0,2023-09-16T22:00:00.000Z,True
+961,2888,Ouachita Baptist,52.0,2568,Southern Arkansas,24.0,2023-09-16T23:00:00.000Z,True
+1015,302,UC Davis,23.0,253,Southern Utah,21.0,2023-09-17T02:00:00.000Z,True
+1091,3162,Alfred State College,48.0,125974,Hilbert College,7.0,2023-09-23T17:00:00.000Z,True
+1102,209,Lock Haven,21.0,2188,East Stroudsburg,35.0,2023-09-23T17:00:00.000Z,True
+1248,2371,Mary Hardin-Baylor,50.0,241,McMurry,9.0,2023-09-23T23:00:00.000Z,True
+1261,199,Southeastern Oklahoma,41.0,2823,Northwestern Oklahoma State,2.0,2023-09-23T23:00:00.000Z,True
+1310,202,Tulsa,48.0,218,Temple,26.0,2023-09-28T23:30:00.000Z,True
+1317,2175,Dickinson,19.0,2234,Franklin & Marshall,17.0,2023-09-29T23:00:00.000Z,True
+1437,568,Minot State,22.0,2844,Wayne State NE,48.0,2023-09-30T18:00:00.000Z,True
+1507,2509,Purdue,44.0,356,Illinois,19.0,2023-09-30T19:30:00.000Z,True
+1515,158,Nebraska,7.0,130,Michigan,45.0,2023-09-30T19:30:00.000Z,True
+1544,107,Holy Cross,28.0,108,Harvard,38.0,2023-09-30T21:00:00.000Z,True
+1573,2572,Southern Mississippi,36.0,326,Texas State,50.0,2023-09-30T23:00:00.000Z,True
+1734,126,Kalamazoo,14.0,354,Olivet College,42.0,2023-10-07T18:00:00.000Z,True
+1767,2686,Washington & Jefferson,35.0,2018,Allegheny,28.0,2023-10-07T18:00:00.000Z,True
+1820,2568,Southern Arkansas,63.0,319,Oklahoma Baptist,24.0,2023-10-07T19:30:00.000Z,True
+1821,425,Northern State,46.0,568,Minot State,9.0,2023-10-07T19:30:00.000Z,True
+1843,2843,Western Connecticut State,55.0,2972,Plymouth State,20.0,2023-10-07T20:00:00.000Z,True
+1894,2359,Macalester,14.0,2802,Bethel MN,49.0,2023-10-08T00:00:00.000Z,True
+1904,25,California,40.0,204,Oregon State,52.0,2023-10-08T02:00:00.000Z,True
+1906,30,USC,43.0,12,Arizona,41.0,2023-10-08T02:30:00.000Z,True
+1926,2184,Duquesne,44.0,2115,Central Connecticut,20.0,2023-10-14T16:00:00.000Z,True
+2047,2674,Valparaiso,21.0,2413,Morehead State,24.0,2023-10-14T18:00:00.000Z,True
+2120,2296,Jackson State,19.0,2011,Alabama State,24.0,2023-10-14T19:00:00.000Z,True
+2151,2930,Willamette,7.0,2486,Pacific Lutheran,62.0,2023-10-14T20:00:00.000Z,True
+2178,205,Pacific OR,35.0,2333,Lewis & Clark,51.0,2023-10-14T23:00:00.000Z,True
+2219,218,Temple,0.0,2567,SMU,55.0,2023-10-20T23:00:00.000Z,True
+2359,2802,Bethel MN,49.0,162,Hamline,7.0,2023-10-21T18:00:00.000Z,True
+2413,2400,Mississippi Valley State,6.0,2296,Jackson State,21.0,2023-10-21T19:00:00.000Z,True
+2433,2309,Kent State,6.0,2084,Buffalo,24.0,2023-10-21T19:30:00.000Z,True
+2434,277,West Virginia,34.0,197,Oklahoma State,48.0,2023-10-21T19:30:00.000Z,True
+2500,30,USC,32.0,254,Utah,34.0,2023-10-22T00:00:00.000Z,True
+2532,2529,Sacred Heart,0.0,2184,Duquesne,27.0,2023-10-28T16:00:00.000Z,True
+2534,154,Wake Forest,16.0,52,Florida State,41.0,2023-10-28T16:00:00.000Z,True
+2569,172,Cornell,3.0,163,Princeton,14.0,2023-10-28T17:00:00.000Z,True
+2649,2364,Minnesota State,30.0,2587,Southwest Minnesota State,12.0,2023-10-28T18:00:00.000Z,True
+2766,2710,Western Illinois,0.0,79,Southern Illinois,63.0,2023-10-28T20:00:00.000Z,True
+2800,110243,University of Texas of the Permian Basin,28.0,2848,Western Oregon,16.0,2023-10-28T23:00:00.000Z,True
+2860,2598,St Francis PA,28.0,112358,Long Island University,29.0,2023-11-04T16:00:00.000Z,True
+2862,145,Ole Miss,38.0,245,Texas A&M,35.0,2023-11-04T16:00:00.000Z,True
+2998,263,Loras College,82.0,2564,Simpson College,16.0,2023-11-04T18:00:00.000Z,True
+3012,32,Carroll WI,41.0,74,Millikin,0.0,2023-11-04T18:00:00.000Z,True
+3077,135,Minnesota,26.0,356,Illinois,27.0,2023-11-04T19:30:00.000Z,True
+3122,2627,Tarleton State,59.0,2617,Stephen F. Austin,17.0,2023-11-04T23:00:00.000Z,True
+3129,344,Mississippi State,3.0,96,Kentucky,24.0,2023-11-04T23:30:00.000Z,True
+3179,40,Curry,27.0,2702,Western New England,48.0,2023-11-11T17:00:00.000Z,True
+3244,2686,Washington & Jefferson,33.0,2845,Waynesburg,28.0,2023-11-11T18:00:00.000Z,True
+3259,216,Susquehanna,49.0,2354,Lycoming,10.0,2023-11-11T18:00:00.000Z,True
+3324,2044,Aurora,23.0,409,Concordia WI,0.0,2023-11-11T19:00:00.000Z,True
+3369,2000,Abilene Christian,30.0,2627,Tarleton State,31.0,2023-11-11T20:00:00.000Z,True
