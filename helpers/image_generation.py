@@ -4,10 +4,10 @@ from datetime import datetime as dt
 from PIL import Image
 
 
-def generate_main(prompt,sdapi,test=True):
+def generate_main(game_id,sfx,prompt,sdapi,test=True):
     if test:
         print('using saved image')
-        main_image = Image.open(r'prompt.png')
+        main_image = Image.open(r'data/games/images/prompt.png')
     else:
         print('generating image')
         url = "https://stablediffusionapi.com/api/v3/text2img"
@@ -35,10 +35,11 @@ def generate_main(prompt,sdapi,test=True):
         'Content-Type': 'application/json'
         }
 
-        response = requests.request("POST", url, headers=headers, data=payload)
+        response = requests.post(url, headers=headers, data=payload)
 
         # output[0] is a png
         img = json.loads(response.text)["output"][0]
         main_image = Image.open(requests.get(img, stream=True).raw)
-        main_image.save(f"{prompt}_{str(dt.now()).replace(' ','_')}.png","PNG")
+        title = rf"fake_s3/data/images{game_id}_{sfx}"
+        main_image.save(title,"PNG")
     return main_image

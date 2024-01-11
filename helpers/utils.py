@@ -39,10 +39,10 @@ def parse_game(game,teams):
     assembles all info needed to create the image
     
     '''
-    home = teams.loc[teams.id==game.home_id]
-    away = teams.loc[teams.id==game.away_id]
-    if (game.complete) and (not math.isnan(game.home_score)) and (not math.isnan(game.away_score)):
-        gscore = (int(game.home_score),int(game.away_score))
+    home = teams.loc[teams.id==game['home_id']]
+    away = teams.loc[teams.id==game['away_id']]
+    if (game['complete']) and (not math.isnan(game['home_score'])) and (not math.isnan(game['away_score'])):
+        gscore = (int(game['home_score']),int(game['away_score']))
     else:
         gscore = (None,None)
 
@@ -61,9 +61,9 @@ def parse_game(game,teams):
         },
         'sport':'football',
         'game':{
-            'date':pd.to_datetime(game.startdate).strftime(format="%d %b, %Y"),
+            'date':pd.to_datetime(game['startdate']).strftime(format="%d %b, %Y"),
             'score':gscore,
-            'done':game.complete
+            'done':game['complete']
         }
     }
     return game_config

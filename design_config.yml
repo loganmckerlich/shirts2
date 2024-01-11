@@ -5,3 +5,4 @@ ih: 300
 lw: 50
 lh: 50
 logo_buffer: 100
+default_logo: 'https://github.com/klunn91/team-logos/blob/master/NCAA/_NCAA_logo.png?raw=true'

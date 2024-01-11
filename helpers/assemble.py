@@ -47,6 +47,11 @@ def build_design(config,test=False):
 
     score = config['game']['score']
 
+    if not config['game']['done']:
+        sfx = 'pre'
+    else:
+        sfx = 'post'
+
     if (not config['game']['done']) or (score[0]==score[1]):
         # game unfinished or tie game, nuetral image
         prompt = f'NCAA {sport} {team1full} mascot vs {team2full} mascot'
@@ -70,17 +75,12 @@ def build_design(config,test=False):
 
     bg = ImageOps.expand(bg,border=1,fill='black')
 
-    main_image = generate_main(prompt,config['sd_api'],test=test).resize((iw,ih))
+    main_image = generate_main(config['game_id'],sfx,prompt,config['sd_api'],test=test).resize((iw,ih))
 
-    try:
-        logo1 = Image.open(requests.get(config['home_team']['logo'], stream=True).raw).resize((lw,lh))
-    except:
-        logo1 = Image.open(requests.get(r'https://github.com/klunn91/team-logos/blob/master/NCAA/_NCAA_logo.png?raw=true', stream=True).raw).resize((lw,lh))
+    logo1 = Image.open(requests.get(config['home_team']['logo'], stream=True).raw).resize((lw,lh))
 
-    try:
-        logo2 = Image.open(requests.get(config['away_team']['logo'], stream=True).raw).resize((lw,lh))
-    except:
-        logo2 = Image.open(requests.get(r'https://github.com/klunn91/team-logos/blob/master/NCAA/_NCAA_logo.png?raw=true', stream=True).raw).resize((lw,lh))
+    logo2 = Image.open(requests.get(config['away_team']['logo'], stream=True).raw).resize((lw,lh))
+
     img_w, img_h = main_image.size
 
     # Paste with Coordinates
