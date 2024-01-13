@@ -43,7 +43,7 @@ class cfbp_handler():
         all_teams_df = pd.DataFrame(all_team_info,columns = ['id','name','abrev','color','alt_color','mascot','logos']).sort_values('name')
         all_teams_df.color = np.where(all_teams_df.color.isna(),'#FFFFFF',all_teams_df.color)
         self.teams = all_teams_df
-        all_teams_df.to_csv(f'./fake_s3/data/teams/all_teams.csv')
+        return all_teams_df
 
     def determine_to_do(self, new_games, old_games):
         today = dt.date.today()-dt.timedelta(weeks=5)
@@ -94,6 +94,4 @@ class cfbp_handler():
         just_new, upcoming_games = self.determine_to_do(all_games_df, old)
         return just_new, upcoming_games, all_games_df
     
-    def load_teams_table(self):
-        return pd.read_csv(f'./fake_s3/data/teams/all_teams.csv',index_col=0)
         
