@@ -18,8 +18,10 @@ class s3_mover():
 
     def image_to_s3(self,pil_image,s3_name):
         key = self.image_base+s3_name+'.png'
+        print(key)
         png_buffer = BytesIO()
-        pil_image.save(png_buffer, format=pil_image.format)
+        pil_image.save(png_buffer, format='png')
+        # pil_image.save(png_buffer, format=pil_image.format)
         png_buffer.seek(0)
         response = self.s3.put_object(Bucket='lm-myfreebucket', Body=png_buffer, Key=key)
 

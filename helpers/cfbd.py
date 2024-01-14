@@ -33,7 +33,7 @@ class cfbp_handler():
             mascot=team.mascot
             if type(team.logos)!=list:
                 # this means no logo
-                logos= self.config['default_logo'],
+                logos= 'https://github.com/klunn91/team-logos/blob/master/NCAA/_NCAA_logo.png?raw=true'
             else:
                 logos = ast.literal_eval(str(team.logos))[0]
 
@@ -45,8 +45,9 @@ class cfbp_handler():
         self.teams = all_teams_df
         return all_teams_df
 
-    def determine_to_do(self, new_games, old_games):
-        today = dt.date.today()-dt.timedelta(weeks=5)
+    def determine_to_do(self, old_games):
+        new_games = self.all_games
+        today = dt.date.today()
         two_weeks_out = (pd.to_datetime(today)+dt.timedelta(weeks=2)).tz_localize('UTC')
         one_weeks_out = (pd.to_datetime(today)+dt.timedelta(weeks=1)).tz_localize('UTC')
         
@@ -66,7 +67,7 @@ class cfbp_handler():
     def get_schedule(self,year):
         # this would run daily to add scores as they come
         cfbd_instance = cfbd.GamesApi(cfbd.ApiClient(self.configuration))
-        cfbd_response = cfbd_instance.get_games(year=2023,season_type='both')
+        cfbd_response = cfbd_instance.get_games(year=year,season_type='both')
 
         all_game_info=[]
         for game in cfbd_response:
@@ -86,12 +87,7 @@ class cfbp_handler():
         all_games_df=all_games_df.drop_duplicates()
         # so this is all games of the {year} season
         # every week ill have to determine what is new scores and what are games coming up to generate
-        old = pd.read_csv(f'./fake_s3/data/games/all_games_{year}.csv')
-        old.to_csv(f'./fake_s3/data/games/all_games_{year}_past.csv')
         self.all_games = all_games_df
-        all_games_df.to_csv(f'./fake_s3/data/games/all_games_{year}.csv')
-
-        just_new, upcoming_games = self.determine_to_do(all_games_df, old)
-        return just_new, upcoming_games, all_games_df
+        return all_games_df
     
         

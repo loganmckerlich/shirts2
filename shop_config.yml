@@ -1,6 +1,6 @@
+# this is stuff for posting to shop
 base_url : "https://api.printify.com/v1"
 shop_id : 13647323
-path : 'prompt.png'
 title: 'test'
 price: 2000
 description: 'this a test'
@@ -13,11 +13,11 @@ variant_ids:
   - 12072
   - 12073
   - 12074
-  - 12075
+  # - 12075
   - 12100
   - 12101
   - 12102
   - 12103
   - 12104
-  - 12105
+  # - 12105
 shop_name: '70f8b8-5'
