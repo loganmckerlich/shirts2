@@ -1,4 +1,4 @@
 *.png
 .venv/
 private.yml
-__pycache__/
+**/__pycache__/

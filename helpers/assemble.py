@@ -17,6 +17,17 @@ def size_font_recur(img_draw,team1,team2,W,font,size):
         size-=1
         return size_font_recur(img_draw,team1,team2,W,font,size)
     
+def simple_size_font_recur(img_draw,text,W,font,size):
+    mainfont = ImageFont.truetype(rf'./fonts/{font}.ttf', size = size, layout_engine=  ImageFont.Layout.BASIC)
+
+    _,_,r,_ = img_draw.textbbox((0,0),text,font=mainfont)
+
+    if r<=W:
+        return mainfont
+    else:
+        size-=1
+        return simple_size_font_recur(img_draw,text,W,font,size)
+    
 def build_design(config,test=False):
 
     # total size
@@ -47,6 +58,13 @@ def build_design(config,test=False):
 
     score = config['game']['score']
 
+    game_date = config['game']['date']
+
+    if not config['game']['done']:
+        sfx = 'pre'
+    else:
+        sfx = 'post'
+
     if (not config['game']['done']) or (score[0]==score[1]):
         # game unfinished or tie game, nuetral image
         prompt = f'NCAA {sport} {team1full} mascot vs {team2full} mascot'
@@ -70,17 +88,12 @@ def build_design(config,test=False):
 
     bg = ImageOps.expand(bg,border=1,fill='black')
 
-    main_image = generate_main(prompt,config['sd_api'],test=test).resize((iw,ih))
+    main_image = generate_main(config['game_id'],sfx,prompt,config['sd_api'],test=True).resize((iw,ih))
 
-    try:
-        logo1 = Image.open(requests.get(config['home_team']['logo'], stream=True).raw).resize((lw,lh))
-    except:
-        logo1 = Image.open(requests.get(r'https://github.com/klunn91/team-logos/blob/master/NCAA/_NCAA_logo.png?raw=true', stream=True).raw).resize((lw,lh))
+    logo1 = Image.open(requests.get(config['home_team']['logo'], stream=True).raw).resize((lw,lh))
 
-    try:
-        logo2 = Image.open(requests.get(config['away_team']['logo'], stream=True).raw).resize((lw,lh))
-    except:
-        logo2 = Image.open(requests.get(r'https://github.com/klunn91/team-logos/blob/master/NCAA/_NCAA_logo.png?raw=true', stream=True).raw).resize((lw,lh))
+    logo2 = Image.open(requests.get(config['away_team']['logo'], stream=True).raw).resize((lw,lh))
+
     img_w, img_h = main_image.size
 
     # Paste with Coordinates
@@ -126,4 +139,16 @@ def build_design(config,test=False):
 
         img_draw.text((((W//4)*3-w2),bv+h2),str(score[1]),team2color,font=score_font, stroke_width=1,stroke_fill="black")
 
-    return bg
+    text = Image.new('RGBA', (W,H))
+
+    text_draw = ImageDraw.Draw(text)
+
+    game_text = f'{team1} Vs. {team2}\n{game_date}'
+
+    game_font = simple_size_font_recur(text_draw,game_text,W,'Universal_Serif',75)
+
+    text_draw.text((0,0),game_text,font=game_font,fill="black")
+
+    text.save("img1.png","PNG")
+
+    return bg, text
