@@ -51,11 +51,7 @@ class cfbp_handler:
         self.teams = all_teams_df
         return all_teams_df
 
-    def determine_to_do(self, old_games):
-        '''
-        need to determine games of the week that just passed as well as games coming up
-        '''
-        # this needs work
+    def determine_to_do2(self):
         new_games = self.all_games
         if self.fake_date is not None:
             print("artificially setting to monday past date")
@@ -63,30 +59,15 @@ class cfbp_handler:
         else:
             today = dt.date.today()
 
-        # upcoming are between these two dates
-        two_weeks_out = (pd.to_datetime(today) + dt.timedelta(weeks=2)).tz_localize(
-            "UTC"
-        )
-        one_weeks_out = (pd.to_datetime(today) + dt.timedelta(weeks=1)).tz_localize(
-            "UTC"
-        )
+        games_this_past_week = new_games.loc[pd.to_datetime(new_games.monday) == pd.to_datetime(today)-pd.Timedelta(weeks=1)]
 
-        # all complete games
-        new_games_l = list(new_games.loc[new_games.complete == True].id)
+        # this mon represents all games in coming week, next mon is 2 weeks out games
+        games_2_weeks_out = new_games.loc[pd.to_datetime(new_games.monday) == pd.to_datetime(today)+pd.Timedelta(weeks=1)]
 
-        # identify games that are two weeks out from the current week
-        upcoming_games = list(
-            new_games.loc[
-                (pd.to_datetime(new_games.startdate, utc=True) <= two_weeks_out)
-                & (pd.to_datetime(new_games.startdate, utc=True) >= one_weeks_out)
-            ].id
-        )
+        new_games = list(games_this_past_week.id)
+        upcoming_games = list(games_2_weeks_out.id)
 
-        old_games = list(old_games.loc[old_games.complete == True].id)
-
-        # all complete games that werent complete last week
-        just_new = [x for x in new_games_l if x not in old_games]
-        return just_new, upcoming_games
+        return new_games,upcoming_games
 
     def get_schedule(self, year):
         # this would run daily to add scores as they come
@@ -95,31 +76,32 @@ class cfbp_handler:
 
         all_game_info = []
         for game in cfbd_response:
-            game_id = game.id
-            htid = game.home_id
-            home_team = game.home_team.replace(")", "").replace("(", "")
-            home_points = game.home_points
-            atid = game.away_id
-            away_team = game.away_team.replace(")", "").replace("(", "")
-            away_points = game.away_points
-            game_date = game.start_date
-            game_week = game.week
-            complete = game.completed
-            game_type = game.season_type
-            game_info = [
-                game_id,
-                htid,
-                home_team,
-                home_points,
-                atid,
-                away_team,
-                away_points,
-                game_date,
-                game_week,
-                complete,
-                game_type,
-            ]
-            all_game_info.append(game_info)
+            if game.home_division == 'fbs' or game.away_division == 'fbs':
+                game_id = game.id
+                htid = game.home_id
+                home_team = game.home_team.replace(")", "").replace("(", "")
+                home_points = game.home_points
+                atid = game.away_id
+                away_team = game.away_team.replace(")", "").replace("(", "")
+                away_points = game.away_points
+                game_date = game.start_date
+                game_week = game.week
+                complete = game.completed
+                game_type = game.season_type
+                game_info = [
+                    game_id,
+                    htid,
+                    home_team,
+                    home_points,
+                    atid,
+                    away_team,
+                    away_points,
+                    game_date,
+                    game_week,
+                    complete,
+                    game_type,
+                ]
+                all_game_info.append(game_info)
 
         all_games_df = pd.DataFrame(
             all_game_info,
@@ -137,8 +119,13 @@ class cfbp_handler:
                 "game_type",
             ],
         ).sort_values("startdate")
+        all_games_df.startdate = pd.to_datetime(all_games_df.startdate)
         all_games_df = all_games_df.drop_duplicates()
-        # so this is all games of the {year} season
-        # every week ill have to determine what is new scores and what are games coming up to generate
+        all_games_df['monday'] = all_games_df['startdate'] - all_games_df['startdate'].dt.weekday.astype('timedelta64[D]')
+        all_games_df.monday = all_games_df.monday.apply(lambda x:x.date())
+        all_games_df.startdate = all_games_df.startdate.apply(lambda x:x.date())
+        all_games_df.game_type = np.where(all_games_df.game_type=='regular', 'regular-season',all_games_df.game_type)
+        all_games_df.week = all_games_df['game_type']+' Week '+all_games_df['week'].astype(str)
+
         self.all_games = all_games_df
         return all_games_df

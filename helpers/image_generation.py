@@ -9,7 +9,6 @@ def generate_main(game_id, sfx, prompt, sdapi, test=True):
         print("using saved image because test mode")
         main_image = Image.open(r"test3.png")
     else:
-        print("generating image")
         url = "https://stablediffusionapi.com/api/v3/text2img"
         payload = json.dumps(
             {
@@ -36,8 +35,7 @@ def generate_main(game_id, sfx, prompt, sdapi, test=True):
         headers = {"Content-Type": "application/json"}
 
         response = requests.post(url, headers=headers, data=payload)
-        print(response.status_code)
-        print(json.loads(response.text))
+
         # output[0] is a png
         img = json.loads(response.text)["output"][0]
         main_image = Image.open(requests.get(img, stream=True).raw)

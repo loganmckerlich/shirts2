@@ -103,8 +103,6 @@ def build_design(config, test=False):
             requests.get(config["home_team"]["logo"], stream=True).raw
         ).resize((lw, lh))
     except:
-        print('failed to get home logo, will use default')
-        print(config["home_team"]["logo"])
         logo1 = Image.open(
             requests.get(config["default_logo"], stream=True).raw
         ).resize((lw, lh))
@@ -114,8 +112,6 @@ def build_design(config, test=False):
             requests.get(config["away_team"]["logo"], stream=True).raw
         ).resize((lw, lh))
     except:
-        print('Failed to get away logo, will use default')
-        print(config["away_team"]["logo"])
         logo2 = Image.open(
             requests.get(config["default_logo"], stream=True).raw
         ).resize((lw, lh))

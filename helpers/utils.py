@@ -75,6 +75,7 @@ def parse_game(game, teams):
             "date": pd.to_datetime(game["startdate"]).strftime(format="%d %b, %Y"),
             "score": gscore,
             "done": game["complete"],
+            "week":game["week"]
         },
     }
     return game_config
@@ -86,20 +87,26 @@ def combine_configs(base_config, game_config):
 
 
 def generate_t_d_t(game_config):
-    title = f"{game_config['home_team']['shortn']} VS {game_config['away_team']['shortn']}. {game_config['game']['date']}"
+    title = f"{game_config['home_team']['shortn']} vs {game_config['away_team']['shortn']}. {game_config['game']['date']}. week {game_config['game']['week']}"
     if game_config["game"]["done"]:
         before = ""
         mid = f"{game_config['game']['score'][0]} to {game_config['game']['score'][1]} "
+        mid2 = 'played at '
     else:
         before = "Generated before the game has been played. "
         mid = ""
+        mid2 = 'to be played '
+    
+
     description = (
         before
         + f"AI image representing the football game "
         + mid
-        + f"between {game_config['home_team']['shortn']} and {game_config['away_team']['shortn']}, to be played {game_config['game']['date']}"
+        + f"between {game_config['home_team']['shortn']} and {game_config['away_team']['shortn']}, {mid2} {game_config['game']['date']}"
+        + f"||{game_config['home_team']['shortn']}|| ||{game_config['away_team']['shortn']}||"
     )
     tags = f"football,college,sports,{game_config['home_team']['shortn']},{game_config['away_team']['shortn']}"
+
     return title, description, tags
 
 
