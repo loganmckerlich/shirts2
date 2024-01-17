@@ -96,7 +96,12 @@ class shopify_printify():
             else:
                 print("Failed to post product in Printify")
 
+            # update cover image
+            print('Trying to update cover image, this is untested')
+            self.update_images(self.post_dict["title"])
+
             if publish:
+
                 # this part does the publishing
                 printify_publish = f"{self.post_dict['base_url']}/shops/{self.post_dict['shop_id']}/products/{json.loads(response1.text)['id']}/publish.json"
 
@@ -174,6 +179,11 @@ class shopify_printify():
 
     def update_images(self,to_do):
         """
+
+        *** I think I need to do this before publishing
+        *** Have to stop now but I think im on the right track
+        *** possibly I have to wait a while after posting before images are uploaded and I can change them. try this
+
         to do is a list of title of shirt I want to change images for
 
         This aint working but I feel like it should
@@ -187,17 +197,26 @@ class shopify_printify():
 
         # get products
         product_url = f"{self.post_dict['base_url']}/shops/{self.post_dict['shop_id']}/products.json"
-        response = requests.get(product_url, self.headers_printify)
+        response = requests.get(product_url, headers = self.headers_printify)
 
-        for item in response['data']:
+        data = json.loads(response.text)
+
+        for item in data['data']:
             if item['title'] in [to_do]:
-                new_images = self.image_module(item)
+                print(f'Found {item["title"]} in printify')
+                new_data = item.copy()
+                new_data['images'][0]['is_default'] = False
+                new_data['images'][1]['is_default'] = True
+                # new_images = self.image_module(item)
 
-                url2 = f'https://api.printify.com/v1/shops/{self.post_dict["shop_id"]}/products/{item["id"]}.json'
+                url2 = f'{self.post_dict["base_url"]}/shops/{self.post_dict["shop_id"]}/products/{item["id"]}.json'
 
-                resp = requests.put(url2, headers = self.headers_printify, data = new_images)
-
-
+                resp = requests.put(url2, headers = self.headers_printify, json = new_data)
+                if resp.status_code == 200:
+                    print('Item cover image set to back - allegedly')
+                else:
+                    print('Failed to update cover image')
+                    print(resp.status_code)
         
 
     def create_week_collections(self,response1):

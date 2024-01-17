@@ -1,6 +1,6 @@
 # this goes to the file that assembles the image
-W: 500
-H: 700
+W: 480
+H: 600
 iw: 500
 ih: 500
 lw: 50

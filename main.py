@@ -74,5 +74,5 @@ def organize_store():
 
 
 if __name__ == "__main__":
-    # monday_run(test=False,fake_date='10-02-2023',limit = 5)
-    organize_store()
+    monday_run(test=False,fake_date='10-02-2023',limit = 1)
+    # organize_store()

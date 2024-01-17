@@ -87,7 +87,7 @@ def combine_configs(base_config, game_config):
 
 
 def generate_t_d_t(game_config):
-    title = f"{game_config['home_team']['shortn']} vs {game_config['away_team']['shortn']}. {game_config['game']['date']}. week {game_config['game']['week']}"
+    title = f"{game_config['home_team']['shortn']} vs {game_config['away_team']['shortn']}. {game_config['game']['date']}. {game_config['game']['week']}"
     if game_config["game"]["done"]:
         before = ""
         mid = f"{game_config['game']['score'][0]} to {game_config['game']['score'][1]} "
