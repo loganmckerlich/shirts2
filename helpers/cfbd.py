@@ -20,6 +20,7 @@ class cfbp_handler:
 
     def get_team_info(self):
         # this would run daily to add scores as they come
+        # note this is more than just fbs teams, for games where an fbs plays a non fbs we need both
         cfbd_instance = cfbd.TeamsApi(cfbd.ApiClient(self.configuration))
 
         cfbd_response = cfbd_instance.get_teams()
@@ -28,22 +29,24 @@ class cfbp_handler:
         for team in cfbd_response:
             team_id = team.id
             name = team.school.replace(")", "").replace("(", "")
+            long_name = team.alt_name_3
             abrev = team.abbreviation
             color = team.color
             alt_color = team.alt_color
             mascot = team.mascot
+            division = team.classification
             if type(team.logos) != list:
                 # this means no logo
                 logos = "https://github.com/klunn91/team-logos/blob/master/NCAA/_NCAA_logo.png?raw=true"
             else:
                 logos = ast.literal_eval(str(team.logos))[0]
 
-            team_info = [team_id, name, abrev, color, alt_color, mascot, logos]
+            team_info = [team_id, name, abrev, color, alt_color, mascot, logos, division,long_name]
             all_team_info.append(team_info)
 
         all_teams_df = pd.DataFrame(
             all_team_info,
-            columns=["id", "name", "abrev", "color", "alt_color", "mascot", "logos"],
+            columns=["id", "name", "abrev", "color", "alt_color", "mascot", "logos", "division", "long_name"],
         ).sort_values("name")
         all_teams_df.color = np.where(
             all_teams_df.color.isna(), "#FFFFFF", all_teams_df.color

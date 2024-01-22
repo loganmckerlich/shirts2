@@ -12,25 +12,25 @@ def new_football_season():
     return True
 
 
-def key_reader():
+def key_reader(version):
     with open("private.yml", "r") as f:
         private_yml = yaml.safe_load(f)
     cfbd_api_key = private_yml["cfbd_api_key"]
-    sd_api_key = private_yml["sd_api_key"]
-    printify_access = private_yml["printify_access"]
-    shopify_access = private_yml["shopify_access"]
+    dalle_key = private_yml["dalle_key"]
+    printify_access = private_yml[version]["printify_access"]
+    shopify_access = private_yml[version]["shopify_access"]
 
-    return cfbd_api_key, sd_api_key, printify_access, shopify_access
+    return cfbd_api_key, dalle_key, printify_access, shopify_access
 
 
-def get_config():
+def get_config(version):
     with open("design_config.yml", "r") as f:
         design_config = yaml.safe_load(f)
     with open("shop_config.yml", "r") as f:
         shop_config = yaml.safe_load(f)
-    cfbd_api_key, sd_api_key, printify_access, shopify_access = key_reader()
+    cfbd_api_key, dalle_key, printify_access, shopify_access = key_reader(version)
     design_config["cfbd_api"] = cfbd_api_key
-    design_config["sd_api"] = sd_api_key
+    design_config["dalle_key"] = dalle_key
     shop_config["printify_access"] = printify_access
     shop_config["shopify_access"] = shopify_access
     return design_config, shop_config

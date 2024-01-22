@@ -66,11 +66,6 @@ def build_design(config, test=False):
 
     game_date = config["game"]["date"]
 
-    if not config["game"]["done"]:
-        sfx = "pre"
-    else:
-        sfx = "post"
-
     if (not config["game"]["done"]) or (score[0] == score[1]):
         # game unfinished or tie game, nuetral image
         prompt = f"NCAA {sport} {team1full} mascot vs {team2full} mascot"
@@ -80,8 +75,6 @@ def build_design(config, test=False):
     else:  # score[1]>score[0]:
         # away team win
         prompt = f"NCAA {sport} {team1full} mascot getting beaten by {team2full} mascot"
-
-    print(prompt)
 
     gamedate = config["game"]["date"]
 
@@ -95,8 +88,13 @@ def build_design(config, test=False):
     bg = ImageOps.expand(bg, border=1, fill="black")
 
     main_image = generate_main(
-        config["game_id"], sfx, prompt, config["sd_api"], test=True
+        prompt, config["dalle_key"], test=True
     ).resize((iw, ih))
+
+    if main_image == None:
+        print('image failed to generate')
+        print(prompt)
+        return None,None
 
     try:
         logo1 = Image.open(
@@ -217,6 +215,25 @@ def build_design(config, test=False):
 
     text_draw.text((0, 0), game_text, font=game_font, fill="black")
 
-    text.save("img1.png", "PNG")
-
     return bg, text
+
+def no_caption_image(design_config,main_image):
+    bg = Image.new("RGBA", (design_config['W'], design_config['H']))
+    bg = ImageOps.expand(bg, border=1, fill="black")
+
+    offset = ((design_config['W'] - design_config['iw']) // 2, 0)
+    main_image.resize((design_config['iw'], design_config['ih']))
+    bg.paste(main_image, offset)
+
+    return bg
+
+def simple_text(design_config,text_in):
+    text = Image.new("RGBA", (design_config['W'], design_config['H']))
+
+    text_draw = ImageDraw.Draw(text)
+
+    game_font = simple_size_font_recur(text_draw, text_in, design_config['W'], "Universal_Serif", 75)
+
+    text_draw.text((0, 0), text_in, font=game_font, fill="black")
+
+    return text

@@ -5,7 +5,7 @@ import json
 import time
 
 class shopify_printify():
-    def __init__(self,post_dict):
+    def __init__(self,post_dict,version):
         self.post_dict = post_dict
         self.headers_printify = {
         "Authorization": f"Bearer {post_dict['printify_access']}",
@@ -15,10 +15,11 @@ class shopify_printify():
             "X-Shopify-Access-Token": post_dict["shopify_access"],
             "Content-Type": "application/json",
         }
+        self.version = version
 
     def post(self, publish=False):
         upload_url = f"{self.post_dict['base_url']}/uploads/images.json"
-        product_url = f"{self.post_dict['base_url']}/shops/{self.post_dict['shop_id']}/products.json"
+        product_url = f"{self.post_dict['base_url']}/shops/{self.post_dict[self.version]['shop_id']}/products.json"
 
         # this posts a design, but doesnt publish it
         buffered = BytesIO()
@@ -95,15 +96,18 @@ class shopify_printify():
                 print("Product posted successfully in Printify")
             else:
                 print("Failed to post product in Printify")
+                print(response1.text)
+                print(response1.status_code)
 
-            # update cover image
-            print('Trying to update cover image, this is untested')
-            self.update_images(self.post_dict["title"])
+            # update cover image - this aint working, I think maybe 
+            # I need to pause long enough for everyhtin to load before I change default
+            # print('Trying to update cover image, this is untested')
+            # self.update_images(self.post_dict["title"])
 
             if publish:
 
                 # this part does the publishing
-                printify_publish = f"{self.post_dict['base_url']}/shops/{self.post_dict['shop_id']}/products/{json.loads(response1.text)['id']}/publish.json"
+                printify_publish = f"{self.post_dict['base_url']}/shops/{self.post_dict[self.version]['shop_id']}/products/{json.loads(response1.text)['id']}/publish.json"
 
                 update_data = {
                     "title": True,
@@ -123,8 +127,12 @@ class shopify_printify():
                     print("Product published successfully in Printify")
                 else:
                     print("Failed to publish product in Printify")
+                    print(response2.status_code)
+                    print(response2.text)
         else:
             print("unable to send image to printify")
+            print(img_response.status_code)
+            print(img_response.text)
 
 
     def image_module(item):
@@ -183,6 +191,7 @@ class shopify_printify():
         *** I think I need to do this before publishing
         *** Have to stop now but I think im on the right track
         *** possibly I have to wait a while after posting before images are uploaded and I can change them. try this
+        *** try breaking out the post/edit/publish into seperate functions & test in nb
 
         to do is a list of title of shirt I want to change images for
 
@@ -196,7 +205,7 @@ class shopify_printify():
         """
 
         # get products
-        product_url = f"{self.post_dict['base_url']}/shops/{self.post_dict['shop_id']}/products.json"
+        product_url = f"{self.post_dict['base_url']}/shops/{self.post_dict[self.version]['shop_id']}/products.json"
         response = requests.get(product_url, headers = self.headers_printify)
 
         data = json.loads(response.text)
@@ -209,7 +218,7 @@ class shopify_printify():
                 new_data['images'][1]['is_default'] = True
                 # new_images = self.image_module(item)
 
-                url2 = f'{self.post_dict["base_url"]}/shops/{self.post_dict["shop_id"]}/products/{item["id"]}.json'
+                url2 = f'{self.post_dict["base_url"]}/shops/{self.post_dict[self.version]["shop_id"]}/products/{item["id"]}.json'
 
                 resp = requests.put(url2, headers = self.headers_printify, json = new_data)
                 if resp.status_code == 200:
@@ -266,8 +275,8 @@ class shopify_printify():
                 print("could not create collection")
                 print(json.loads(response1.text))
     
-    def create_collections(self,teams):
-        products_link = f"https://{self.post_dict['shop_name']}.myshopify.com/admin/api/2024-01/products.json"
+    def create_collections_cfb(self,teams):
+        products_link = f"https://{self.post_dict[self.version]['shop_name']}.myshopify.com/admin/api/2024-01/products.json"
 
         response1 = requests.get(products_link, headers=self.headers_shopify)
 
@@ -275,7 +284,7 @@ class shopify_printify():
 
         team_content = self.create_team_collections(response1,teams)
 
-        collection_link = f"https://{self.post_dict['shop_name']}.myshopify.com/admin/api/2023-04/custom_collections.json"
+        collection_link = f"https://{self.post_dict[self.version]['shop_name']}.myshopify.com/admin/api/2023-04/custom_collections.json"
 
         for week in week_content.keys():
             id_list = week_content[week]
@@ -289,10 +298,25 @@ class shopify_printify():
                 time.sleep(0.75)
                 self.post_collection(id_list,team,collection_link)
 
+    def create_collections_rand(self,teams):
+        products_link = f"https://{self.post_dict[self.version]['shop_name']}.myshopify.com/admin/api/2024-01/products.json"
+
+        response1 = requests.get(products_link, headers=self.headers_shopify)
+
+        team_content = self.create_team_collections(response1,teams)
+
+        collection_link = f"https://{self.post_dict[self.version]['shop_name']}.myshopify.com/admin/api/2023-04/custom_collections.json"
+
+        for team in team_content.keys():
+            id_list = team_content[team]
+            if len(id_list)>0:
+                time.sleep(0.75)
+                self.post_collection(id_list,team,collection_link)
+
         
 
     def delete_collections(self):
-        url = f"https://{self.post_dict['shop_name']}.myshopify.com/admin/api/2021-07/custom_collections.json"
+        url = f"https://{self.post_dict[self.version]['shop_name']}.myshopify.com/admin/api/2021-07/custom_collections.json"
         # Make the API request to get the list of collections
         response = requests.get(url, headers = self.headers_shopify)
         # Check if the request was successful (status code 200)
@@ -302,7 +326,7 @@ class shopify_printify():
             for collection in collections:
                 time.sleep(1)
                 collection_id = collection["id"]
-                delete_endpoint = f"https://{self.post_dict['shop_name']}.myshopify.com//admin/api/2021-07/custom_collections/{collection_id}.json"
+                delete_endpoint = f"https://{self.post_dict[self.version]['shop_name']}.myshopify.com//admin/api/2021-07/custom_collections/{collection_id}.json"
                 delete_response = requests.delete(delete_endpoint, headers=self.headers_shopify)
 
                 # Check if the delete request was successful (status code 200)
@@ -313,7 +337,41 @@ class shopify_printify():
         else:
             print(f"Error: {response.status_code} - {response.text}")
 
-    def reset_collections(self,teams):
+    def reset_collections(self,teams=None):
         self.delete_collections()
-        self.create_collections(teams)
+        if self.version == 'cfb':
+            self.create_collections_cfb(teams)
+        elif self.version == 'rand':
+            self.create_collections_rand(teams)
+
+    def set_prices(self, new_price):
+        if new_price/100 < 15:
+            print(f'Pretty sure you didnt mean to set prices to {new_price/100}')
+            print('Remeber it is formatted as $$cc no decimal')
+        else:
+            print(f'about to set every item in the store to ${new_price/100}')
+            products_link = f"https://{self.post_dict[self.version]['shop_name']}.myshopify.com/admin/api/2024-01/products.json"
+            response = requests.get(products_link, headers=self.headers_shopify)
+            products = response.json()['products']
+
+            for product in products:
+                print(f'Updating {product["id"]}')
+                # Update each variant's price
+                for variant in product['variants']:
+                    print(variant["price"])
+                    if int(float(variant["price"])) == int(new_price):
+                        print('price already there')
+                    else:
+                        variant_id = variant['id']
+                        update_url = f"https://{self.post_dict[self.version]['shop_name']}.myshopify.com/admin/api/2024-01/variants/{variant_id}.json"
+                        update_data = {"variant": {"id": variant_id, "price": new_price}}
+                        resp = requests.put(update_url, json=update_data, headers=self.headers_shopify)
+                        if resp.status_code == 200:
+                            time.sleep(0.5)
+                        else:
+                            print('fail')
+                            print(resp.status_code)
+                            print(resp.text)
+                print('success')
+
 

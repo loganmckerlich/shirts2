@@ -1,8 +1,13 @@
 # this is stuff for posting to shop
 base_url : "https://api.printify.com/v1"
-shop_id : 13647323
+cfb:
+  shop_id : 13947493
+  shop_name: '70f8b8-5'
+rand:
+  shop_id : 13947121
+  shop_name : '56dc74-2'
 title: 'test'
-price: 2000
+price: 2199
 description: 'this a test'
 tags: 'this,a,test'
 blueprint_id: 6
@@ -13,11 +18,8 @@ variant_ids:
   - 12072
   - 12073
   - 12074
-  # - 12075
   - 12100
   - 12101
   - 12102
   - 12103
   - 12104
-  # - 12105
-shop_name: '70f8b8-5'

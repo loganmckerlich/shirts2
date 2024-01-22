@@ -1,43 +1,36 @@
 import json
 import requests
-from datetime import datetime as dt
 from PIL import Image
+from openai import OpenAI
 
+def dalle_image(client,prompt):
+    response = client.images.generate(
+    model="dall-e-3",
+    prompt=prompt,
+    size="1024x1024",
+    quality="standard",
+    n=1,
+    )
 
-def generate_main(game_id, sfx, prompt, sdapi, test=True):
+    image_url = response.data[0].url
+
+    image = Image.open(requests.get(image_url, stream=True).raw)
+    return image
+
+def generate_main(prompt, dalle_key, test=True):
     if test:
         print("using saved image because test mode")
         main_image = Image.open(r"test3.png")
     else:
-        url = "https://stablediffusionapi.com/api/v3/text2img"
-        payload = json.dumps(
-            {
-                "key": sdapi,
-                "prompt": prompt,
-                "negative_prompt": None,
-                "width": "512",
-                "height": "512",
-                "samples": "1",
-                "num_inference_steps": "20",
-                "seed": None,
-                "guidance_scale": 7.5,
-                "safety_checker": "yes",
-                "multi_lingual": "no",
-                "panorama": "no",
-                "self_attention": "no",
-                "upscale": "no",
-                "embeddings_model": None,
-                "webhook": None,
-                "track_id": None,
-            }
-        )
+        client = OpenAI(api_key=dalle_key)
 
-        headers = {"Content-Type": "application/json"}
+        try:
+            main_image = dalle_image(client,prompt)
+        except Exception as e:
+            print(prompt)
+            print('failed to generate image, will skip')
+            print(e)
+            return None
 
-        response = requests.post(url, headers=headers, data=payload)
-
-        # output[0] is a png
-        img = json.loads(response.text)["output"][0]
-        main_image = Image.open(requests.get(img, stream=True).raw)
 
     return main_image
