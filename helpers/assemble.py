@@ -88,7 +88,7 @@ def build_design(config, test=False):
     bg = ImageOps.expand(bg, border=1, fill="black")
 
     main_image = generate_main(
-        prompt, config["dalle_key"], test=True
+        prompt, config["dalle_key"], test=test
     ).resize((iw, ih))
 
     if main_image == None:
@@ -219,10 +219,9 @@ def build_design(config, test=False):
 
 def no_caption_image(design_config,main_image):
     bg = Image.new("RGBA", (design_config['W'], design_config['H']))
-    bg = ImageOps.expand(bg, border=1, fill="black")
 
     offset = ((design_config['W'] - design_config['iw']) // 2, 0)
-    main_image.resize((design_config['iw'], design_config['ih']))
+    main_image=main_image.resize((design_config['iw'], design_config['ih']))
     bg.paste(main_image, offset)
 
     return bg

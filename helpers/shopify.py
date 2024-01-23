@@ -344,6 +344,34 @@ class shopify_printify():
         elif self.version == 'rand':
             self.create_collections_rand(teams)
 
+    # this doesnt work
+    # def delete_all(self):
+    #     confirmation = input(f'About to delete all items from store {self.version}, proceed? [y/n]').lower()
+    #     if confirmation == 'y':
+        #     print('goodbye everything')
+        #     products_link = f"https://{self.post_dict[self.version]['shop_name']}.myshopify.com/admin/api/2024-01/products.json"
+        #     response = requests.get(products_link, headers=self.headers_shopify)
+        #     products = response.json()['products']
+
+        #     # Delete each product
+        #     for product in products:
+        #         product_id = product['id']
+        #         # unpublish
+        #         unpublish_url = f"https://{self.post_dict[self.version]['shop_name']}.myshopify.com/admin/api/2024-01/products/{product_id}"
+        #         unpublish_data = {"published": False}
+        #         unpub = requests.put(unpublish_url, json=unpublish_data, headers=self.headers_printify)
+        #         if unpub.status_code==200:
+            
+        #             delete_url = f"https://{self.post_dict[self.version]['shop_name']}.myshopify.com/admin/api/2024-01/products/{product_id}"
+        #             resp = requests.delete(delete_url, headers=self.headers_printify)
+        #             if resp.status_code != 200:
+        #                 print('failure to delete')
+        #                 print(resp.text)
+        #         else:
+        #             print('failure to unpublish')
+        #             print(unpub.text)
+        # else:
+        #     print('aborted')
     def set_prices(self, new_price):
         if new_price/100 < 15:
             print(f'Pretty sure you didnt mean to set prices to {new_price/100}')

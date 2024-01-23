@@ -10,16 +10,17 @@ title: 'test'
 price: 2199
 description: 'this a test'
 tags: 'this,a,test'
-blueprint_id: 6
-print_provider_id: 87
+blueprint_id: 77
+print_provider_id: 99
 variant_ids:
-  - 12070
-  - 12071
-  - 12072
-  - 12073
-  - 12074
-  - 12100
-  - 12101
-  - 12102
-  - 12103
-  - 12104
+  - 32902
+  - 32903
+  - 32904
+  - 32905
+  - 32906
+  - 32910
+  - 32911
+  - 32912
+  - 32913
+  - 32914
+

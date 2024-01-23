@@ -76,17 +76,14 @@ def organize_store(version):
     ify_user.reset_collections(team_names)
     
 if __name__ == "__main__":
-    # parser = argparse.ArgumentParser()
-    # parser.add_argument('-p','--prompt', help='prompt for design, mascot will be replaced with the mascot from every school',required=True, dest='p')
-    # parser.add_argument('-t','--title', help='what to name',required=True, dest='t')
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-p','--prompt', help='prompt for design, mascot will be replaced with the mascot from every school',required=True, dest='p')
+    parser.add_argument('-t','--title', help='what to name',required=True, dest='t')
 
-    # args = parser.parse_args()
+    args = parser.parse_args()
 
-    # prompted_run(args.p,title = args.t, test=False)
-    # print(f'Sleeping for 5 mins before organizing store to give time for images to upload')
-    # time.sleep(60*5)
-    # organize_store('rand')
+    prompted_run(args.p,title = args.t, test=False)
+    print(f'Sleeping for 5 mins before organizing store to give time for images to upload')
+    time.sleep(60*5)
+    organize_store('rand')
     
-    design_config,shop_config = hf.get_config('rand')
-    ify_user = hf.shopify_printify(shop_config,'rand')
-    ify_user.set_prices(2199)
