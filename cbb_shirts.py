@@ -60,12 +60,7 @@ def organize_store(version):
     # delete all my collections and rebuild them with all products
     ify_user.reset_collections(team_names)
 
-
-
-
-
-
 if __name__ == "__main__":
-    daily_run(test=False,fake_date=pd.to_datetime('04-03-2023'),limit=3)
-    time.sleep(60*5)
+    # daily_run(test=False,fake_date=pd.to_datetime('04-03-2023'),limit=3)
+    # time.sleep(60*5)
     organize_store('cbb')

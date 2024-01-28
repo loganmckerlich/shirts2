@@ -100,11 +100,6 @@ class shopify_printify():
                 print(response1.text)
                 print(response1.status_code)
 
-            # update cover image - this aint working, I think maybe 
-            # I need to pause long enough for everyhtin to load before I change default
-            # print('Trying to update cover image, this is untested')
-            # self.update_images(self.post_dict["title"])
-
             if publish:
 
                 # this part does the publishing
@@ -223,11 +218,35 @@ class shopify_printify():
 
                 resp = requests.put(url2, headers = self.headers_printify, json = new_data)
                 if resp.status_code == 200:
-                    print('Item cover image set to back - allegedly')
+                    print('Item cover image set to back')
                 else:
                     print('Failed to update cover image')
                     print(resp.status_code)
         
+    def update_images2(self):
+        """
+        uses graphql to switch image 3 and image 1
+        https://shopify.dev/docs/apps/online-store/media/products#step-3-retrieve-media-objects
+        """
+
+        # now that I have the images I can reorder them
+        url = f"https://{self.post_dict[self.version]['shop_name']}.myshopify.com/admin/api/2024-01/graphql.json"
+
+
+        body = [
+            {
+                id: images[2],'newPosition': "0"
+            },
+            {
+                id: images[0],'newPosition': "2"
+            }
+            ]
+
+
+        response = requests.post(url=url, json={"query": json.dumps(body)})
+        print("response status code: ", response.status_code)
+        if response.status_code == 200:
+            print("response : ", response.content)
 
     def create_week_collections(self,response1):
 
@@ -276,7 +295,6 @@ class shopify_printify():
         for product in response1.json()["products"]:
             # my desc has team wrapped in || this prevents kansas for trigger kansas and kansasa state etc
             round = product["body_html"].split('ROUND:')[-1]
-            print(round)
             if round not in round_content.keys():
                 round_content[round] = [product["id"]]
             else:
@@ -348,7 +366,7 @@ class shopify_printify():
             if len(id_list)>0:
                 time.sleep(0.75)
                 coll_name = str(dt.date.today().year)+' '+round
-                coll_name = coll_name.split('<')[0]
+                coll_name = coll_name.split('<')[0].replace('|','')
 
                 self.post_collection(id_list,coll_name,collection_link)
 
@@ -385,7 +403,8 @@ class shopify_printify():
 
                 # Check if the delete request was successful (status code 200)
                 if delete_response.status_code == 200:
-                    print(f"Collection with ID {collection_id} deleted successfully.")
+                    # print(f"Collection with ID {collection_id} deleted successfully.")
+                    pass
                 else:
                     print(f"Error deleting collection {collection_id}: {delete_response.status_code} - {delete_response.text}")
         else:
