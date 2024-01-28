@@ -4,6 +4,7 @@ import math
 import json
 import requests
 from PIL import Image
+from unidecode import unidecode
 
 
 def new_football_season():
@@ -63,12 +64,14 @@ def parse_game(game, teams):
             "longn": f"University Of {home.name.values[0]} {home.mascot.values[0]}",
             "color": home.color.values[0],
             "logo": home.logos.values[0],
+            "mascot":home.mascot.values[0]
         },
         "away_team": {
             "shortn": away.name.values[0],
             "longn": f"University Of {away.name.values[0]} {away.mascot.values[0]}",
             "color": away.color.values[0],
             "logo": away.logos.values[0],
+            "mascot":away.mascot.values[0]
         },
         "sport": "football",
         "game": {
@@ -80,6 +83,55 @@ def parse_game(game, teams):
     }
     return game_config
 
+def parse_cbb_game(game,team_info):
+    team_info['joiner'] = team_info.name.apply(lambda x:unidecode(x).lower())
+    team1_joiner = unidecode(game.team1).lower()
+    team1_info = team_info.loc[team_info.joiner==team1_joiner].to_dict('records')
+    if len(team1_info)<1:
+        team1_info = team_info.loc[team_info.abrev==game.team1].to_dict('records')
+    if len(team1_info)<1:
+        team1_info = [{
+            'color':'#FFFFFF',
+            'mascot':None,
+            'logos':None,
+            'long_name':game.team1
+        }]
+    team2_joiner = unidecode(game.team2).lower()
+    team2_info = team_info.loc[team_info.joiner==team2_joiner].to_dict('records')
+    if len(team2_info)<1:
+        team2_info = team_info.loc[team_info.abrev==game.team2].to_dict('records')
+    if len(team2_info)<1:
+        team2_info = [{
+            'color':'#FFFFFF',
+            'mascot':None,
+            'logos':None,
+            'long_name':game.team2
+        }]
+    team1_info = team1_info[0]
+    team2_info = team2_info[0]
+
+    game_out={
+        'team1':{
+            'name':game.team1,
+            'rank':game.team1Rank,
+            'score':game.team1Score,
+            'color':team1_info['color'],
+            'mascot':team1_info['mascot'],
+            'logo':team1_info['logos'],
+            'long_name':team1_info['long_name']
+        },
+        'team2':{
+            'name':game.team2,
+            'rank':game.team2Rank,
+            'score':game.team2Score,
+            'color':team2_info['color'],
+            'mascot':team2_info['mascot'],
+            'logo':team2_info['logos']
+        },
+        'date':pd.to_datetime(game.date_).strftime(format="%d %b, %Y"),
+        'desc':game.Desc
+    }
+    return game_out
 
 def combine_configs(base_config, game_config):
     base_config.update(game_config)

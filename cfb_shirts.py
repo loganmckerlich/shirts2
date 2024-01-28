@@ -7,7 +7,7 @@ def process_game(game,teams,design_config,test,shop_config,pref,ify_user):
     game_config = hf.parse_game(game,teams)
     game_config['game_id'] = game
     config = hf.combine_configs(design_config,game_config)
-    design,text = hf.build_design(config,test=False)
+    design,text = hf.build_cfb(config,test=False)
 
     if design is not None:
         if not test:
