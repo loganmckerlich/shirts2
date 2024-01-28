@@ -3,6 +3,7 @@ import base64
 from io import BytesIO
 import json
 import time
+import datetime as dt
 
 class shopify_printify():
     def __init__(self,post_dict,version):
@@ -81,7 +82,7 @@ class shopify_printify():
                                         "id": text_id,
                                         "x": 0.25,
                                         "y": 0.25,
-                                        "scale": 0.3,
+                                        "scale": 0.4,
                                         "angle": 0,
                                     }
                                 ],
@@ -248,16 +249,42 @@ class shopify_printify():
         teams should just be a list of every team
         '''
         team_content={}
+        'Kansas State Vs Florida Atlantic'
         
-        for team in teams:
-            team_content[team] = []
-            for product in response1.json()["products"]:
-                # my desc has team wrapped in || this prevents kansas for trigger kansas and kansasa state etc
-                if '||'+team+'||' in product["body_html"]:
-                    team_content[team].append(product["id"])
+        for product in response1.json()["products"]:
+            # my desc has team wrapped in || this prevents kansas for trigger kansas and kansasa state etc
+            team1 = product["title"].split(' Vs ')[0]
+            team2 = product["title"].split(' Vs ')[1].split('.')[0]
+            if team1 not in team_content.keys():
+                team_content[team1] = [product["id"]]
+            else:
+                team_content[team1].append(product["id"])
+
+            if team2 not in team_content.keys():
+                team_content[team2] = [product["id"]]
+            else:
+                team_content[team2].append(product["id"])
 
         # this returns a dict of team:[ids for collection]
         return team_content
+    
+    def create_round_collections(self,response1):
+        '''
+        '''
+        round_content={}
+        
+        for product in response1.json()["products"]:
+            # my desc has team wrapped in || this prevents kansas for trigger kansas and kansasa state etc
+            round = product["body_html"].split('ROUND:')[-1]
+            print(round)
+            if round not in round_content.keys():
+                round_content[round] = [product["id"]]
+            else:
+                round_content[round].append(product["id"])
+
+        # this returns a dict of team:[ids for collection]
+        return round_content
+    
     def post_collection(self,id_list,title,link):
             collects = [{"product_id": x} for x in id_list]
             collection_data = {
@@ -273,6 +300,7 @@ class shopify_printify():
                 print(f"collection created {title}")
             else:
                 print("could not create collection")
+                print(collects)
                 print(json.loads(response1.text))
     
     def create_collections_cfb(self,teams):
@@ -297,6 +325,32 @@ class shopify_printify():
             if len(id_list)>0:
                 time.sleep(0.75)
                 self.post_collection(id_list,team,collection_link)
+
+    def create_collections_cbb(self, teams):
+        products_link = f"https://{self.post_dict[self.version]['shop_name']}.myshopify.com/admin/api/2024-01/products.json"
+
+        response1 = requests.get(products_link, headers=self.headers_shopify)
+
+        team_content = self.create_team_collections(response1,teams)
+
+        round_content = self.create_round_collections(response1)
+
+        collection_link = f"https://{self.post_dict[self.version]['shop_name']}.myshopify.com/admin/api/2023-04/custom_collections.json"
+
+        for team in team_content.keys():
+            id_list = team_content[team]
+            if len(id_list)>0:
+                time.sleep(0.75)
+                self.post_collection(id_list,team,collection_link)
+
+        for round in round_content.keys():
+            id_list = round_content[round]
+            if len(id_list)>0:
+                time.sleep(0.75)
+                coll_name = str(dt.date.today().year)+' '+round
+                coll_name = coll_name.split('<')[0]
+
+                self.post_collection(id_list,coll_name,collection_link)
 
     def create_collections_rand(self,teams):
         products_link = f"https://{self.post_dict[self.version]['shop_name']}.myshopify.com/admin/api/2024-01/products.json"
@@ -343,6 +397,8 @@ class shopify_printify():
             self.create_collections_cfb(teams)
         elif self.version == 'rand':
             self.create_collections_rand(teams)
+        elif self.version == 'cbb':
+            self.create_collections_cbb(teams)
 
     # this doesnt work
     # def delete_all(self):

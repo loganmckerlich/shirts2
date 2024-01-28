@@ -112,7 +112,7 @@ def parse_cbb_game(game,team_info):
 
     game_out={
         'team1':{
-            'name':game.team1,
+            'name':game.team1.replace('(','').replace(')',''),
             'rank':game.team1Rank,
             'score':game.team1Score,
             'color':team1_info['color'],
@@ -121,7 +121,7 @@ def parse_cbb_game(game,team_info):
             'long_name':team1_info['long_name']
         },
         'team2':{
-            'name':game.team2,
+            'name':game.team2.replace('(','').replace(')',''),
             'rank':game.team2Rank,
             'score':game.team2Score,
             'color':team2_info['color'],
@@ -155,9 +155,33 @@ def generate_t_d_t(game_config):
         + f"AI image representing the football game "
         + mid
         + f"between {game_config['home_team']['shortn']} and {game_config['away_team']['shortn']}, {mid2} {game_config['game']['date']}"
-        + f"||{game_config['home_team']['shortn']}|| ||{game_config['away_team']['shortn']}||"
+        + f"/n||{game_config['home_team']['shortn']}|| ||{game_config['away_team']['shortn']}||"
     )
     tags = f"football,college,sports,{game_config['home_team']['shortn']},{game_config['away_team']['shortn']}"
+
+    return title, description, tags
+
+def generate_t_d_t_cbb(game_config):
+    title = f"{game_config['team1']['name']} vs {game_config['team2']['name']}. {game_config['date']}"
+    if game_config["team1"]["score"] is not None:
+        before = ""
+        mid = f"{game_config['team1']['score']} to {game_config['team2']['score']} "
+        mid2 = 'played at '
+    else:
+        before = "Generated before the game has been played. "
+        mid = ""
+        mid2 = 'to be played '
+    
+
+    description = (
+        before
+        + f"AI image representing the football game "
+        + mid
+        + f"between {game_config['team1']['name']} and {game_config['team2']['name']}, {mid2} {game_config['date']}"
+        + f"\n||{game_config['team1']['name']}|| ||{game_config['team2']['name']}||"
+        + f"ROUND: ||{game_config['desc']}||"
+    )
+    tags = f"basketball,marchmadness,march,madness,college,sports,{game_config['team1']['name']},{game_config['team2']['name']}"
 
     return title, description, tags
 

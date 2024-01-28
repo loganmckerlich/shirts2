@@ -27,23 +27,30 @@ class cfbp_handler:
 
         all_team_info = []
         for team in cfbd_response:
-            team_id = team.id
-            name = team.school.replace(")", "").replace("(", "")
-            long_name = team.alt_name_3
-            abrev = team.abbreviation
-            color = team.color
-            alt_color = team.alt_color
-            mascot = team.mascot
-            division = team.classification
-            if type(team.logos) != list:
-                # this means no logo
-                logos = "https://github.com/klunn91/team-logos/blob/master/NCAA/_NCAA_logo.png?raw=true"
-            else:
-                logos = ast.literal_eval(str(team.logos))[0]
+            # some schools are in cfbd with minimal data, but i want more for cbb
+            if team.school.lower() not in ['gonzaga']:
+                team_id = team.id
+                name = team.school.replace(")", "").replace("(", "")
+                long_name = team.alt_name_3
+                abrev = team.abbreviation
+                color = team.color
+                alt_color = team.alt_color
+                mascot = team.mascot
+                division = team.classification
+                if type(team.logos) != list:
+                    # this means no logo
+                    logos = "https://github.com/klunn91/team-logos/blob/master/NCAA/_NCAA_logo.png?raw=true"
+                else:
+                    logos = ast.literal_eval(str(team.logos))[0]
 
-            team_info = [team_id, name, abrev, color, alt_color, mascot, logos, division,long_name]
-            all_team_info.append(team_info)
-
+                team_info = [team_id, name, abrev, color, alt_color, mascot, logos, division,long_name]
+                all_team_info.append(team_info)
+        
+        # additional schools that are cbb but not cfb, manually add some big ones
+        uconn = [np.nan,"Uconn","UCONN","#000E2F",None,"Huskies","https://1000logos.net/wp-content/uploads/2017/08/uconn-huskies-logo.png",None,None]
+        zags = [np.nan,"Gonzaga","GU","#041E42",None,"Bulldogs","https://static.wixstatic.com/media/7383ad_b5ee32ef2d4340d4822c1a448e961518~mv2_d_1500_1500_s_2.png/v1/fill/w_1500,h_1500,al_c/Gonzaga.png",None,None]
+        all_team_info.append(uconn)
+        all_team_info.append(zags)
         all_teams_df = pd.DataFrame(
             all_team_info,
             columns=["id", "name", "abrev", "color", "alt_color", "mascot", "logos", "division", "long_name"],

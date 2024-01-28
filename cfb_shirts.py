@@ -2,30 +2,30 @@ import helpers as hf
 import datetime as dt
 import time
 
-def process_game(game,teams,design_config,test,shop_config,pref,ify_user):
+def process_game(game,teams,main_config,test,pref,ify_user):
     game = game.to_dict('records')[0]
     game_config = hf.parse_game(game,teams)
     game_config['game_id'] = game
-    config = hf.combine_configs(design_config,game_config)
+    config = hf.combine_configs(main_config,game_config)
     design,text = hf.build_cfb(config,test=False)
-
-    if design is not None:
-        if not test:
+    if design != 'Prompt Failed':
+        if design is not None:
             title,description,tags=hf.generate_t_d_t(game_config)
             title = title + ' ' + pref + '-game'
-            shop_config['image'] = design
-            shop_config['title'] = title.title()
-            shop_config['description'] =  description
-            shop_config['tags'] =  tags
-            shop_config['design'] = design
-            shop_config['text'] = text
+            main_config['image'] = design
+            main_config['title'] = title.title()
+            main_config['description'] =  description
+            main_config['tags'] =  tags
+            main_config['design'] = design
+            main_config['text'] = text
             ify_user.post(publish=True)
-    return title
+        return title
 
 def monday_run(test=False, limit = None, fake_date= None):
     design_config,shop_config = hf.get_config('cfb')
-    ify_user = hf.shopify_printify(shop_config,'cfb')
-    cfbd_loader = hf.cfbp_handler(design_config['cfbd_api'],fake_date=fake_date)
+    main_config = hf.combine_configs(design_config,shop_config)
+    ify_user = hf.shopify_printify(main_config,'cfb')
+    cfbd_loader = hf.cfbp_handler(main_config['cfbd_api'],fake_date=fake_date)
     yr = dt.date.today().year
 
     # refresh teams 
@@ -49,14 +49,14 @@ def monday_run(test=False, limit = None, fake_date= None):
         print('new games')
         for game_id in to_do_new:
             game = all_games.loc[all_games.id == game_id]
-            title = process_game(game,teams,design_config,test,shop_config,pref='post',ify_user = ify_user)
+            title = process_game(game,teams,main_config,test,pref='post',ify_user = ify_user)
             print(f'Created {title}')
 
     if len(to_do_upcoming)>0:
         print('upcoming games')
         for game_id in to_do_upcoming:
             game = all_games.loc[all_games.id == game_id]
-            title = process_game(game,teams,design_config,test,shop_config,pref='pre',ify_user = ify_user)
+            title = process_game(game,teams,main_config,test,pref='pre',ify_user = ify_user)
             print(f'Created {title}')
 
 def organize_store(version):
@@ -73,4 +73,5 @@ def organize_store(version):
 if __name__ == "__main__":
     # this should fill in mich v uw
     monday_run(test=False,fake_date='01-01-2024',limit=None)
+    time.sleep(60*5)
     organize_store('cfb')

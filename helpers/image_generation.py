@@ -18,7 +18,7 @@ def dalle_image(client,prompt, v):
     image = Image.open(requests.get(image_url, stream=True).raw)
     return image
 
-def generate_main(prompt, dalle_key, test=True, dalle = 3):
+def generate_main(prompt, dalle_key, test=True, dalle = 3, retry=True):
     if test:
         print("using saved image because test mode")
         main_image = Image.open(r"test3.png")
@@ -29,7 +29,10 @@ def generate_main(prompt, dalle_key, test=True, dalle = 3):
             main_image = dalle_image(client,prompt,v=dalle)
         except Exception as e:
             print(prompt)
-            print('failed to generate image, will skip')
+            print('failed to generate image')
+            if retry:
+                generate_main(prompt, dalle_key, test, dalle, retry=False)
+            print('Retry failed too, will return none')
             print(e)
             return None
 
