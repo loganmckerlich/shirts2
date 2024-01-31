@@ -59,7 +59,11 @@ def prompt_engineer(sport,team1,team2,mascot1 = None, mascot2=None):
         'cutout',
         'claymation Wallace and Grommet',
         'Dragon Ball Z Goku vs Saitama',
-        'Minecraft'
+        'Minecraft',
+        'Samurai Battle',
+        'Renaissance Painting',
+        'Charcoal Sketch',
+        'Oil Painting'
     ]
     mystyle = random.choice(styles)
     prompt = f"""

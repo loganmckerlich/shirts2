@@ -4,6 +4,7 @@ from io import BytesIO
 import json
 import time
 import datetime as dt
+import pandas as pd
 
 class shopify_printify():
     def __init__(self,post_dict,version):
@@ -17,6 +18,74 @@ class shopify_printify():
             "Content-Type": "application/json",
         }
         self.version = version
+        self.big_body = """
+            {
+            product(id:"gid://shopify/Product/prod_id") {
+                title
+                media(first:5) {
+                edges {
+                    node {
+                    ... fieldsForMediaTypes
+                    }
+                }
+                }
+            }
+            }
+
+            fragment fieldsForMediaTypes on Media {
+            alt
+            mediaContentType
+            preview {
+                image {
+                id
+                altText
+                url
+                }
+            }
+            status
+            ... on Video {
+                id
+                sources {
+                format
+                height
+                mimeType
+                url
+                width
+                }
+                originalSource {
+                format
+                height
+                mimeType
+                url
+                width
+                }
+            }
+            ... on ExternalVideo {
+                id
+                host
+                embeddedUrl
+            }
+            ... on Model3d {
+                sources {
+                format
+                mimeType
+                url
+                }
+                originalSource {
+                format
+                mimeType
+                url
+                }
+            }
+            ... on MediaImage {
+                id
+                image {
+                altText
+                url
+                }
+            }
+            }
+            """
 
     def post(self, publish=False):
         upload_url = f"{self.post_dict['base_url']}/uploads/images.json"
@@ -130,7 +199,6 @@ class shopify_printify():
             print(img_response.status_code)
             print(img_response.text)
 
-
     def image_module(item):
         url_title = item["title"].replace(" ","-").replace(",","").replace(".","").lower()
 
@@ -180,73 +248,83 @@ class shopify_printify():
         'is_selected_for_publishing': True}
         ]
         return new_base
-
-    def update_images(self,to_do):
-        """
-
-        *** I think I need to do this before publishing
-        *** Have to stop now but I think im on the right track
-        *** possibly I have to wait a while after posting before images are uploaded and I can change them. try this
-        *** try breaking out the post/edit/publish into seperate functions & test in nb
-
-        to do is a list of title of shirt I want to change images for
-
-        This aint working but I feel like it should
         
-        Following api reference from the update product thing here
-        https://developers.printify.com/#products
-
-        Could probably post and then update a bunch of images on shopify, but thats aggressive
-        https://shopify.dev/docs/api/admin-rest/2023-10/resources/product-image#post-products-product-id-images
-        """
-
-        # get products
-        product_url = f"{self.post_dict['base_url']}/shops/{self.post_dict[self.version]['shop_id']}/products.json"
-        response = requests.get(product_url, headers = self.headers_printify)
-
-        data = json.loads(response.text)
-
-        for item in data['data']:
-            if item['title'] in [to_do]:
-                print(f'Found {item["title"]} in printify')
-                new_data = item.copy()
-                new_data['images'][0]['is_default'] = False
-                new_data['images'][1]['is_default'] = True
-                # new_images = self.image_module(item)
-
-                url2 = f'{self.post_dict["base_url"]}/shops/{self.post_dict[self.version]["shop_id"]}/products/{item["id"]}.json'
-
-                resp = requests.put(url2, headers = self.headers_printify, json = new_data)
-                if resp.status_code == 200:
-                    print('Item cover image set to back')
-                else:
-                    print('Failed to update cover image')
-                    print(resp.status_code)
+    def recursive_get_prods(self,since_id=0,all_products=[]):
+        url = f"https://{self.post_dict[self.version]['shop_name']}.myshopify.com/admin/api/2023-01/products.json?since_id={since_id}"
+        response = requests.get(url=url,headers = self.headers_shopify)
+        products = json.loads(response.text)['products']
+        if len(products)==0:
+            return all_products
+        else:
+            # new products were found, there could be more in the next iteration
+            all_products.extend(products)
+            return self.recursive_get_prods(since_id=products[-1]["id"],all_products=all_products)
         
-    def update_images2(self):
-        """
-        uses graphql to switch image 3 and image 1
-        https://shopify.dev/docs/apps/online-store/media/products#step-3-retrieve-media-objects
-        """
+    def update_images2(self,prods):
+        for prod in prods:
+            try:
+                prod_id = prod['id']
+                prod_gql = prod['admin_graphql_api_id']
+                body = self.big_body.replace('prod_id',str(prod_id))
+                # now that I have the images I can reorder them
+                url = f"https://{self.post_dict[self.version]['shop_name']}.myshopify.com/admin/api/2024-01/graphql.json"
+                # from this response i can get my images
+                response = requests.post(url=url,headers = self.headers_shopify, json = {"query":body})
 
-        # now that I have the images I can reorder them
-        url = f"https://{self.post_dict[self.version]['shop_name']}.myshopify.com/admin/api/2024-01/graphql.json"
+                images = json.loads(response.text)['data']['product']['media']['edges']
+                image0 = images[0]['node']['id']
+                image2 = images[2]['node']['id']
+
+                q="""
+                mutation reorderProductMedia {
+                    productReorderMedia(
+                    id: "gidp",
+                    moves: [
+                    {
+                        id: "gid0",
+                        newPosition: "2"
+                    },
+                    {
+                        id: "gid2",
+                        newPosition: "0"
+                    }
+                    ]) {
+                    job {
+                        id
+                        done
+                    }
+                    mediaUserErrors {
+                        code
+                        field
+                        message
+                    }
+                    }
+                }
+                """.replace('gidp',prod_gql).replace('gid0',image0).replace('gid2',image2)
+
+                graphql_url =f"https://{self.post_dict[self.version]['shop_name']}.myshopify.com/admin/api/2023-04/graphql.json"
+
+                response = requests.post(graphql_url, headers=self.headers_shopify, json={'query': q})
+            except:
+                print('failed to update cover')
 
 
-        body = [
-            {
-                id: images[2],'newPosition': "0"
-            },
-            {
-                id: images[0],'newPosition': "2"
-            }
-            ]
+    def cover_image_wrapper(self):
+        # redo cover image for all images made today
+        all_prods = self.recursive_get_prods()
+        prods=[]
+        for prod in all_prods:
+            if (pd.to_datetime(prod['published_at']).date() == dt.date.today()):
+                dif = (pd.to_datetime(prod['published_at']) - pd.to_datetime(prod['updated_at']))
+                seconds_in_day = 24 * 60 * 60
+                dif_s = (int(dif.days) * int(seconds_in_day))+ dif.seconds
+                hours = dif_s/(60*60)
+                if hours < 2:
+                    # if there are more than 2 hours between publish and update it has probably been updated already
+                    prods.append(prod)
 
-
-        response = requests.post(url=url, json={"query": json.dumps(body)})
-        print("response status code: ", response.status_code)
-        if response.status_code == 200:
-            print("response : ", response.content)
+        self.update_images2(prods)
+        print(f'cover image set to back of shirt for {len(prods)} shirts')
 
     def create_week_collections(self,response1):
 
@@ -344,14 +422,15 @@ class shopify_printify():
                 time.sleep(0.75)
                 self.post_collection(id_list,team,collection_link)
 
-    def create_collections_cbb(self, teams):
+    def create_collections_cbb(self, teams, rounds = False):
         products_link = f"https://{self.post_dict[self.version]['shop_name']}.myshopify.com/admin/api/2024-01/products.json"
 
         response1 = requests.get(products_link, headers=self.headers_shopify)
 
         team_content = self.create_team_collections(response1,teams)
 
-        round_content = self.create_round_collections(response1)
+        if rounds:
+            round_content = self.create_round_collections(response1)
 
         collection_link = f"https://{self.post_dict[self.version]['shop_name']}.myshopify.com/admin/api/2023-04/custom_collections.json"
 
@@ -361,14 +440,15 @@ class shopify_printify():
                 time.sleep(0.75)
                 self.post_collection(id_list,team,collection_link)
 
-        for round in round_content.keys():
-            id_list = round_content[round]
-            if len(id_list)>0:
-                time.sleep(0.75)
-                coll_name = str(dt.date.today().year)+' '+round
-                coll_name = coll_name.split('<')[0].replace('|','')
+        if rounds:
+            for round in round_content.keys():
+                id_list = round_content[round]
+                if len(id_list)>0:
+                    time.sleep(0.75)
+                    coll_name = str(dt.date.today().year)+' '+round
+                    coll_name = coll_name.split('<')[0].replace('|','')
 
-                self.post_collection(id_list,coll_name,collection_link)
+                    self.post_collection(id_list,coll_name,collection_link)
 
     def create_collections_rand(self,teams):
         products_link = f"https://{self.post_dict[self.version]['shop_name']}.myshopify.com/admin/api/2024-01/products.json"
@@ -419,34 +499,6 @@ class shopify_printify():
         elif self.version == 'cbb':
             self.create_collections_cbb(teams)
 
-    # this doesnt work
-    # def delete_all(self):
-    #     confirmation = input(f'About to delete all items from store {self.version}, proceed? [y/n]').lower()
-    #     if confirmation == 'y':
-        #     print('goodbye everything')
-        #     products_link = f"https://{self.post_dict[self.version]['shop_name']}.myshopify.com/admin/api/2024-01/products.json"
-        #     response = requests.get(products_link, headers=self.headers_shopify)
-        #     products = response.json()['products']
-
-        #     # Delete each product
-        #     for product in products:
-        #         product_id = product['id']
-        #         # unpublish
-        #         unpublish_url = f"https://{self.post_dict[self.version]['shop_name']}.myshopify.com/admin/api/2024-01/products/{product_id}"
-        #         unpublish_data = {"published": False}
-        #         unpub = requests.put(unpublish_url, json=unpublish_data, headers=self.headers_printify)
-        #         if unpub.status_code==200:
-            
-        #             delete_url = f"https://{self.post_dict[self.version]['shop_name']}.myshopify.com/admin/api/2024-01/products/{product_id}"
-        #             resp = requests.delete(delete_url, headers=self.headers_printify)
-        #             if resp.status_code != 200:
-        #                 print('failure to delete')
-        #                 print(resp.text)
-        #         else:
-        #             print('failure to unpublish')
-        #             print(unpub.text)
-        # else:
-        #     print('aborted')
     def set_prices(self, new_price):
         if new_price/100 < 15:
             print(f'Pretty sure you didnt mean to set prices to {new_price/100}')

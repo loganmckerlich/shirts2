@@ -2,6 +2,17 @@ from bs4 import BeautifulSoup
 import datetime as dt
 import requests
 import pandas as pd
+import numpy as np
+
+def cbb_cfb_exceptions(df):
+    """
+    there are some that dont match up from one source to the other, findd and try to fix
+    """
+    changes = {'Miami (FL)':'Miami'}
+
+    df = df.replace({"team1": changes})
+    df = df.replace({"team2": changes})
+    return df
 
 def get_day_bball_games(date_=dt.date.today()-dt.timedelta(days=1)):
     y,d,m = date_.year,date_.day,date_.month
@@ -44,5 +55,5 @@ def get_day_bball_games(date_=dt.date.today()-dt.timedelta(days=1)):
         game_rows.append([date_,team1_team,team1_rank,team1_score,
                       team2_team,team2_rank,team2_score,
                       desc])
-        
-    return pd.DataFrame(game_rows,columns = ['date_','team1','team1Rank','team1Score','team2','team2Rank','team2Score','Desc'])
+    df = pd.DataFrame(game_rows,columns = ['date_','team1','team1Rank','team1Score','team2','team2Rank','team2Score','Desc'])
+    return cbb_cfb_exceptions(df)

@@ -14,7 +14,8 @@ def process_game(game,teams,main_config,test,pref,ify_user):
     if design != 'prompt failed':
         if design is not None:
             title,description,tags=hf.generate_t_d_t_cbb(game_parsed)
-            title = title + ' ' + pref + '-game'
+            if pref == 'pre':
+                title = title + ' pre-game'
             main_config['image'] = design
             main_config['title'] = title.title()
             main_config['description'] =  description
@@ -24,7 +25,7 @@ def process_game(game,teams,main_config,test,pref,ify_user):
             ify_user.post(publish=True)
         return title
 
-def daily_run(test = False, fake_date=None, limit = None):
+def daily_run(test = False, fake_date=None, limit = None, do_yesterday=True):
     design_config,shop_config = hf.get_config('cbb')
     main_config = hf.combine_configs(design_config,shop_config)
     ify_user = hf.shopify_printify(main_config,'cbb')
@@ -46,21 +47,33 @@ def daily_run(test = False, fake_date=None, limit = None):
         yesterdays_games = yesterdays_games[:limit]
     if len(todays_games)>0:
         for i in range(len(todays_games)):
-            game=todays_games.iloc[i]
-            title = process_game(game,teams,main_config,test,pref='post',ify_user = ify_user)
-            print(f'Created {title}')
+            try:
+                game=todays_games.iloc[i]
+                title = process_game(game,teams,main_config,test,pref='post',ify_user = ify_user)
+                print(f'Created {title}')
+            except Exception as e:
+                print(f'Failed {title}')
+                print(e)
+    if do_yesterday:
+        if len(yesterdays_games)>0:
+            for i in range(len(yesterdays_games)):
+                try:
+                    game=yesterdays_games.iloc[i]
+                    title = process_game(game,teams,main_config,test,pref='post',ify_user = ify_user)
+                    print(f'Created {title}')
+                except Exception as e:
+                    print(f'Failed {title}')
+                    print(e)
+    print('5 m pause before store organizing')
+    time.sleep(60*5)
+    ify_user.cover_image_wrapper()
 
-def organize_store(version):
-    design_config,shop_config = hf.get_config(version)
-    ify_user = hf.shopify_printify(shop_config,version)
-    cfbd_loader = hf.cfbp_handler(design_config['cfbd_api'])
-    teams = cfbd_loader.get_team_info()
-
+    # organize store
     team_names = list(teams.name)
     # delete all my collections and rebuild them with all products
     ify_user.reset_collections(team_names)
 
+
+
 if __name__ == "__main__":
-    # daily_run(test=False,fake_date=pd.to_datetime('04-03-2023'),limit=3)
-    # time.sleep(60*5)
-    organize_store('cbb')
+    daily_run(test=False,fake_date=pd.to_datetime('03-19-2023'),do_yesterday=False)

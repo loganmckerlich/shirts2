@@ -61,9 +61,23 @@ def build_cbb(config, test=True):
 
     team1 = config["team1"]["name"]
 
+    rank1 = config["team1"]["rank"]
+
     team1color = config["team1"]["color"]
 
     team2 = config["team2"]["name"]
+
+    rank2 = config["team2"]["rank"]
+
+    if rank1 is not None:
+        team1r = ' #'+rank1[1:-1]+' '+team1
+    else:
+        team1r = ' '+team1
+
+    if rank2 is not None:
+        team2r = '#'+rank2[1:-1]+' '+team2+' '
+    else:
+        team2r = team2+' '
 
     team2color = config["team2"]["color"]
 
@@ -127,7 +141,7 @@ def build_cbb(config, test=True):
 
         img_draw = ImageDraw.Draw(bg)
 
-        mainfont = size_font_recur(img_draw, team1, team2, W, "Freshman", size=150)
+        mainfont = size_font_recur(img_draw, team1r, team2r, W, "Freshman", size=150)
 
         score_font = ImageFont.truetype(
             r"./fonts/Freshman.ttf", size=70, layout_engine=ImageFont.Layout.BASIC
@@ -136,14 +150,16 @@ def build_cbb(config, test=True):
         date_font = ImageFont.truetype(
             r"./fonts/Freshman.ttf", size=22, layout_engine=ImageFont.Layout.BASIC
         )
-
-        desc_font = simple_size_font_recur(img_draw, config['desc'], W, 'Universal_Serif', 150)
-
-        l1, t1, r1, b1 = img_draw.textbbox((0, img_h), team1, font=mainfont)
+        try:
+            desc_font = simple_size_font_recur(img_draw, config['desc'], W, 'Universal_Serif', 150)
+            no_desc=False
+        except:
+            no_desc=True
+        l1, t1, r1, b1 = img_draw.textbbox((0, img_h), team1r, font=mainfont)
 
         lv, tv, rv, bv = img_draw.textbbox((r1 + 5, img_h), "VS", font=mainfont)
 
-        l2, t2, r2, b2 = img_draw.textbbox((rv + 5, img_h), team2, font=mainfont)
+        l2, t2, r2, b2 = img_draw.textbbox((rv + 5, img_h), team2r, font=mainfont)
 
         _, _, wd, hd = img_draw.textbbox((0, 0), gamedate, font=date_font)
 
@@ -154,7 +170,7 @@ def build_cbb(config, test=True):
 
         img_draw.text(
             (l1, t1 + lh + 5),
-            team1,
+            team1r,
             team1color,
             font=mainfont,
             stroke_width=1,
@@ -172,7 +188,7 @@ def build_cbb(config, test=True):
 
         img_draw.text(
             (l2, t2 + lh + 5),
-            team2,
+            team2r,
             team2color,
             font=mainfont,
             stroke_width=1,
@@ -206,29 +222,30 @@ def build_cbb(config, test=True):
                 stroke_width=1,
                 stroke_fill="black",
             )
-
-            img_draw.text(
-                (l1,(bv + h2+ h1)),
-                config['desc'],
-                font=desc_font,
-                fill="black"
-            )
+            if not no_desc:
+                img_draw.text(
+                    (l1,(bv + h2+ h1)),
+                    config['desc'],
+                    font=desc_font,
+                    fill="black"
+                )
         else:
-            img_draw.text(
-                (l1,(bv + h2)),
-                config['desc'],
-                font=desc_font,
-                fill="black"
-            )
+            if not no_desc:
+                img_draw.text(
+                    (l1,(bv + h2)),
+                    config['desc'],
+                    font=desc_font,
+                    fill="black"
+                )
 
         text = Image.new("RGBA", (W, H))
 
         text_draw = ImageDraw.Draw(text)
 
         if config["team1"]["mascot"]is not None and  config["team2"]["mascot"] is not None:
-            game_text = f"{team1} {config['team1']['mascot']} Vs. {team2} {config['team2']['mascot']}\n{gamedate}"
+            game_text = f"{team1r} {config['team1']['mascot']}\n Vs.\n {team2r} {config['team2']['mascot']}\n {gamedate}"
         else:
-            game_text = f"{team1} Vs. {team2}\n{gamedate}"
+            game_text = f"{team1r}\n Vs.\n {team2r}\n {gamedate}"
 
         game_font = simple_size_font_recur(text_draw, game_text, W, "Universal_Serif", 75)
 

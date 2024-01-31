@@ -175,7 +175,7 @@ def generate_t_d_t_cbb(game_config):
 
     description = (
         before
-        + f"AI image representing the football game "
+        + f"AI image representing the basketball game "
         + mid
         + f"between {game_config['team1']['name']} and {game_config['team2']['name']}, {mid2} {game_config['date']}"
         + f"\n||{game_config['team1']['name']}|| ||{game_config['team2']['name']}||"
