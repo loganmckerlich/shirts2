@@ -65,6 +65,7 @@ def prompt_engineer(sport,team1,team2,mascot1 = None, mascot2=None):
         'Charcoal Sketch',
         'Oil Painting'
     ]
+
     mystyle = random.choice(styles)
     prompt = f"""
         Generate an image of the {team1} {mascot1} mascot fighting the {team2} {mascot2} mascot.

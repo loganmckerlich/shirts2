@@ -25,7 +25,7 @@ def process_game(game,teams,main_config,test,pref,ify_user):
             ify_user.post(publish=True)
         return title
 
-def daily_run(test = False, fake_date=None, limit = None, do_yesterday=True):
+def daily_run(test = False, fake_date=None, limit = None, do_yesterday=True, check_each = False):
     design_config,shop_config = hf.get_config('cbb')
     main_config = hf.combine_configs(design_config,shop_config)
     ify_user = hf.shopify_printify(main_config,'cbb')
@@ -48,9 +48,18 @@ def daily_run(test = False, fake_date=None, limit = None, do_yesterday=True):
     if len(todays_games)>0:
         for i in range(len(todays_games)):
             try:
-                game=todays_games.iloc[i]
-                title = process_game(game,teams,main_config,test,pref='post',ify_user = ify_user)
-                print(f'Created {title}')
+                if check_each:
+                    game=todays_games.iloc[i]
+                    print(game)
+                    a = input("proceed?")
+                    if a == 'yes':
+                        title = process_game(game,teams,main_config,test,pref='post',ify_user = ify_user)
+                        print(f'Created {title}')
+                    else:
+                        pass
+                else:
+                    title = process_game(game,teams,main_config,test,pref='post',ify_user = ify_user)
+                    print(f'Created {title}')
             except Exception as e:
                 print(f'Failed {title}')
                 print(e)
@@ -58,9 +67,18 @@ def daily_run(test = False, fake_date=None, limit = None, do_yesterday=True):
         if len(yesterdays_games)>0:
             for i in range(len(yesterdays_games)):
                 try:
-                    game=yesterdays_games.iloc[i]
-                    title = process_game(game,teams,main_config,test,pref='post',ify_user = ify_user)
-                    print(f'Created {title}')
+                    if check_each:
+                        game=todays_games.iloc[i]
+                        print(game)
+                        a = input("proceed?")
+                        if a == 'yes':
+                            title = process_game(game,teams,main_config,test,pref='pre',ify_user = ify_user)
+                            print(f'Created {title}')
+                        else:
+                            pass
+                    else:
+                        title = process_game(game,teams,main_config,test,pref='pre',ify_user = ify_user)
+                        print(f'Created {title}')
                 except Exception as e:
                     print(f'Failed {title}')
                     print(e)
@@ -76,4 +94,4 @@ def daily_run(test = False, fake_date=None, limit = None, do_yesterday=True):
 
 
 if __name__ == "__main__":
-    daily_run(test=False,fake_date=pd.to_datetime('03-19-2023'),do_yesterday=False)
+    daily_run(test=False,fake_date=pd.to_datetime('03-15-1997'),do_yesterday=False,check_each=True)

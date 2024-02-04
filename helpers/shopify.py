@@ -318,9 +318,9 @@ class shopify_printify():
                 dif = (pd.to_datetime(prod['published_at']) - pd.to_datetime(prod['updated_at']))
                 seconds_in_day = 24 * 60 * 60
                 dif_s = (int(dif.days) * int(seconds_in_day))+ dif.seconds
-                hours = dif_s/(60*60)
-                if hours < 2:
-                    # if there are more than 2 hours between publish and update it has probably been updated already
+                mins = dif_s/(60)
+                if mins < 20:
+                    # if there are more than 20 mins between publish and update it has probably been updated already
                     prods.append(prod)
 
         self.update_images2(prods)
@@ -500,33 +500,29 @@ class shopify_printify():
             self.create_collections_cbb(teams)
 
     def set_prices(self, new_price):
-        if new_price/100 < 15:
-            print(f'Pretty sure you didnt mean to set prices to {new_price/100}')
-            print('Remeber it is formatted as $$cc no decimal')
-        else:
-            print(f'about to set every item in the store to ${new_price/100}')
-            products_link = f"https://{self.post_dict[self.version]['shop_name']}.myshopify.com/admin/api/2024-01/products.json"
-            response = requests.get(products_link, headers=self.headers_shopify)
-            products = response.json()['products']
 
-            for product in products:
-                print(f'Updating {product["id"]}')
-                # Update each variant's price
-                for variant in product['variants']:
-                    print(variant["price"])
-                    if int(float(variant["price"])) == int(new_price):
-                        print('price already there')
+        print(f'about to set every item in the store to ${new_price}')
+        products_link = f"https://{self.post_dict[self.version]['shop_name']}.myshopify.com/admin/api/2024-01/products.json"
+        response = requests.get(products_link, headers=self.headers_shopify)
+        products = response.json()['products']
+
+        for product in products:
+            print(f'Updating {product["id"]}')
+            # Update each variant's price
+            for variant in product['variants']:
+                if int(float(variant["price"])) == int(new_price):
+                    print('price already there')
+                else:
+                    variant_id = variant['id']
+                    update_url = f"https://{self.post_dict[self.version]['shop_name']}.myshopify.com/admin/api/2024-01/variants/{variant_id}.json"
+                    update_data = {"variant": {"id": variant_id, "price": new_price}}
+                    resp = requests.put(update_url, json=update_data, headers=self.headers_shopify)
+                    if resp.status_code == 200:
+                        time.sleep(0.5)
                     else:
-                        variant_id = variant['id']
-                        update_url = f"https://{self.post_dict[self.version]['shop_name']}.myshopify.com/admin/api/2024-01/variants/{variant_id}.json"
-                        update_data = {"variant": {"id": variant_id, "price": new_price}}
-                        resp = requests.put(update_url, json=update_data, headers=self.headers_shopify)
-                        if resp.status_code == 200:
-                            time.sleep(0.5)
-                        else:
-                            print('fail')
-                            print(resp.status_code)
-                            print(resp.text)
-                print('success')
+                        print('fail')
+                        print(resp.status_code)
+                        print(resp.text)
+            print('success')
 
 
