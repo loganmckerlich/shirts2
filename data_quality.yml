@@ -1,5 +1,11 @@
 new_teams:
 # these dont exist in cfb data
+# green bay
+# st johns
+# grand canyon
+# McNeese State
+# Quinnipiac
+# UC Irvine
   - team_id: Null
     name: UConn
     abrev: UCONN
@@ -9,30 +15,15 @@ new_teams:
     logos: https://1000logos.net/wp-content/uploads/2017/08/uconn-huskies-logo.png
     division: Null
     long_name: Null
-
-  - team_id: Null
-    name: Creighton
-    abrev: CREI
-    color: "#005CA9"
-    alt_color: Null
-    mascot: Bluejays
-    logos: https://1000logos.net/wp-content/uploads/2022/04/Creighton-Bluejays-Logo.png
-    division: Null
-    long_name: Null
-
-  - team_id: Null
-    name: Saint Marys
-    abrev: SMC
-    color: "#005CA9"
-    alt_color: Null
-    mascot: Gaels
-    logos: https://1000logos.net/wp-content/uploads/2021/07/Saint-Marys-Gaels-logo.png
-    division: Null
-    long_name: Null
-  # - Marquette:
   # - Pitt
 edit_teams:
 # these exist in cfb data but are incomplete, only need values in spots with nulls from cfb
+# drexel
+# marquette
+# seton hall
+# vermont
+# providence
+# high point
   - team_id: Null
     name: Gonzaga
     abrev: GU
@@ -49,5 +40,23 @@ edit_teams:
     alt_color: Null
     mascot: Musketeers
     logos: https://1000logos.net/wp-content/uploads/2021/07/Xavier-Musketeers-logo.png
+    division: Null
+    long_name: Null
+  - team_id: Null
+    name: Creighton
+    abrev: CREI
+    color: "#005CA9"
+    alt_color: Null
+    mascot: Bluejays
+    logos: https://1000logos.net/wp-content/uploads/2022/04/Creighton-Bluejays-Logo.png
+    division: Null
+    long_name: Null
+  - team_id: Null
+    name: Saint Mary's
+    abrev: SMC
+    color: "#005CA9"
+    alt_color: Null
+    mascot: Gaels
+    logos: https://1000logos.net/wp-content/uploads/2021/07/Saint-Marys-Gaels-logo.png
     division: Null
     long_name: Null
