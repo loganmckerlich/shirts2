@@ -1,0 +1,53 @@
+new_teams:
+# these dont exist in cfb data
+  - team_id: Null
+    name: UConn
+    abrev: UCONN
+    color: "#000E2F"
+    alt_color: Null
+    mascot: Huskies
+    logos: https://1000logos.net/wp-content/uploads/2017/08/uconn-huskies-logo.png
+    division: Null
+    long_name: Null
+
+  - team_id: Null
+    name: Creighton
+    abrev: CREI
+    color: "#005CA9"
+    alt_color: Null
+    mascot: Bluejays
+    logos: https://1000logos.net/wp-content/uploads/2022/04/Creighton-Bluejays-Logo.png
+    division: Null
+    long_name: Null
+
+  - team_id: Null
+    name: Saint Marys
+    abrev: SMC
+    color: "#005CA9"
+    alt_color: Null
+    mascot: Gaels
+    logos: https://1000logos.net/wp-content/uploads/2021/07/Saint-Marys-Gaels-logo.png
+    division: Null
+    long_name: Null
+  # - Marquette:
+  # - Pitt
+edit_teams:
+# these exist in cfb data but are incomplete, only need values in spots with nulls from cfb
+  - team_id: Null
+    name: Gonzaga
+    abrev: GU
+    color: "#041E42"
+    alt_color: Null
+    mascot: Bulldogs
+    logos: https://static.wixstatic.com/media/7383ad_b5ee32ef2d4340d4822c1a448e961518~mv2_d_1500_1500_s_2.png/v1/fill/w_1500,h_1500,al_c/Gonzaga.png
+    division: Null
+    long_name: Null
+  - team_id: Null
+    name: Xavier
+    abrev: XU
+    color: "#0C2340"
+    alt_color: Null
+    mascot: Musketeers
+    logos: https://1000logos.net/wp-content/uploads/2021/07/Xavier-Musketeers-logo.png
+    division: Null
+    long_name: Null

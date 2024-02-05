@@ -3,8 +3,12 @@ import pandas as pd
 import numpy as np
 import ast
 import datetime as dt
-import math
+import yaml
 
+def read_yaml(file_path):
+    with open(file_path, 'r') as file:
+        data = yaml.safe_load(file)
+    return data
 
 class cfbp_handler:
     def config(self):
@@ -18,6 +22,16 @@ class cfbp_handler:
         self.fake_date = fake_date
         self.config()
 
+    def manual_adds(self):
+        yaml_data = read_yaml('data_quality.yml')
+        new_teams_data = yaml_data.get('new_teams', [])
+        edit_teams_data = yaml_data.get('edit_teams', [])
+
+        new_teams_df = pd.DataFrame(new_teams_data)
+        edit_teams_df = pd.DataFrame(edit_teams_data)
+
+        return new_teams_df, edit_teams_df
+
     def get_team_info(self):
         # this would run daily to add scores as they come
         # note this is more than just fbs teams, for games where an fbs plays a non fbs we need both
@@ -28,36 +42,45 @@ class cfbp_handler:
         all_team_info = []
         for team in cfbd_response:
             # some schools are in cfbd with minimal data, but i want more for cbb
-            if team.school.lower() not in ['gonzaga']:
-                team_id = team.id
-                name = team.school.replace(")", "").replace("(", "")
-                long_name = team.alt_name_3
-                abrev = team.abbreviation
-                color = team.color
-                alt_color = team.alt_color
-                mascot = team.mascot
-                division = team.classification
-                if type(team.logos) != list:
-                    # this means no logo
-                    logos = "https://github.com/klunn91/team-logos/blob/master/NCAA/_NCAA_logo.png?raw=true"
-                else:
-                    logos = ast.literal_eval(str(team.logos))[0]
+            team_id = team.id
+            name = team.school.replace(")", "").replace("(", "")
+            long_name = team.alt_name_3
+            abrev = team.abbreviation
+            color = team.color
+            alt_color = team.alt_color
+            mascot = team.mascot
+            division = team.classification
+            if type(team.logos) != list:
+                # this means no logo
+                logos = None
+            else:
+                logos = ast.literal_eval(str(team.logos))[0]
 
-                team_info = [team_id, name, abrev, color, alt_color, mascot, logos, division,long_name]
-                all_team_info.append(team_info)
+            team_info = [team_id, name, abrev, color, alt_color, mascot, logos, division,long_name]
+            all_team_info.append(team_info)
         
         # additional schools that are cbb but not cfb, manually add some big ones
-        uconn = [np.nan,"Uconn","UCONN","#000E2F",None,"Huskies","https://1000logos.net/wp-content/uploads/2017/08/uconn-huskies-logo.png",None,None]
-        zags = [np.nan,"Gonzaga","GU","#041E42",None,"Bulldogs","https://static.wixstatic.com/media/7383ad_b5ee32ef2d4340d4822c1a448e961518~mv2_d_1500_1500_s_2.png/v1/fill/w_1500,h_1500,al_c/Gonzaga.png",None,None]
-        all_team_info.append(uconn)
-        all_team_info.append(zags)
+
         all_teams_df = pd.DataFrame(
             all_team_info,
             columns=["id", "name", "abrev", "color", "alt_color", "mascot", "logos", "division", "long_name"],
         ).sort_values("name")
+
+        new_teams,edit_teams = self.manual_adds()
+
+        # add in my manual adds
+        all_teams_df = pd.concat([all_teams_df,new_teams])
+
+        # for teams I am editing
+        all_teams_df = all_teams_df.set_index('name').combine_first(edit_teams.set_index('name')).reset_index()
+
         all_teams_df.color = np.where(
             all_teams_df.color.isna(), "#FFFFFF", all_teams_df.color
         )
+        all_teams_df.logos = np.where(
+            all_teams_df.logos == None, "https://github.com/klunn91/team-logos/blob/master/NCAA/_NCAA_logo.png?raw=true", all_teams_df.logos
+        )
+
         self.teams = all_teams_df
         return all_teams_df
 
