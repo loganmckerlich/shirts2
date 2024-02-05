@@ -15,22 +15,69 @@ new_teams:
     logos: https://1000logos.net/wp-content/uploads/2017/08/uconn-huskies-logo.png
     division: Null
     long_name: Null
-  # - Pitt
 edit_teams:
 # these exist in cfb data but are incomplete, only need values in spots with nulls from cfb
-# drexel
-# marquette
-# seton hall
-# vermont
-# providence
-# high point
+  - team_id: Null
+    name: Marquette
+    abrev: MU
+    color: "#003366"
+    alt_color: Null
+    mascot: Golden Eagles
+    logos: https://1000logos.net/wp-content/uploads/2021/06/Marquette-Golden-Eagles-logo.png
+    division: Null
+    long_name: Null
+  - team_id: Null
+    name: Seton Hall
+    abrev: SHU
+    color: "#004488"
+    alt_color: Null
+    mascot: Pirates
+    logos: https://1000logos.net/wp-content/uploads/2021/07/Seton-Hall-Pirates-logo.png
+    division: Null
+    long_name: Null
+  - team_id: Null
+    name: Vermont
+    abrev: UVM
+    color: "#154734"
+    alt_color: Null
+    mascot: Catamounts
+    logos: https://1000logos.net/wp-content/uploads/2021/07/Vermont-Catamounts-logo.png
+    division: Null
+    long_name: Null
+  - team_id: Null
+    name: Providence
+    abrev: HPU
+    color: "#83878A"
+    alt_color: Null
+    mascot: Friars
+    logos: https://1000logos.net/wp-content/uploads/2022/02/Providence-Friars-logo.png
+    division: Null
+    long_name: Null
+  - team_id: Null
+    name: High Point
+    abrev: HPU
+    color: "#330072"
+    alt_color: Null
+    mascot: Panthers
+    logos: https://1000logos.net/wp-content/uploads/2021/06/High-Point-Panthers-logo.png
+    division: Null
+    long_name: Null
+  - team_id: Null
+    name: Drexel
+    abrev: DU
+    color: "#00437B"
+    alt_color: Null
+    mascot: Dragons
+    logos: https://1000logos.net/wp-content/uploads/2021/06/Drexel-Dragons-logo.png
+    division: Null
+    long_name: Null
   - team_id: Null
     name: Gonzaga
     abrev: GU
     color: "#041E42"
     alt_color: Null
     mascot: Bulldogs
-    logos: https://static.wixstatic.com/media/7383ad_b5ee32ef2d4340d4822c1a448e961518~mv2_d_1500_1500_s_2.png/v1/fill/w_1500,h_1500,al_c/Gonzaga.png
+    logos: https://1000logos.net/wp-content/uploads/2021/06/Gonzaga-Bulldogs-logo.png
     division: Null
     long_name: Null
   - team_id: Null
@@ -60,3 +107,7 @@ edit_teams:
     logos: https://1000logos.net/wp-content/uploads/2021/07/Saint-Marys-Gaels-logo.png
     division: Null
     long_name: Null
+
+# unimplemented
+names_that_dont_match:
+  - Pittsburgh: Pitt
