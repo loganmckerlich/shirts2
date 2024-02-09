@@ -46,7 +46,7 @@ new_teams:
     division: Null
     long_name: Null
   - team_id: Null
-    name: UC Irvine
+    name: UC-Irvine
     abrev: UCI
     color: "#0C2340"
     alt_color: Null

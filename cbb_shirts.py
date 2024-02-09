@@ -2,20 +2,25 @@ import datetime as dt
 import helpers as hf
 import pandas as pd
 import time
-
+import traceback
+import sys
 
 def process_game(game,teams,main_config,test,pref,ify_user):
     game_parsed = hf.parse_cbb_game(game,teams)
 
     config = hf.combine_configs(main_config,game_parsed)
     design,text = hf.build_cbb(config,test=test)
-    design.show()
+   
 
     if design != 'prompt failed':
         if design is not None:
             title,description,tags=hf.generate_t_d_t_cbb(game_parsed)
             if pref == 'pre':
                 title = title + ' pre-game'
+            try:
+                design.save(f'.image_saves/{title}.png')
+            except:
+                print('couldnt save image')
             main_config['image'] = design
             main_config['title'] = title.title()
             main_config['description'] =  description
@@ -33,7 +38,7 @@ def daily_run(test = False, fake_date=None, limit = None, do_yesterday=True, che
     if fake_date is not None:
         date = fake_date
     else:
-        date = dt.dt.today()
+        date = dt.date.today()
     teams = cfbd_loader.get_team_info()
 
     todays_games = hf.get_day_bball_games(date)
@@ -45,43 +50,48 @@ def daily_run(test = False, fake_date=None, limit = None, do_yesterday=True, che
         print(f'Limiting to {limit} games')
         todays_games = todays_games[:limit]
         yesterdays_games = yesterdays_games[:limit]
-    if len(todays_games)>0:
-        for i in range(len(todays_games)):
-            try:
-                if check_each:
-                    game=todays_games.iloc[i]
-                    print(game)
-                    a = input("proceed?")
-                    if a == 'yes':
-                        title = process_game(game,teams,main_config,test,pref='post',ify_user = ify_user)
-                        print(f'Created {title}')
-                    else:
-                        pass
-                else:
-                    title = process_game(game,teams,main_config,test,pref='post',ify_user = ify_user)
-                    print(f'Created {title}')
-            except Exception as e:
-                print(f'Failed {title}')
-                print(e)
+    # if len(todays_games)>0:
+    #     for i in range(len(todays_games)):
+    #         game=todays_games.iloc[i]
+    #         try:
+    #             if check_each:
+    #                 print(game)
+    #                 a = input("proceed?")
+    #                 if a == 'yes':
+    #                     title = process_game(game,teams,main_config,test,pref='pre',ify_user = ify_user)
+    #                 else:
+    #                     pass
+    #             else:
+    #                 title = process_game(game,teams,main_config,test,pref='pre',ify_user = ify_user)
+    #             print(f'Created {title}')
+    #         except Exception as e:
+    #             print(f'Failed')
+    #             print(e)
+    #             print(sys.exc_info()[2])
     if do_yesterday:
         if len(yesterdays_games)>0:
             for i in range(len(yesterdays_games)):
+                game=yesterdays_games.iloc[i]
                 try:
                     if check_each:
-                        game=todays_games.iloc[i]
                         print(game)
                         a = input("proceed?")
                         if a == 'yes':
-                            title = process_game(game,teams,main_config,test,pref='pre',ify_user = ify_user)
-                            print(f'Created {title}')
+                            title = process_game(game,teams,main_config,test,pref='post',ify_user = ify_user)
                         else:
                             pass
                     else:
-                        title = process_game(game,teams,main_config,test,pref='pre',ify_user = ify_user)
-                        print(f'Created {title}')
+                        title = process_game(game,teams,main_config,test,pref='post',ify_user = ify_user)
+                    print(f'Created {title}')
                 except Exception as e:
-                    print(f'Failed {title}')
+                    print(f'Failed')
                     print(e)
+                    print('-----')
+                    print(traceback.format_exc())
+                    print('-----')
+                    traceback.format_exc()
+                    print('-----')
+                    traceback.print_exception(*sys.exc_info()) 
     print('5 m pause before store organizing')
     time.sleep(60*5)
     ify_user.cover_image_wrapper()
@@ -94,4 +104,23 @@ def daily_run(test = False, fake_date=None, limit = None, do_yesterday=True, che
 
 
 if __name__ == "__main__":
-    daily_run(test=False,fake_date=pd.to_datetime('03-15-1997'),do_yesterday=False,check_each=True)
+    daily_run(check_each=True)
+    # daily_run(test=False,fake_date=pd.to_datetime('03-15-1997'),do_yesterday=False,check_each=True)
+
+
+
+
+
+    # design_config,shop_config = hf.get_config('cbb')
+    # main_config = hf.combine_configs(design_config,shop_config)
+    # ify_user = hf.shopify_printify(main_config,'cbb')
+    # cfbd_loader = hf.cfbp_handler(main_config['cfbd_api'])
+
+    # teams = cfbd_loader.get_team_info()
+    
+    # ify_user.cover_image_wrapper()
+
+    # # organize store
+    # team_names = list(teams.name)
+    # # delete all my collections and rebuild them with all products
+    # ify_user.reset_collections(team_names)

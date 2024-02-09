@@ -134,10 +134,26 @@ def build_cbb(config, test=True):
         offset = ((W - iw) // 2, 0)
 
         bg.paste(main_image, offset)
-
-        bg.alpha_composite(logo1, (0 + logo_buffer, ih))
-
-        bg.alpha_composite(logo2, (W - logo_buffer - lw, ih))
+        try:
+            # transparent background
+            bg.alpha_composite(logo1, (0 + logo_buffer, ih))
+        except:
+            try:
+                #not transparent
+                bg.paste(logo1, (0 + logo_buffer, ih))
+                print(f'{team1} failed transparent worked normal')
+            except:
+                print(f'{team1} fail')
+        
+        try:
+            bg.alpha_composite(logo2, (W - logo_buffer - lw, ih))
+        except:
+            try:
+                #not transparent
+                bg.paste(logo2, (W - logo_buffer - lw, ih))
+                print(f'{team2} failed transparent worked normal')
+            except:
+                print(f'{team2} fail')
 
         img_draw = ImageDraw.Draw(bg)
 
