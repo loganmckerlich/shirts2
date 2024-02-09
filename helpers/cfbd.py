@@ -25,7 +25,7 @@ class cfbp_handler:
         self.config()
 
     def manual_adds(self):
-        yaml_data = read_yaml("data_quality.yml")
+        yaml_data = read_yaml("info/data_quality.yml")
         new_teams_data = yaml_data.get("new_teams", [])
         edit_teams_data = yaml_data.get("edit_teams", [])
 
