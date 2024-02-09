@@ -63,6 +63,16 @@ new_teams:
     logos: https://1000logos.net/wp-content/uploads/2017/08/uconn-huskies-logo.png
     division: Null
     long_name: Null
+    # note that pittsburgh exists but pitt doesnt (same school) so things might get weird with cfb
+  - team_id: Null
+    name: Pitt
+    abrev: PITT
+    color: "#003594"
+    alt_color: Null
+    mascot: Panthers
+    logos: https://1000logos.net/wp-content/uploads/2021/07/Pittsburgh-Panthers-logo.png
+    division: Null
+    long_name: Null
 edit_teams:
 # these exist in cfb data but are incomplete, only need values in spots with nulls from cfb
   - team_id: Null
@@ -155,7 +165,3 @@ edit_teams:
     logos: https://1000logos.net/wp-content/uploads/2021/07/Saint-Marys-Gaels-logo.png
     division: Null
     long_name: Null
-
-# unimplemented
-names_that_dont_match:
-  - Pittsburgh: Pitt
