@@ -64,74 +64,70 @@ def parse_game(game, teams):
             "longn": f"University Of {home.name.values[0]} {home.mascot.values[0]}",
             "color": home.color.values[0],
             "logo": home.logos.values[0],
-            "mascot":home.mascot.values[0]
+            "mascot": home.mascot.values[0],
         },
         "away_team": {
             "shortn": away.name.values[0],
             "longn": f"University Of {away.name.values[0]} {away.mascot.values[0]}",
             "color": away.color.values[0],
             "logo": away.logos.values[0],
-            "mascot":away.mascot.values[0]
+            "mascot": away.mascot.values[0],
         },
         "sport": "football",
         "game": {
             "date": pd.to_datetime(game["startdate"]).strftime(format="%d %b, %Y"),
             "score": gscore,
             "done": game["complete"],
-            "week":game["week"]
+            "week": game["week"],
         },
     }
     return game_config
 
-def parse_cbb_game(game,team_info):
-    team_info['joiner'] = team_info.name.apply(lambda x:unidecode(x).lower())
+
+def parse_cbb_game(game, team_info):
+    team_info["joiner"] = team_info.name.apply(lambda x: unidecode(x).lower())
     team1_joiner = unidecode(game.team1).lower()
-    team1_info = team_info.loc[team_info.joiner==team1_joiner].to_dict('records')
-    if len(team1_info)<1:
-        team1_info = team_info.loc[team_info.abrev==game.team1].to_dict('records')
-    if len(team1_info)<1:
-        team1_info = [{
-            'color':'#FFFFFF',
-            'mascot':None,
-            'logos':None,
-            'long_name':game.team1
-        }]
+    team1_info = team_info.loc[team_info.joiner == team1_joiner].to_dict("records")
+    if len(team1_info) < 1:
+        team1_info = team_info.loc[team_info.abrev == game.team1].to_dict("records")
+    if len(team1_info) < 1:
+        team1_info = [
+            {"color": "#FFFFFF", "mascot": None, "logos": None, "long_name": game.team1}
+        ]
     team2_joiner = unidecode(game.team2).lower()
-    team2_info = team_info.loc[team_info.joiner==team2_joiner].to_dict('records')
-    if len(team2_info)<1:
-        team2_info = team_info.loc[team_info.abrev==game.team2].to_dict('records')
-    if len(team2_info)<1:
-        team2_info = [{
-            'color':'#FFFFFF',
-            'mascot':None,
-            'logos':None,
-            'long_name':game.team2
-        }]
+    team2_info = team_info.loc[team_info.joiner == team2_joiner].to_dict("records")
+    if len(team2_info) < 1:
+        team2_info = team_info.loc[team_info.abrev == game.team2].to_dict("records")
+    if len(team2_info) < 1:
+        team2_info = [
+            {"color": "#FFFFFF", "mascot": None, "logos": None, "long_name": game.team2}
+        ]
     team1_info = team1_info[0]
     team2_info = team2_info[0]
 
-    game_out={
-        'team1':{
-            'name':game.team1.replace('(','').replace(')',''),
-            'rank':game.team1Rank,
-            'score':game.team1Score,
-            'color':team1_info['color'],
-            'mascot':team1_info['mascot'],
-            'logo':team1_info['logos'],
-            'long_name':team1_info['long_name']
+    game_out = {
+        "team1": {
+            "name": game.team1.replace("(", "").replace(")", ""),
+            "rank": game.team1Rank,
+            "score": game.team1Score,
+            "color": team1_info["color"],
+            "mascot": team1_info["mascot"],
+            "logo": team1_info["logos"],
+            "long_name": team1_info["long_name"],
         },
-        'team2':{
-            'name':game.team2.replace('(','').replace(')',''),
-            'rank':game.team2Rank,
-            'score':game.team2Score,
-            'color':team2_info['color'],
-            'mascot':team2_info['mascot'],
-            'logo':team2_info['logos']
+        "team2": {
+            "name": game.team2.replace("(", "").replace(")", ""),
+            "rank": game.team2Rank,
+            "score": game.team2Score,
+            "color": team2_info["color"],
+            "mascot": team2_info["mascot"],
+            "logo": team2_info["logos"],
         },
-        'date':pd.to_datetime(game.date_).strftime(format="%d %b, %Y"),
-        'desc':game.Desc
+        "date": pd.to_datetime(game.date_).strftime(format="%d %b, %Y"),
+        "desc": game.Desc,
     }
     return game_out
+
 
 def combine_configs(base_config, game_config):
     base_config.update(game_config)
@@ -143,12 +139,11 @@ def generate_t_d_t(game_config):
     if game_config["game"]["done"]:
         before = ""
         mid = f"{game_config['game']['score'][0]} to {game_config['game']['score'][1]} "
-        mid2 = 'played at '
+        mid2 = "played at "
     else:
         before = "Generated before the game has been played. "
         mid = ""
-        mid2 = 'to be played '
-    
+        mid2 = "to be played "
 
     description = (
         before
@@ -161,17 +156,17 @@ def generate_t_d_t(game_config):
 
     return title, description, tags
 
+
 def generate_t_d_t_cbb(game_config):
     title = f"{game_config['team1']['name']} vs {game_config['team2']['name']}. {game_config['date']}"
     if game_config["team1"]["score"] is not None:
         before = ""
         mid = f"{game_config['team1']['score']} to {game_config['team2']['score']} "
-        mid2 = 'played at '
+        mid2 = "played at "
     else:
         before = "Generated before the game has been played. "
         mid = ""
-        mid2 = 'to be played '
-    
+        mid2 = "to be played "
 
     description = (
         before

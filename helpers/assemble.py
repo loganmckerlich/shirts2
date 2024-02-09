@@ -38,13 +38,13 @@ def simple_size_font_recur(img_draw, text, W, font, size):
         return simple_size_font_recur(img_draw, text, W, font, size)
 
 
-def ar_resize(new,image):
+def ar_resize(new, image):
     # it will be new tall
     current = image.size
-    ar = current[0]/current[1]
-    image=image.resize((int(np.floor(new*ar)),new))
+    ar = current[0] / current[1]
+    image = image.resize((int(np.floor(new * ar)), new))
     return image
-    
+
 
 def build_cbb(config, test=True):
     # total size
@@ -70,20 +70,26 @@ def build_cbb(config, test=True):
     rank2 = config["team2"]["rank"]
 
     if rank1 is not None:
-        team1r = ' #'+rank1[1:-1]+' '+team1
+        team1r = " #" + rank1[1:-1] + " " + team1
     else:
-        team1r = ' '+team1
+        team1r = " " + team1
 
     if rank2 is not None:
-        team2r = '#'+rank2[1:-1]+' '+team2+' '
+        team2r = "#" + rank2[1:-1] + " " + team2 + " "
     else:
-        team2r = team2+' '
+        team2r = team2 + " "
 
     team2color = config["team2"]["color"]
 
-    sport = 'basketball'
+    sport = "basketball"
 
-    prompt = prompt_engineer(sport,team1,team2,mascot1 = config["team1"]["mascot"], mascot2=config["team2"]["mascot"])
+    prompt = prompt_engineer(
+        sport,
+        team1,
+        team2,
+        mascot1=config["team1"]["mascot"],
+        mascot2=config["team2"]["mascot"],
+    )
 
     gamedate = config["date"]
 
@@ -95,37 +101,28 @@ def build_cbb(config, test=True):
         bg = Image.new("RGBA", (W, H))
 
     main_image = generate_main(
-        prompt, config["dalle_key"], test=test, dalle = config['dalle']
+        prompt, config["dalle_key"], test=test, dalle=config["dalle"]
     )
     if main_image is not None:
         main_image = main_image.resize((iw, ih))
 
-
         if main_image == None:
-            print('image failed to generate')
+            print("image failed to generate")
             print(prompt)
-            return None,None
+            return None, None
 
         try:
-            logo1 = Image.open(
-                requests.get(config["team1"]["logo"], stream=True).raw
-            )
+            logo1 = Image.open(requests.get(config["team1"]["logo"], stream=True).raw)
         except:
-            logo1 = Image.open(
-                requests.get(config["default_logo"], stream=True).raw
-            )
+            logo1 = Image.open(requests.get(config["default_logo"], stream=True).raw)
 
         try:
-            logo2 = Image.open(
-                requests.get(config["team2"]["logo"], stream=True).raw
-            )
+            logo2 = Image.open(requests.get(config["team2"]["logo"], stream=True).raw)
         except:
-            logo2 = Image.open(
-                requests.get(config["default_logo"], stream=True).raw
-            )
+            logo2 = Image.open(requests.get(config["default_logo"], stream=True).raw)
 
-        logo1 = ar_resize(lh,logo1)
-        logo2 = ar_resize(lh,logo2)
+        logo1 = ar_resize(lh, logo1)
+        logo2 = ar_resize(lh, logo2)
 
         img_w, img_h = main_image.size
 
@@ -139,21 +136,21 @@ def build_cbb(config, test=True):
             bg.alpha_composite(logo1, (0 + logo_buffer, ih))
         except:
             try:
-                #not transparent
+                # not transparent
                 bg.paste(logo1, (0 + logo_buffer, ih))
-                print(f'{team1} failed transparent worked normal')
+                print(f"{team1} failed transparent worked normal")
             except:
-                print(f'{team1} fail')
-        
+                print(f"{team1} fail")
+
         try:
             bg.alpha_composite(logo2, (W - logo_buffer - lw, ih))
         except:
             try:
-                #not transparent
+                # not transparent
                 bg.paste(logo2, (W - logo_buffer - lw, ih))
-                print(f'{team2} failed transparent worked normal')
+                print(f"{team2} failed transparent worked normal")
             except:
-                print(f'{team2} fail')
+                print(f"{team2} fail")
 
         img_draw = ImageDraw.Draw(bg)
 
@@ -167,10 +164,12 @@ def build_cbb(config, test=True):
             r"./fonts/Freshman.ttf", size=22, layout_engine=ImageFont.Layout.BASIC
         )
         try:
-            desc_font = simple_size_font_recur(img_draw, config['desc'], W, 'Universal_Serif', 150)
-            no_desc=False
+            desc_font = simple_size_font_recur(
+                img_draw, config["desc"], W, "Universal_Serif", 150
+            )
+            no_desc = False
         except:
-            no_desc=True
+            no_desc = True
         l1, t1, r1, b1 = img_draw.textbbox((0, img_h), team1r, font=mainfont)
 
         lv, tv, rv, bv = img_draw.textbbox((r1 + 5, img_h), "VS", font=mainfont)
@@ -179,10 +178,13 @@ def build_cbb(config, test=True):
 
         _, _, wd, hd = img_draw.textbbox((0, 0), gamedate, font=date_font)
 
-        _, _, w1, h1 = img_draw.textbbox((0, 0), str(config["team1"]["score"]), font=score_font)
+        _, _, w1, h1 = img_draw.textbbox(
+            (0, 0), str(config["team1"]["score"]), font=score_font
+        )
 
-        _, _, w2, h2 = img_draw.textbbox((0, 0), str(config["team2"]["score"]), font=score_font)
-
+        _, _, w2, h2 = img_draw.textbbox(
+            (0, 0), str(config["team2"]["score"]), font=score_font
+        )
 
         img_draw.text(
             (l1, t1 + lh + 5),
@@ -240,36 +242,36 @@ def build_cbb(config, test=True):
             )
             if not no_desc:
                 img_draw.text(
-                    (l1,(bv + h2+ h1)),
-                    config['desc'],
-                    font=desc_font,
-                    fill="black"
+                    (l1, (bv + h2 + h1)), config["desc"], font=desc_font, fill="black"
                 )
         else:
             if not no_desc:
                 img_draw.text(
-                    (l1,(bv + h2)),
-                    config['desc'],
-                    font=desc_font,
-                    fill="black"
+                    (l1, (bv + h2)), config["desc"], font=desc_font, fill="black"
                 )
 
         text = Image.new("RGBA", (W, H))
 
         text_draw = ImageDraw.Draw(text)
 
-        if config["team1"]["mascot"]is not None and  config["team2"]["mascot"] is not None:
+        if (
+            config["team1"]["mascot"] is not None
+            and config["team2"]["mascot"] is not None
+        ):
             game_text = f"{team1r} {config['team1']['mascot']}\n Vs.\n {team2r} {config['team2']['mascot']}\n {gamedate}"
         else:
             game_text = f"{team1r}\n Vs.\n {team2r}\n {gamedate}"
 
-        game_font = simple_size_font_recur(text_draw, game_text, W, "Universal_Serif", 75)
+        game_font = simple_size_font_recur(
+            text_draw, game_text, W, "Universal_Serif", 75
+        )
 
         text_draw.text((0, 0), game_text, font=game_font, fill="black")
 
         return bg, text
     else:
-        return 'prompt failed'
+        return "prompt failed"
+
 
 def build_cfb(config, test=False):
     # total size
@@ -302,7 +304,13 @@ def build_cfb(config, test=False):
 
     game_date = config["game"]["date"]
 
-    prompt = prompt_engineer(sport,team1full,team2full,mascot1 = config["home_team"]["mascot"], mascot2=config["away_team"]["mascot"])
+    prompt = prompt_engineer(
+        sport,
+        team1full,
+        team2full,
+        mascot1=config["home_team"]["mascot"],
+        mascot2=config["away_team"]["mascot"],
+    )
 
     gamedate = config["game"]["date"]
 
@@ -314,7 +322,7 @@ def build_cfb(config, test=False):
         bg = Image.new("RGBA", (W, H))
 
     main_image = generate_main(
-        prompt, config["dalle_key"], test=test, dalle = config['dalle']
+        prompt, config["dalle_key"], test=test, dalle=config["dalle"]
     )
     if main_image is not None:
         main_image = main_image.resize((iw, ih))
@@ -434,28 +442,34 @@ def build_cfb(config, test=False):
 
         game_text = f"{team1} Vs. {team2}\n{game_date}"
 
-        game_font = simple_size_font_recur(text_draw, game_text, W, "Universal_Serif", 75)
+        game_font = simple_size_font_recur(
+            text_draw, game_text, W, "Universal_Serif", 75
+        )
 
         text_draw.text((0, 0), game_text, font=game_font, fill="black")
 
         return bg, text
     else:
-        return 'Prompt Failed'
+        return "Prompt Failed"
 
-def no_caption_image(design_config,main_image):
-    bg = Image.new("RGBA", (design_config['W'], design_config['H']))
 
-    main_image=main_image.resize((design_config['W'], design_config['W']))
+def no_caption_image(design_config, main_image):
+    bg = Image.new("RGBA", (design_config["W"], design_config["H"]))
+
+    main_image = main_image.resize((design_config["W"], design_config["W"]))
     bg.paste(main_image)
 
     return bg
 
-def simple_text(design_config,text_in):
-    text = Image.new("RGBA", (design_config['W'], design_config['H']))
+
+def simple_text(design_config, text_in):
+    text = Image.new("RGBA", (design_config["W"], design_config["H"]))
 
     text_draw = ImageDraw.Draw(text)
 
-    game_font = simple_size_font_recur(text_draw, text_in, design_config['W'], "Universal_Serif", 75)
+    game_font = simple_size_font_recur(
+        text_draw, text_in, design_config["W"], "Universal_Serif", 75
+    )
 
     text_draw.text((0, 0), text_in, font=game_font, fill="black")
 

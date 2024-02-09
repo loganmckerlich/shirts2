@@ -5,10 +5,12 @@ import ast
 import datetime as dt
 import yaml
 
+
 def read_yaml(file_path):
-    with open(file_path, 'r') as file:
+    with open(file_path, "r") as file:
         data = yaml.safe_load(file)
     return data
+
 
 class cfbp_handler:
     def config(self):
@@ -23,9 +25,9 @@ class cfbp_handler:
         self.config()
 
     def manual_adds(self):
-        yaml_data = read_yaml('data_quality.yml')
-        new_teams_data = yaml_data.get('new_teams', [])
-        edit_teams_data = yaml_data.get('edit_teams', [])
+        yaml_data = read_yaml("data_quality.yml")
+        new_teams_data = yaml_data.get("new_teams", [])
+        edit_teams_data = yaml_data.get("edit_teams", [])
 
         new_teams_df = pd.DataFrame(new_teams_data)
         edit_teams_df = pd.DataFrame(edit_teams_data)
@@ -56,29 +58,55 @@ class cfbp_handler:
             else:
                 logos = ast.literal_eval(str(team.logos))[0]
 
-            team_info = [team_id, name, abrev, color, alt_color, mascot, logos, division,long_name]
+            team_info = [
+                team_id,
+                name,
+                abrev,
+                color,
+                alt_color,
+                mascot,
+                logos,
+                division,
+                long_name,
+            ]
             all_team_info.append(team_info)
-        
+
         # additional schools that are cbb but not cfb, manually add some big ones
 
         all_teams_df = pd.DataFrame(
             all_team_info,
-            columns=["id", "name", "abrev", "color", "alt_color", "mascot", "logos", "division", "long_name"],
+            columns=[
+                "id",
+                "name",
+                "abrev",
+                "color",
+                "alt_color",
+                "mascot",
+                "logos",
+                "division",
+                "long_name",
+            ],
         ).sort_values("name")
 
-        new_teams,edit_teams = self.manual_adds()
+        new_teams, edit_teams = self.manual_adds()
 
         # add in my manual adds
-        all_teams_df = pd.concat([all_teams_df,new_teams])
+        all_teams_df = pd.concat([all_teams_df, new_teams])
 
         # for teams I am editing
-        all_teams_df = all_teams_df.set_index('name').combine_first(edit_teams.set_index('name')).reset_index()
+        all_teams_df = (
+            all_teams_df.set_index("name")
+            .combine_first(edit_teams.set_index("name"))
+            .reset_index()
+        )
 
         all_teams_df.color = np.where(
             all_teams_df.color.isna(), "#FFFFFF", all_teams_df.color
         )
         all_teams_df.logos = np.where(
-            all_teams_df.logos == None, "https://github.com/klunn91/team-logos/blob/master/NCAA/_NCAA_logo.png?raw=true", all_teams_df.logos
+            all_teams_df.logos == None,
+            "https://github.com/klunn91/team-logos/blob/master/NCAA/_NCAA_logo.png?raw=true",
+            all_teams_df.logos,
         )
 
         self.teams = all_teams_df
@@ -92,15 +120,21 @@ class cfbp_handler:
         else:
             today = dt.date.today()
 
-        games_this_past_week = new_games.loc[pd.to_datetime(new_games.monday) == pd.to_datetime(today)-pd.Timedelta(weeks=1)]
+        games_this_past_week = new_games.loc[
+            pd.to_datetime(new_games.monday)
+            == pd.to_datetime(today) - pd.Timedelta(weeks=1)
+        ]
 
         # this mon represents all games in coming week, next mon is 2 weeks out games
-        games_2_weeks_out = new_games.loc[pd.to_datetime(new_games.monday) == pd.to_datetime(today)+pd.Timedelta(weeks=1)]
+        games_2_weeks_out = new_games.loc[
+            pd.to_datetime(new_games.monday)
+            == pd.to_datetime(today) + pd.Timedelta(weeks=1)
+        ]
 
         new_games = list(games_this_past_week.id)
         upcoming_games = list(games_2_weeks_out.id)
 
-        return new_games,upcoming_games
+        return new_games, upcoming_games
 
     def get_schedule(self, year):
         # this would run daily to add scores as they come
@@ -109,7 +143,7 @@ class cfbp_handler:
 
         all_game_info = []
         for game in cfbd_response:
-            if game.home_division == 'fbs' or game.away_division == 'fbs':
+            if game.home_division == "fbs" or game.away_division == "fbs":
                 game_id = game.id
                 htid = game.home_id
                 home_team = game.home_team.replace(")", "").replace("(", "")
@@ -154,11 +188,19 @@ class cfbp_handler:
         ).sort_values("startdate")
         all_games_df.startdate = pd.to_datetime(all_games_df.startdate)
         all_games_df = all_games_df.drop_duplicates()
-        all_games_df['monday'] = all_games_df['startdate'] - all_games_df['startdate'].dt.weekday.astype('timedelta64[D]')
-        all_games_df.monday = all_games_df.monday.apply(lambda x:x.date())
-        all_games_df.startdate = all_games_df.startdate.apply(lambda x:x.date())
-        all_games_df.game_type = np.where(all_games_df.game_type=='regular', 'regular-season',all_games_df.game_type)
-        all_games_df.week = all_games_df['game_type']+' Week '+all_games_df['week'].astype(str)
+        all_games_df["monday"] = all_games_df["startdate"] - all_games_df[
+            "startdate"
+        ].dt.weekday.astype("timedelta64[D]")
+        all_games_df.monday = all_games_df.monday.apply(lambda x: x.date())
+        all_games_df.startdate = all_games_df.startdate.apply(lambda x: x.date())
+        all_games_df.game_type = np.where(
+            all_games_df.game_type == "regular",
+            "regular-season",
+            all_games_df.game_type,
+        )
+        all_games_df.week = (
+            all_games_df["game_type"] + " Week " + all_games_df["week"].astype(str)
+        )
 
         self.all_games = all_games_df
         return all_games_df
