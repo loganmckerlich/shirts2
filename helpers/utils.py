@@ -14,7 +14,7 @@ def new_football_season():
 
 
 def key_reader(version):
-    with open("private.yml", "r") as f:
+    with open("info/private.yml", "r") as f:
         private_yml = yaml.safe_load(f)
     cfbd_api_key = private_yml["cfbd_api_key"]
     dalle_key = private_yml["dalle_key"]
@@ -25,9 +25,9 @@ def key_reader(version):
 
 
 def get_config(version):
-    with open("design_config.yml", "r") as f:
+    with open("info/design_config.yml", "r") as f:
         design_config = yaml.safe_load(f)
-    with open("shop_config.yml", "r") as f:
+    with open("info/shop_config.yml", "r") as f:
         shop_config = yaml.safe_load(f)
     cfbd_api_key, dalle_key, printify_access, shopify_access = key_reader(version)
     design_config["cfbd_api"] = cfbd_api_key

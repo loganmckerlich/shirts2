@@ -1,0 +1,167 @@
+new_teams:
+# these dont exist in cfb data
+  - team_id: Null
+    name: Green Bay
+    abrev: UWGB
+    color: "#006747"
+    alt_color: Null
+    mascot: Pheonix
+    logos: https://1000logos.net/wp-content/uploads/2022/03/Wisconsin-Green-Bay-Phoenix-logo.png
+    division: Null
+    long_name: Null
+  - team_id: Null
+    name: St. John's
+    abrev: SJU
+    color: "#BA0C2F"
+    alt_color: Null
+    mascot: Red Storm
+    logos: https://1000logos.net/wp-content/uploads/2022/02/St.-Johns-Red-Storm-logo.png
+    division: Null
+    long_name: Null
+  - team_id: Null
+    name: Grand Canyon
+    abrev: GCU
+    color: "#522398"
+    alt_color: Null
+    mascot: Antelopes
+    logos: https://1000logos.net/wp-content/uploads/2021/06/Grand-Canyon-Antelopes-logo.png
+    division: Null
+    long_name: Null
+  - team_id: Null
+    name: McNeese State
+    abrev: MSU
+    color: "#00529B"
+    alt_color: Null
+    mascot: Cowboys
+    logos: https://1000logos.net/wp-content/uploads/2021/07/McNeese-State-Cowboys-logo.png
+    division: Null
+    long_name: Null
+  - team_id: Null
+    name: Quinnipiac
+    abrev: QU
+    color: "#0C2340"
+    alt_color: Null
+    mascot: Bobcats
+    logos: https://1000logos.net/wp-content/uploads/2021/07/Quinnipiac-Bobcats-logo.png
+    division: Null
+    long_name: Null
+  - team_id: Null
+    name: UC-Irvine
+    abrev: UCI
+    color: "#0C2340"
+    alt_color: Null
+    mascot: Anteaters
+    logos: https://1000logos.net/wp-content/uploads/2022/03/California-Irvine-Anteaters-Logo.png
+    division: Null
+    long_name: Null
+  - team_id: Null
+    name: UConn
+    abrev: UCONN
+    color: "#000E2F"
+    alt_color: Null
+    mascot: Huskies
+    logos: https://1000logos.net/wp-content/uploads/2017/08/uconn-huskies-logo.png
+    division: Null
+    long_name: Null
+    # note that pittsburgh exists but pitt doesnt (same school) so things might get weird with cfb
+  - team_id: Null
+    name: Pitt
+    abrev: PITT
+    color: "#003594"
+    alt_color: Null
+    mascot: Panthers
+    logos: https://1000logos.net/wp-content/uploads/2021/07/Pittsburgh-Panthers-logo.png
+    division: Null
+    long_name: Null
+edit_teams:
+# these exist in cfb data but are incomplete, only need values in spots with nulls from cfb
+  - team_id: Null
+    name: Marquette
+    abrev: MU
+    color: "#003366"
+    alt_color: Null
+    mascot: Golden Eagles
+    logos: https://1000logos.net/wp-content/uploads/2021/06/Marquette-Golden-Eagles-logo.png
+    division: Null
+    long_name: Null
+  - team_id: Null
+    name: Seton Hall
+    abrev: SHU
+    color: "#004488"
+    alt_color: Null
+    mascot: Pirates
+    logos: https://1000logos.net/wp-content/uploads/2021/07/Seton-Hall-Pirates-logo.png
+    division: Null
+    long_name: Null
+  - team_id: Null
+    name: Vermont
+    abrev: UVM
+    color: "#154734"
+    alt_color: Null
+    mascot: Catamounts
+    logos: https://1000logos.net/wp-content/uploads/2021/07/Vermont-Catamounts-logo.png
+    division: Null
+    long_name: Null
+  - team_id: Null
+    name: Providence
+    abrev: HPU
+    color: "#83878A"
+    alt_color: Null
+    mascot: Friars
+    logos: https://1000logos.net/wp-content/uploads/2022/02/Providence-Friars-logo.png
+    division: Null
+    long_name: Null
+  - team_id: Null
+    name: High Point
+    abrev: HPU
+    color: "#330072"
+    alt_color: Null
+    mascot: Panthers
+    logos: https://1000logos.net/wp-content/uploads/2021/06/High-Point-Panthers-logo.png
+    division: Null
+    long_name: Null
+  - team_id: Null
+    name: Drexel
+    abrev: DU
+    color: "#00437B"
+    alt_color: Null
+    mascot: Dragons
+    logos: https://1000logos.net/wp-content/uploads/2021/06/Drexel-Dragons-logo.png
+    division: Null
+    long_name: Null
+  - team_id: Null
+    name: Gonzaga
+    abrev: GU
+    color: "#041E42"
+    alt_color: Null
+    mascot: Bulldogs
+    logos: https://1000logos.net/wp-content/uploads/2021/06/Gonzaga-Bulldogs-logo.png
+    division: Null
+    long_name: Null
+  - team_id: Null
+    name: Xavier
+    abrev: XU
+    color: "#0C2340"
+    alt_color: Null
+    mascot: Musketeers
+    logos: https://1000logos.net/wp-content/uploads/2021/07/Xavier-Musketeers-logo.png
+    division: Null
+    long_name: Null
+  - team_id: Null
+    name: Creighton
+    abrev: CREI
+    color: "#005CA9"
+    alt_color: Null
+    mascot: Bluejays
+    logos: https://1000logos.net/wp-content/uploads/2022/04/Creighton-Bluejays-Logo.png
+    division: Null
+    long_name: Null
+  - team_id: Null
+    name: Saint Mary's
+    abrev: SMC
+    color: "#005CA9"
+    alt_color: Null
+    mascot: Gaels
+    logos: https://1000logos.net/wp-content/uploads/2021/07/Saint-Marys-Gaels-logo.png
+    division: Null
+    long_name: Null
