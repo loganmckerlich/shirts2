@@ -1,11 +1,59 @@
 new_teams:
 # these dont exist in cfb data
-# green bay
-# st johns
-# grand canyon
-# McNeese State
-# Quinnipiac
-# UC Irvine
+  - team_id: Null
+    name: Green Bay
+    abrev: UWGB
+    color: "#006747"
+    alt_color: Null
+    mascot: Pheonix
+    logos: https://1000logos.net/wp-content/uploads/2022/03/Wisconsin-Green-Bay-Phoenix-logo.png
+    division: Null
+    long_name: Null
+  - team_id: Null
+    name: St. John's
+    abrev: SJU
+    color: "#BA0C2F"
+    alt_color: Null
+    mascot: Red Storm
+    logos: https://1000logos.net/wp-content/uploads/2022/02/St.-Johns-Red-Storm-logo.png
+    division: Null
+    long_name: Null
+  - team_id: Null
+    name: Grand Canyon
+    abrev: GCU
+    color: "#522398"
+    alt_color: Null
+    mascot: Antelopes
+    logos: https://1000logos.net/wp-content/uploads/2021/06/Grand-Canyon-Antelopes-logo.png
+    division: Null
+    long_name: Null
+  - team_id: Null
+    name: McNeese State
+    abrev: MSU
+    color: "#00529B"
+    alt_color: Null
+    mascot: Cowboys
+    logos: https://1000logos.net/wp-content/uploads/2021/07/McNeese-State-Cowboys-logo.png
+    division: Null
+    long_name: Null
+  - team_id: Null
+    name: Quinnipiac
+    abrev: QU
+    color: "#0C2340"
+    alt_color: Null
+    mascot: Bobcats
+    logos: https://1000logos.net/wp-content/uploads/2021/07/Quinnipiac-Bobcats-logo.png
+    division: Null
+    long_name: Null
+  - team_id: Null
+    name: UC Irvine
+    abrev: UCI
+    color: "#0C2340"
+    alt_color: Null
+    mascot: Anteaters
+    logos: https://1000logos.net/wp-content/uploads/2022/03/California-Irvine-Anteaters-Logo.png
+    division: Null
+    long_name: Null
   - team_id: Null
     name: UConn
     abrev: UCONN
