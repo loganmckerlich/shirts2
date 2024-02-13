@@ -187,4 +187,3 @@ def most_frequent(List):
     if len(set(List)) > 1:
         print("There are multiple weeks represented in these games")
     return max(set(List), key=List.count)
-

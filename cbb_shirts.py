@@ -4,6 +4,7 @@ import time
 import traceback
 import yaml
 
+
 def process_game(game, teams, main_config, test, pref, ify_user, save_image):
     game_parsed = hf.parse_cbb_game(game, teams)
 
@@ -15,7 +16,7 @@ def process_game(game, teams, main_config, test, pref, ify_user, save_image):
             title, description, tags = hf.generate_t_d_t_cbb(game_parsed)
             if pref == "pre":
                 title = title + " pre-game"
-            
+
             if save_image:
                 try:
                     design.save(f".image_saves/{title}.png")
@@ -32,7 +33,14 @@ def process_game(game, teams, main_config, test, pref, ify_user, save_image):
 
 
 def daily_run(
-    test=False, fake_date=None, limit=None, do_yesterday=True, do_today=True, check_each=False, just_ranked=False, save_image = True
+    test=False,
+    fake_date=None,
+    limit=None,
+    do_yesterday=True,
+    do_today=True,
+    check_each=False,
+    just_ranked=False,
+    save_image=True,
 ):
     design_config, shop_config = hf.get_config("cbb")
     main_config = hf.combine_configs(design_config, shop_config)
@@ -41,8 +49,8 @@ def daily_run(
     if fake_date is not None:
         date = fake_date
     else:
-        date = (dt.datetime.utcnow()+dt.timedelta(hours=-8)).date()
-    print(f'Today is {date}')
+        date = (dt.datetime.utcnow() + dt.timedelta(hours=-8)).date()
+    print(f"Today is {date}")
     teams = cfbd_loader.get_team_info()
 
     todays_games = hf.get_day_bball_games(date)
@@ -58,20 +66,36 @@ def daily_run(
         if len(todays_games) > 0:
             for i in range(len(todays_games)):
                 game = todays_games.iloc[i]
-                if (not just_ranked) or (game['team1Rank'] is not None) or (game['team2Rank'] is not None):
+                if (
+                    (not just_ranked)
+                    or (game["team1Rank"] is not None)
+                    or (game["team2Rank"] is not None)
+                ):
                     try:
                         if check_each:
                             print(game)
                             a = input("proceed?")
                             if a == "yes":
                                 title = process_game(
-                                    game, teams, main_config, test, pref="pre", ify_user=ify_user, save_image=save_image
+                                    game,
+                                    teams,
+                                    main_config,
+                                    test,
+                                    pref="pre",
+                                    ify_user=ify_user,
+                                    save_image=save_image,
                                 )
                             else:
                                 pass
                         else:
                             title = process_game(
-                                game, teams, main_config, test, pref="pre", ify_user=ify_user, save_image=save_image
+                                game,
+                                teams,
+                                main_config,
+                                test,
+                                pref="pre",
+                                ify_user=ify_user,
+                                save_image=save_image,
                             )
                         print(f"Created {title}")
                     except Exception as e:
@@ -84,20 +108,36 @@ def daily_run(
         if len(yesterdays_games) > 0:
             for i in range(len(yesterdays_games)):
                 game = yesterdays_games.iloc[i]
-                if (not just_ranked) or (game['team1Rank'] is not None) or (game['team2Rank'] is not None):
+                if (
+                    (not just_ranked)
+                    or (game["team1Rank"] is not None)
+                    or (game["team2Rank"] is not None)
+                ):
                     try:
                         if check_each:
                             print(game)
                             a = input("proceed?")
                             if a == "yes":
                                 title = process_game(
-                                    game, teams, main_config, test, pref="post", ify_user=ify_user, save_image=save_image
+                                    game,
+                                    teams,
+                                    main_config,
+                                    test,
+                                    pref="post",
+                                    ify_user=ify_user,
+                                    save_image=save_image,
                                 )
                             else:
                                 pass
                         else:
                             title = process_game(
-                                game, teams, main_config, test, pref="post", ify_user=ify_user, save_image=save_image
+                                game,
+                                teams,
+                                main_config,
+                                test,
+                                pref="post",
+                                ify_user=ify_user,
+                                save_image=save_image,
                             )
                         print(f"Created {title}")
                     except Exception as e:
@@ -121,12 +161,12 @@ if __name__ == "__main__":
     with open("info/cbb_runtime_params.yml", "r") as f:
         runtime = yaml.safe_load(f)
     daily_run(
-        test=runtime['test'],
-        fake_date=runtime['fake_date'],
-        limit=runtime['limit'],
-        do_yesterday=runtime['do_yesterday'],
-        do_today=runtime['do_today'],
-        check_each=runtime['check_each'],
-        just_ranked=runtime['just_ranked']
-        , save_image=runtime['save_image']
-        )
+        test=runtime["test"],
+        fake_date=runtime["fake_date"],
+        limit=runtime["limit"],
+        do_yesterday=runtime["do_yesterday"],
+        do_today=runtime["do_today"],
+        check_each=runtime["check_each"],
+        just_ranked=runtime["just_ranked"],
+        save_image=runtime["save_image"],
+    )
