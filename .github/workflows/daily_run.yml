@@ -19,13 +19,15 @@ jobs:
       #     SF_CREDS: ${{ secrets.FAKE_PRIVATE }}
       #   run: |
       #     echo $FAKE_PRIVATE | base64 --decode > info/private.txt
-      - name: Run Workflow
-        id: write_file
-        uses: timheuer/base64-to-file@v1.2
+      - uses: akiojin/decode-base64-github-action@v0.1.0
+        id: decode-base64
         with:
-          fileName: 'private.yml'
-          fileDir: './info/'
-          encodedString: ${{ secrets.FAKE_PRIVATE }}
+          base64: ${{ secrets.FAKE_PRIVATE }}
+          output-path: info/private.yml
+      - run: |
+          echo "Path=${{ steps.decode-base64.outputs.output-path }}"
+          cat ${{ steps.decode-base64.outputs.output-path }}
+
       - name: setup python
         uses: actions/setup-python@v4
         with:
