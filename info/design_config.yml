@@ -1,0 +1,11 @@
+# this goes to the file that assembles the image
+#4500X5100PX
+W: 450
+H: 510
+iw: 320
+ih: 320
+lw: 50
+lh: 50
+logo_buffer: 50
+default_logo: 'https://github.com/klunn91/team-logos/blob/master/NCAA/_NCAA_logo.png?raw=true'
+dalle: 3

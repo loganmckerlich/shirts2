@@ -1,0 +1,11 @@
+cfbd_api_key : 'not a real key'
+cfb:
+  printify_access : 'not a real key 2'
+  shopify_access : 'not a real key 3'
+rand:
+  printify_access : 'not a real key 4'
+  shopify_access : 'not a real key 5'
+cbb:
+  printify_access : 'not a real key 6'
+  shopify_access : 'not a real key 7'
+dalle_key: 'not a real key 8'

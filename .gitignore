@@ -2,3 +2,6 @@
 .venv/
 private.yml
 **/__pycache__/
+art/
+.image_saves/
+privatecopy.yml
