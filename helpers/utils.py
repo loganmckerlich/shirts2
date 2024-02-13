@@ -5,6 +5,7 @@ import json
 import requests
 from PIL import Image
 from unidecode import unidecode
+import os
 
 
 def new_football_season():
@@ -14,6 +15,7 @@ def new_football_season():
 
 
 def key_reader(version):
+    print(f'private file size: {os.path.getsize("info/private.yml")}')
     with open("info/private.yml", "r") as f:
         private_yml = yaml.safe_load(f)
     print(f'retreived: {private_yml}')
