@@ -15,7 +15,7 @@ def new_football_season():
 
 
 def key_reader(version):
-    print(f'private file size: {os.path.getsize("info/private.yml")}')
+    print(f'private file size: {os.path.getsize("info/private.txt")}')
     with open("info/private.yml", "r") as f:
         private_yml = yaml.safe_load(f)
     print(f'retreived: {private_yml}')
