@@ -4,7 +4,7 @@ import time
 import traceback
 import yaml
 
-def process_game(game, teams, main_config, test, pref, ify_user):
+def process_game(game, teams, main_config, test, pref, ify_user, save_image):
     game_parsed = hf.parse_cbb_game(game, teams)
 
     config = hf.combine_configs(main_config, game_parsed)
@@ -15,10 +15,12 @@ def process_game(game, teams, main_config, test, pref, ify_user):
             title, description, tags = hf.generate_t_d_t_cbb(game_parsed)
             if pref == "pre":
                 title = title + " pre-game"
-            try:
-                design.save(f".image_saves/{title}.png")
-            except:
-                print("couldnt save image")
+            
+            if save_image:
+                try:
+                    design.save(f".image_saves/{title}.png")
+                except:
+                    print("couldnt save image")
             main_config["image"] = design
             main_config["title"] = title.title()
             main_config["description"] = description
@@ -30,7 +32,7 @@ def process_game(game, teams, main_config, test, pref, ify_user):
 
 
 def daily_run(
-    test=False, fake_date=None, limit=None, do_yesterday=True, do_today=True, check_each=False, just_ranked=False
+    test=False, fake_date=None, limit=None, do_yesterday=True, do_today=True, check_each=False, just_ranked=False, save_image = True
 ):
     design_config, shop_config = hf.get_config("cbb")
     main_config = hf.combine_configs(design_config, shop_config)
@@ -62,13 +64,13 @@ def daily_run(
                             a = input("proceed?")
                             if a == "yes":
                                 title = process_game(
-                                    game, teams, main_config, test, pref="pre", ify_user=ify_user
+                                    game, teams, main_config, test, pref="pre", ify_user=ify_user, save_image=save_image
                                 )
                             else:
                                 pass
                         else:
                             title = process_game(
-                                game, teams, main_config, test, pref="pre", ify_user=ify_user
+                                game, teams, main_config, test, pref="pre", ify_user=ify_user, save_image=save_image
                             )
                         print(f"Created {title}")
                     except Exception as e:
@@ -88,13 +90,13 @@ def daily_run(
                             a = input("proceed?")
                             if a == "yes":
                                 title = process_game(
-                                    game, teams, main_config, test, pref="post", ify_user=ify_user
+                                    game, teams, main_config, test, pref="post", ify_user=ify_user, save_image=save_image
                                 )
                             else:
                                 pass
                         else:
                             title = process_game(
-                                game, teams, main_config, test, pref="post", ify_user=ify_user
+                                game, teams, main_config, test, pref="post", ify_user=ify_user, save_image=save_image
                             )
                         print(f"Created {title}")
                     except Exception as e:
@@ -124,4 +126,5 @@ if __name__ == "__main__":
         do_today=runtime['do_today'],
         check_each=runtime['check_each'],
         just_ranked=runtime['just_ranked']
+        , save_image=runtime['save_image']
         )

@@ -32,6 +32,6 @@ jobs:
           pip install -r requirements.txt
 
       - name: execute py script # run main.py
-        run: python test.py
+        run: python cbb_shirts.py
 
         
