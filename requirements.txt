@@ -1,5 +1,4 @@
 cfbd == 4.5.2
-ipykernel == 6.28.0
 pillow == 10.2.0
 requests == 2.31.0
 pandas == 2.1.4

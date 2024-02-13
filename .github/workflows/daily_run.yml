@@ -1,4 +1,4 @@
-name: run main.py
+name: run
 
 on:
   schedule:
@@ -11,6 +11,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+
+      - name: set secrets
+        shell: bash
+        run: echo ${{ secrets.private }} | base64 --decode > info/private.yml
 
       - name: checkout repo content
         uses: actions/checkout@v2 # checkout the repository content
@@ -25,10 +29,6 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: set secrets
-        shell: bash
-        run: echo ${{ secrets.private }} | base64 --output info/private.yml --decode 
-        
       - name: execute py script # run main.py
         run: python test.py
 
