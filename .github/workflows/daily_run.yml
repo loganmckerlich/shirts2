@@ -11,15 +11,14 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: checkout repo content
+        uses: actions/checkout@v3
+        
       - name: retreive secret + decode to file
         env:
           SF_CREDS: ${{ secrets.private }}
         run: |
           echo $private | base64 --decode > info/private.yml
-
-      - name: checkout repo content
-        uses: actions/checkout@v2 # checkout the repository content
 
       - name: setup python
         uses: actions/setup-python@v4
