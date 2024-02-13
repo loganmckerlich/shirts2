@@ -17,7 +17,7 @@ jobs:
 
       - name: retreive secret + decode to file
         env:
-          SF_CREDS: ${{ secrets.FAKE_PRIVATE }}
+          FAKE_PRIVATE: ${{ secrets.FAKE_PRIVATE }}
         run: |
           echo $FAKE_PRIVATE | base64 --decode > info/private.yml
 
