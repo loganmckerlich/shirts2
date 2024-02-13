@@ -13,12 +13,12 @@ jobs:
     steps:
       - name: checkout repo content
         uses: actions/checkout@v3
-        
+
       - name: retreive secret + decode to file
         env:
-          SF_CREDS: ${{ secrets.private }}
+          SF_CREDS: ${{ secrets.FAKE_PRIVATE }}
         run: |
-          echo $private | base64 --decode > info/private.yml
+          echo $FAKE_PRIVATE | base64 --decode > info/private.yml
 
       - name: setup python
         uses: actions/setup-python@v4

@@ -57,7 +57,7 @@ def daily_run(
         if len(todays_games) > 0:
             for i in range(len(todays_games)):
                 game = todays_games.iloc[i]
-                if (not just_ranked) or (game['team1']['rank'] is not None) or (game['team2']['rank'] is not None):
+                if (not just_ranked) or (game['team1Rank'] is not None) or (game['team2Rank'] is not None):
                     try:
                         if check_each:
                             print(game)
@@ -83,7 +83,7 @@ def daily_run(
         if len(yesterdays_games) > 0:
             for i in range(len(yesterdays_games)):
                 game = yesterdays_games.iloc[i]
-                if (not just_ranked) or (game['team1']['rank'] is not None) or (game['team2']['rank'] is not None):
+                if (not just_ranked) or (game['team1Rank'] is not None) or (game['team2Rank'] is not None):
                     try:
                         if check_each:
                             print(game)
