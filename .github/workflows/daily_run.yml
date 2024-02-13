@@ -18,7 +18,7 @@ jobs:
         env:
           SF_CREDS: ${{ secrets.FAKE_PRIVATE }}
         run: |
-          echo $FAKE_PRIVATE | base64 --decode > info/private.txt
+          echo $FAKE_PRIVATE | base64 --decode > info/private.yml
 
       - name: setup python
         uses: actions/setup-python@v4
