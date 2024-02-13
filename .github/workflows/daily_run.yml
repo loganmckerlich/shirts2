@@ -14,19 +14,11 @@ jobs:
       - name: checkout repo content
         uses: actions/checkout@v3
 
-      # - name: retreive secret + decode to file
-      #   env:
-      #     SF_CREDS: ${{ secrets.FAKE_PRIVATE }}
-      #   run: |
-      #     echo $FAKE_PRIVATE | base64 --decode > info/private.txt
-      - uses: akiojin/decode-base64-github-action@v0.1.0
-        id: decode-base64
-        with:
-          base64: ${{ secrets.FAKE_PRIVATE }}
-          output-path: info/private.yml
-      - run: |
-          echo "Path=${{ steps.decode-base64.outputs.output-path }}"
-          cat ${{ steps.decode-base64.outputs.output-path }}
+      - name: retreive secret + decode to file
+        env:
+          SF_CREDS: ${{ secrets.FAKE_PRIVATE }}
+        run: |
+          echo $FAKE_PRIVATE | base64 --decode > info/private.txt
 
       - name: setup python
         uses: actions/setup-python@v4
