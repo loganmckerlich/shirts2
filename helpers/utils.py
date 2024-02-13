@@ -18,7 +18,6 @@ def key_reader(version):
     print(f'private file size: {os.path.getsize("info/private.yml")}')
     with open("info/private.yml", "r") as f:
         private_yml = yaml.safe_load(f)
-    print(f'retreived: {private_yml}')
     cfbd_api_key = private_yml["cfbd_api_key"]
     dalle_key = private_yml["dalle_key"]
     printify_access = private_yml[version]["printify_access"]

@@ -17,9 +17,9 @@ jobs:
 
       - name: retreive secret + decode to file
         env:
-          FAKE_PRIVATE: ${{ secrets.FAKE_PRIVATE }}
+          PRIVATE: ${{ secrets.PRIVATE }}
         run: |
-          echo $FAKE_PRIVATE | base64 --decode > info/private.yml
+          echo $PRIVATE | base64 --decode > info/private.yml
 
       - name: setup python
         uses: actions/setup-python@v4
