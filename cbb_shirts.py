@@ -1,10 +1,8 @@
 import datetime as dt
 import helpers as hf
-import pandas as pd
 import time
 import traceback
-import sys
-
+import yaml
 
 def process_game(game, teams, main_config, test, pref, ify_user):
     game_parsed = hf.parse_cbb_game(game, teams)
@@ -32,7 +30,7 @@ def process_game(game, teams, main_config, test, pref, ify_user):
 
 
 def daily_run(
-    test=False, fake_date=None, limit=None, do_yesterday=True, check_each=False
+    test=False, fake_date=None, limit=None, do_yesterday=True, do_today=True, check_each=False, just_ranked=False
 ):
     design_config, shop_config = hf.get_config("cbb")
     main_config = hf.combine_configs(design_config, shop_config)
@@ -53,71 +51,58 @@ def daily_run(
         print(f"Limiting to {limit} games")
         todays_games = todays_games[:limit]
         yesterdays_games = yesterdays_games[:limit]
-    if len(todays_games) > 0:
-        for i in range(len(todays_games)):
-            game = todays_games.iloc[i]
-            try:
-                if check_each:
-                    print(game)
-                    a = input("proceed?")
-                    if a == "yes":
-                        title = process_game(
-                            game,
-                            teams,
-                            main_config,
-                            test,
-                            pref="pre",
-                            ify_user=ify_user,
-                        )
-                    else:
-                        pass
+    if do_today:
+        if len(todays_games) > 0:
+            for i in range(len(todays_games)):
+                game = todays_games.iloc[i]
+                if (not just_ranked) or (game['team1']['rank'] is not None) or (game['team2']['rank'] is not None):
+                    try:
+                        if check_each:
+                            print(game)
+                            a = input("proceed?")
+                            if a == "yes":
+                                title = process_game(
+                                    game, teams, main_config, test, pref="pre", ify_user=ify_user
+                                )
+                            else:
+                                pass
+                        else:
+                            title = process_game(
+                                game, teams, main_config, test, pref="pre", ify_user=ify_user
+                            )
+                        print(f"Created {title}")
+                    except Exception as e:
+                        print(f"Failed")
+                        print(e)
+                        print(traceback.format_exc())
                 else:
-                    title = process_game(
-                        game, teams, main_config, test, pref="pre", ify_user=ify_user
-                    )
-                print(f"Created {title}")
-            except Exception as e:
-                print(f"Failed")
-                print(e)
-                print(sys.exc_info()[2])
+                    print("skipped because no ranked team and were in that mode")
     if do_yesterday:
         if len(yesterdays_games) > 0:
             for i in range(len(yesterdays_games)):
                 game = yesterdays_games.iloc[i]
-                try:
-                    if check_each:
-                        print(game)
-                        a = input("proceed?")
-                        if a == "yes":
-                            title = process_game(
-                                game,
-                                teams,
-                                main_config,
-                                test,
-                                pref="post",
-                                ify_user=ify_user,
-                            )
+                if (not just_ranked) or (game['team1']['rank'] is not None) or (game['team2']['rank'] is not None):
+                    try:
+                        if check_each:
+                            print(game)
+                            a = input("proceed?")
+                            if a == "yes":
+                                title = process_game(
+                                    game, teams, main_config, test, pref="post", ify_user=ify_user
+                                )
+                            else:
+                                pass
                         else:
-                            pass
-                    else:
-                        title = process_game(
-                            game,
-                            teams,
-                            main_config,
-                            test,
-                            pref="post",
-                            ify_user=ify_user,
-                        )
-                    print(f"Created {title}")
-                except Exception as e:
-                    print(f"Failed")
-                    print(e)
-                    print("-----")
-                    print(traceback.format_exc())
-                    print("-----")
-                    traceback.format_exc()
-                    print("-----")
-                    traceback.print_exception(*sys.exc_info())
+                            title = process_game(
+                                game, teams, main_config, test, pref="post", ify_user=ify_user
+                            )
+                        print(f"Created {title}")
+                    except Exception as e:
+                        print(f"Failed")
+                        print(e)
+                        print(traceback.format_exc())
+                else:
+                    print("skipped because no ranked team and were in that mode")
     print("5 m pause before store organizing")
     time.sleep(60 * 5)
     ify_user.cover_image_wrapper()
@@ -129,5 +114,14 @@ def daily_run(
 
 
 if __name__ == "__main__":
-    daily_run(check_each=True)
-    # daily_run(test=False,fake_date=pd.to_datetime('03-15-1997'),do_yesterday=False,check_each=True)
+    with open("info/cbb_runtime_params.yml", "r") as f:
+        runtime = yaml.safe_load(f)
+    daily_run(
+        test=runtime['test'],
+        fake_date=runtime['fake_date'],
+        limit=runtime['limit'],
+        do_yesterday=runtime['do_yesterday'],
+        do_today=runtime['do_today'],
+        check_each=runtime['check_each'],
+        just_ranked=runtime['just_ranked']
+        )

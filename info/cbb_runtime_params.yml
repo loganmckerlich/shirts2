@@ -1,0 +1,7 @@
+test: false
+fake_date: null
+limit: null
+do_yesterday: true
+do_today: false
+check_each: false
+just_ranked: true
