@@ -18,6 +18,7 @@ def cbb_cfb_exceptions(df):
 
 def get_day_bball_games(date_=dt.date.today() - dt.timedelta(days=1)):
     y, d, m = date_.year, date_.day, date_.month
+    print(f"getting games for month:{m}, day:{d}, year:{y}")
     base_url = f"https://www.sports-reference.com/cbb/boxscores/index.cgi?month={m}&day={d}&year={y}"
     res = requests.get(base_url, headers={"User-Agent": "Mozilla/5.0"})
     res.raise_for_status()

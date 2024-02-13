@@ -41,7 +41,8 @@ def daily_run(
     if fake_date is not None:
         date = fake_date
     else:
-        date = dt.date.today()
+        date = (dt.datetime.utcnow()+dt.timedelta(hours=-8)).date()
+    print(f'Today is {date}')
     teams = cfbd_loader.get_team_info()
 
     todays_games = hf.get_day_bball_games(date)

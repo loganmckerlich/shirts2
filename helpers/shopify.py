@@ -348,6 +348,7 @@ class shopify_printify:
                 seconds_in_day = 24 * 60 * 60
                 dif_s = (int(dif.days) * int(seconds_in_day)) + dif.seconds
                 mins = dif_s / (60)
+                # this is not great logic
                 if mins < 20:
                     # if there are more than 20 mins between publish and update it has probably been updated already
                     prods.append(prod)

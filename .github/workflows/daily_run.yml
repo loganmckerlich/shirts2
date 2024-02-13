@@ -1,10 +1,7 @@
 name: run
 on:
   schedule:
-    - cron: '1 0 * * *' # every morn
-  push:
-    branches:
-      - dev
+    - cron: '0 10 * * *' # this isi utc pst is +8 this is 2am pst
 
 jobs:
   build:
