@@ -116,6 +116,7 @@ def daily_run(
 
 
 if __name__ == "__main__":
+    print("starting")
     with open("info/cbb_runtime_params.yml", "r") as f:
         runtime = yaml.safe_load(f)
     daily_run(
