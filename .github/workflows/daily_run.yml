@@ -14,12 +14,18 @@ jobs:
       - name: checkout repo content
         uses: actions/checkout@v3
 
-      - name: retreive secret + decode to file
-        env:
-          SF_CREDS: ${{ secrets.FAKE_PRIVATE }}
-        run: |
-          echo $FAKE_PRIVATE | base64 --decode > info/private.txt
-
+      # - name: retreive secret + decode to file
+      #   env:
+      #     SF_CREDS: ${{ secrets.FAKE_PRIVATE }}
+      #   run: |
+      #     echo $FAKE_PRIVATE | base64 --decode > info/private.txt
+      - name: Run Workflow
+        id: write_file
+        uses: timheuer/base64-to-file@v1.2
+        with:
+          fileName: 'private.yml'
+          fileDir: './info/'
+          encodedString: ${{ secrets.FAKE_PRIVATE }}
       - name: setup python
         uses: actions/setup-python@v4
         with:

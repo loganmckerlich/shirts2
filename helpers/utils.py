@@ -15,7 +15,7 @@ def new_football_season():
 
 
 def key_reader(version):
-    print(f'private file size: {os.path.getsize("info/private.txt")}')
+    print(f'private file size: {os.path.getsize("info/private.yml")}')
     with open("info/private.yml", "r") as f:
         private_yml = yaml.safe_load(f)
     print(f'retreived: {private_yml}')
@@ -188,3 +188,4 @@ def most_frequent(List):
     if len(set(List)) > 1:
         print("There are multiple weeks represented in these games")
     return max(set(List), key=List.count)
+
