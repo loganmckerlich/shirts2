@@ -1,7 +1,7 @@
 name: run
 on:
   schedule:
-    - cron: '0 10 * * *' # this isi utc pst is +8 this is 2am pst
+    - cron: '30 16 * * *' # this is 8:30am pst. basketball ref usually finishes updating around 7:45
 
 jobs:
   build:
