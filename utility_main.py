@@ -9,7 +9,7 @@ if __name__ == "__main__":
     
 
     # ify_user.set_prices(2199)
-    ify_user.cover_image_wrapper()
+    # ify_user.cover_image_wrapper()
     # ify_user.reset_collections(teams)
     # ify_user.delete_collections()
-    # ify_user.create_collections_cbb(teams)
+    ify_user.create_collections_cbb(teams)

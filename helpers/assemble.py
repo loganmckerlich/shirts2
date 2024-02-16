@@ -261,6 +261,8 @@ def build_cbb(config, test=True):
             name_mascot_1 = team1r
         if type(config["team2"]["mascot"]) == str:
             name_mascot_2 = team2r+' '+config['team2']['mascot']
+        else:
+            name_mascot_2 = team2r
         
         game_text = f"{name_mascot_1}\n Vs.\n {name_mascot_2}\n {gamedate}"
 
