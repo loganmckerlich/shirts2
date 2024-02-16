@@ -434,6 +434,7 @@ class shopify_printify:
                     "image":{"src":logo,"alt":f"{title} Logo"},
                     "collects": collects,
                     "body_html": desc,
+                    "sort_order": "created-desc",
                 }
             }
         else:
@@ -442,6 +443,7 @@ class shopify_printify:
                     "title": title,
                     "collects": collects,
                     "body_html": desc,
+                    "sort_order": "created-desc",
                 }
             }
         response1 = requests.post(
@@ -489,9 +491,11 @@ class shopify_printify:
 
         collection_link = f"https://{self.post_dict[self.version]['shop_name']}.myshopify.com/admin/api/2023-04/custom_collections.json"
         print('Creating collection for each team')
+        all_list=[]
         for team in team_content.keys():
             id_list = team_content[team]
             if len(id_list) > 0:
+                all_list.extend(id_list)
                 desc = f'Custom basketball apparel for all the biggest {team} games'
                 if team in logo_content.keys():
                     logo = logo_content[team]
@@ -509,6 +513,9 @@ class shopify_printify:
                     coll_name = coll_name.split("<")[0].replace("|", "")
 
                     self.post_collection(id_list, coll_name, collection_link)
+        # create the all collection for main page
+        # I think main jsut stays around regardless
+        # self.post_collection(all_list, 'All', collection_link, "All of our custom basketball merch", None)
 
     def create_collections_rand(self, teams):
         products_link = f"https://{self.post_dict[self.version]['shop_name']}.myshopify.com/admin/api/2024-01/products.json"
