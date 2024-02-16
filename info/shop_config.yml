@@ -10,19 +10,37 @@ cbb:
   shop_id : 14069125
   shop_name : c2b32f-2
 title: 'test'
-price: 2599
+
 description: 'this a test'
 tags: 'this,a,test'
-blueprint_id: 6
-print_provider_id: 99
-variant_ids:
-  - 12070
-  - 12071
-  - 12072
-  - 12073
-  - 12074
-  - 12100
-  - 12101
-  - 12102
-  - 12103
-  - 12104
+products:
+  - name : shirt
+    price: 2599
+    blueprint_id: 6
+    print_provider_id: 99
+    variant_ids:
+      - 12070
+      - 12071
+      - 12072
+      - 12073
+      - 12074
+      - 12100
+      - 12101
+      - 12102
+      - 12103
+      - 12104
+  - name : sweater
+    price: 3599
+    blueprint_id: 49
+    print_provider_id: 99
+    variant_ids:
+      - 25395
+      - 25396
+      - 25426
+      - 25427
+      - 25457
+      - 25458
+      - 25488
+      - 25489
+      - 25519
+      - 25520
