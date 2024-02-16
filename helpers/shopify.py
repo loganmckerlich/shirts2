@@ -488,7 +488,7 @@ class shopify_printify:
         for team in team_content.keys():
             id_list = team_content[team]
             if len(id_list) > 0:
-                desc = f'Custom {team} basketball merch for all the biggest games'
+                desc = f'Custom basketball apparel for all the biggest {team} games'
                 if team in logo_content.keys():
                     logo = logo_content[team]
                 else: logo = None
