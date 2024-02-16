@@ -375,6 +375,7 @@ class shopify_printify:
         teams should just be a list of every team
         """
         team_content = {}
+        logo_content= {}
         "Kansas State Vs Florida Atlantic"
 
         for product in response1.json()["products"]:
@@ -383,16 +384,25 @@ class shopify_printify:
             team2 = product["title"].split(" Vs ")[1].split(".")[0]
             if team1 not in team_content.keys():
                 team_content[team1] = [product["id"]]
+                if team1 in list(teams.name):
+                    logo_content[team1] = teams.loc[teams.name==team1].logos.values[0]
+                elif team1.upper() in list(teams.abrev):
+                    logo_content[team1] = teams.loc[teams.abrev==team1.upper()].logos.values[0]
+
             else:
                 team_content[team1].append(product["id"])
 
             if team2 not in team_content.keys():
                 team_content[team2] = [product["id"]]
+                if team2 in list(teams.name):
+                    logo_content[team2] = teams.loc[teams.name==team2].logos.values[0]
+                elif team2.upper() in list(teams.abrev):
+                    logo_content[team2] = teams.loc[teams.abrev==team2.upper()].logos.values[0]
             else:
                 team_content[team2].append(product["id"])
 
         # this returns a dict of team:[ids for collection]
-        return team_content
+        return team_content,logo_content
 
     def create_round_collections(self, response1):
         """ """
@@ -409,14 +419,27 @@ class shopify_printify:
         # this returns a dict of team:[ids for collection]
         return round_content
 
-    def post_collection(self, id_list, title, link):
+    def post_collection(self, id_list, title, link, desc=None, logo = None):
+        if desc is None:
+            desc = title
         collects = [{"product_id": x} for x in id_list]
-        collection_data = {
-            "custom_collection": {
-                "title": title,
-                "collects": collects,
+        if logo is not None:
+            collection_data = {
+                "custom_collection": {
+                    "title": title,
+                    "image":{"src":logo,"alt":f"{title} Logo"},
+                    "collects": collects,
+                    "body_html": desc,
+                }
             }
-        }
+        else:
+            collection_data = {
+                "custom_collection": {
+                    "title": title,
+                    "collects": collects,
+                    "body_html": desc,
+                }
+            }
         response1 = requests.post(
             link, headers=self.headers_shopify, json=collection_data
         )
@@ -434,10 +457,10 @@ class shopify_printify:
 
         week_content = self.create_week_collections(response1)
 
-        team_content = self.create_team_collections(response1, teams)
+        team_content,logo_content = self.create_team_collections(response1, teams)
 
         collection_link = f"https://{self.post_dict[self.version]['shop_name']}.myshopify.com/admin/api/2023-04/custom_collections.json"
-
+        print('will create collection for each team and week')
         for week in week_content.keys():
             id_list = week_content[week]
             if len(id_list) > 0:
@@ -455,18 +478,23 @@ class shopify_printify:
 
         response1 = requests.get(products_link, headers=self.headers_shopify)
 
-        team_content = self.create_team_collections(response1, teams)
+        team_content,logo_content = self.create_team_collections(response1, teams)
 
         if rounds:
             round_content = self.create_round_collections(response1)
 
         collection_link = f"https://{self.post_dict[self.version]['shop_name']}.myshopify.com/admin/api/2023-04/custom_collections.json"
-
+        print('Creating collection for each team')
         for team in team_content.keys():
             id_list = team_content[team]
             if len(id_list) > 0:
+                desc = f'Custom {team} basketball merch for all the biggest games'
+                if team in logo_content.keys():
+                    logo = logo_content[team]
+                else: logo = None
+                
                 time.sleep(0.75)
-                self.post_collection(id_list, team, collection_link)
+                self.post_collection(id_list, team, collection_link, desc, logo)
 
         if rounds:
             for round in round_content.keys():
@@ -483,7 +511,7 @@ class shopify_printify:
 
         response1 = requests.get(products_link, headers=self.headers_shopify)
 
-        team_content = self.create_team_collections(response1, teams)
+        team_content,logo_content = self.create_team_collections(response1, teams)
 
         collection_link = f"https://{self.post_dict[self.version]['shop_name']}.myshopify.com/admin/api/2023-04/custom_collections.json"
 
@@ -493,32 +521,45 @@ class shopify_printify:
                 time.sleep(0.75)
                 self.post_collection(id_list, team, collection_link)
 
-    def delete_collections(self):
-        url = f"https://{self.post_dict[self.version]['shop_name']}.myshopify.com/admin/api/2021-07/custom_collections.json"
-        # Make the API request to get the list of collections
-        response = requests.get(url, headers=self.headers_shopify)
+    def delete_collections_recur(self,response,url):
         # Check if the request was successful (status code 200)
         if response.status_code == 200:
             # Extract and delete each collection
             collections = response.json()["custom_collections"]
-            for collection in collections:
-                time.sleep(1)
-                collection_id = collection["id"]
-                delete_endpoint = f"https://{self.post_dict[self.version]['shop_name']}.myshopify.com//admin/api/2021-07/custom_collections/{collection_id}.json"
-                delete_response = requests.delete(
-                    delete_endpoint, headers=self.headers_shopify
-                )
-
-                # Check if the delete request was successful (status code 200)
-                if delete_response.status_code == 200:
-                    # print(f"Collection with ID {collection_id} deleted successfully.")
-                    pass
-                else:
-                    print(
-                        f"Error deleting collection {collection_id}: {delete_response.status_code} - {delete_response.text}"
+            if len(collections)>0:
+                print(f'Currently {len(collections)} collections, going to delete all')
+                for collection in collections:
+                    time.sleep(1)
+                    collection_id = collection["id"]
+                    delete_endpoint = f"https://{self.post_dict[self.version]['shop_name']}.myshopify.com//admin/api/2021-07/custom_collections/{collection_id}.json"
+                    delete_response = requests.delete(
+                        delete_endpoint, headers=self.headers_shopify
                     )
+
+                    # Check if the delete request was successful (status code 200)
+                    if delete_response.status_code == 200:
+                        # print(f"Collection with ID {collection_id} deleted successfully.")
+                        pass
+                    else:
+                        print(
+                            f"Error deleting collection {collection_id}: {delete_response.status_code} - {delete_response.text}"
+                        )
+                print('Deleted all those, going to recur again to see if theres more')
+                response2 = requests.get(url, headers=self.headers_shopify)
+                self.delete_collections_recur(response2,url)
+            else:
+                print('No more collections')
+                return
         else:
-            print(f"Error: {response.status_code} - {response.text}")
+            print(f"Error: {response.status_code} - {response.text}")    
+
+    def delete_collections(self):
+        url = f"https://{self.post_dict[self.version]['shop_name']}.myshopify.com/admin/api/2021-07/custom_collections.json"
+        # Make the API request to get the list of collections
+
+        response = requests.get(url, headers=self.headers_shopify)
+        # this gets collections, and deletes them, until theres no more collections
+        self.delete_collections_recur(response,url)
 
     def reset_collections(self, teams=None):
         self.delete_collections()
