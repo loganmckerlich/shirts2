@@ -116,93 +116,93 @@ class shopify_printify:
             print("image and text sent to printify")
             image_id = img_response.json()["id"]
             text_id = txt_response.json()["id"]
-            variants = [
-                {"id": id, "price": self.post_dict["price"], "is_enabled": True}
-                for id in self.post_dict["variant_ids"]
-            ]
-            # this might not work because I dont think Ill have the idea until after I post it
-            data = {
-                "title": self.post_dict["title"],
-                "description": self.post_dict["description"],
-                "tags": self.post_dict["tags"].split(
-                    ", "
-                ),  # Assuming tags are comma-separated in the CSV
-                "blueprint_id": self.post_dict["blueprint_id"],
-                "print_provider_id": self.post_dict["print_provider_id"],
-                "variants": variants,
-                "print_areas": [
-                    {
-                        "variant_ids": self.post_dict[
-                            "variant_ids"
-                        ],  # Replace with the actual variant ID
-                        "placeholders": [
-                            {
-                                "position": "back",  # post to back of shirt, put a lil one on front with just date team score
-                                "images": [
-                                    {
-                                        "id": image_id,
-                                        "x": 0.5,
-                                        "y": 0.5,
-                                        "scale": 1,
-                                        "angle": 0,
-                                    }
-                                ],
-                            },
-                            {
-                                "position": "front",
-                                "images": [
-                                    {
-                                        "id": text_id,
-                                        "x": 0.25,
-                                        "y": 0.25,
-                                        "scale": 0.4,
-                                        "angle": 0,
-                                    }
-                                ],
-                            },
-                        ],
-                    }
-                ],
-            }
 
-            response1 = requests.post(
-                product_url, headers=self.headers_printify, json=data
-            )
-            if response1.status_code == 200:
-                print("Product posted successfully in Printify")
-            else:
-                print("Failed to post product in Printify")
-                print(response1.text)
-                print(response1.status_code)
-
-            if publish:
-                # this part does the publishing
-                printify_publish = f"{self.post_dict['base_url']}/shops/{self.post_dict[self.version]['shop_id']}/products/{json.loads(response1.text)['id']}/publish.json"
-
-                update_data = {
-                    "title": True,
-                    "description": True,
-                    "images": True,
-                    "variants": True,
-                    "tags": True,
-                    "keyFeatures": True,
-                    "shipping_template": True,
+            for product_type in self.post_dict["products"]:
+                print(f"doing {product_type['name']}")
+                variants = [
+                    {"id": id, "price": product_type["price"], "is_enabled": True}
+                    for id in product_type["variant_ids"]
+                ]
+                data = {
+                    "title": self.post_dict["title"],
+                    "description": self.post_dict["description"],
+                    "tags": self.post_dict["tags"].split(
+                        ", "
+                    ),  # Assuming tags are comma-separated in the CSV
+                    "blueprint_id": product_type["blueprint_id"],
+                    "print_provider_id": product_type["print_provider_id"],
+                    "variants": variants,
+                    "print_areas": [
+                        {
+                            "variant_ids": product_type["variant_ids"],
+                            "placeholders": [
+                                {
+                                    "position": "back",  # post to back of shirt, put a lil one on front with just date team score
+                                    "images": [
+                                        {
+                                            "id": image_id,
+                                            "x": 0.5,
+                                            "y": 0.5,
+                                            "scale": 1,
+                                            "angle": 0,
+                                        }
+                                    ],
+                                },
+                                {
+                                    "position": "front",
+                                    "images": [
+                                        {
+                                            "id": text_id,
+                                            "x": 0.25,
+                                            "y": 0.25,
+                                            "scale": 0.4,
+                                            "angle": 0,
+                                        }
+                                    ],
+                                },
+                            ],
+                        }
+                    ],
                 }
 
-                # Patch request to update the product status
-                response2 = requests.post(
-                    printify_publish, headers=self.headers_printify, json=update_data
+                response1 = requests.post(
+                    product_url, headers=self.headers_printify, json=data
                 )
-                if response2.status_code == 200:
-                    print("Product published successfully in Printify")
+                if response1.status_code == 200:
+                    print("Product posted successfully in Printify")
                 else:
-                    print("Failed to publish product in Printify")
-                    print(response2.status_code)
-                    print(response2.text)
-        else:
-            print("unable to send image to printify")
-            print(img_response.status_code)
-            print(img_response.text)
+                    print("Failed to post product in Printify")
+                    print(response1.text)
+                    print(response1.status_code)
+
+                if publish:
+                    # this part does the publishing
+                    printify_publish = f"{self.post_dict['base_url']}/shops/{self.post_dict[self.version]['shop_id']}/products/{json.loads(response1.text)['id']}/publish.json"
+
+                    update_data = {
+                        "title": True,
+                        "description": True,
+                        "images": True,
+                        "variants": True,
+                        "tags": True,
+                        "keyFeatures": True,
+                        "shipping_template": True,
+                    }
+
+                    # Patch request to update the product status
+                    response2 = requests.post(
+                        printify_publish, headers=self.headers_printify, json=update_data
+                    )
+                    if response2.status_code == 200:
+                        print("Product published successfully in Printify")
+                    else:
+                        print("Failed to publish product in Printify")
+                        print(response2.status_code)
+                        print(response2.text)
+            else:
+                print("unable to send image to printify")
+                print(img_response.status_code)
+                print(img_response.text)
 
     def image_module(item):
         url_title = (
@@ -570,29 +570,51 @@ class shopify_printify:
         elif self.version == "cbb":
             self.create_collections_cbb(teams)
 
-    def set_prices(self, new_price):
-        print(f"about to set every item in the store to ${new_price}")
+    def set_prices(self, t_price, s_price):
+        print(f"about to set every t shirt in the store to ${t_price} and every sweater to ${s_price}")
         products_link = f"https://{self.post_dict[self.version]['shop_name']}.myshopify.com/admin/api/2024-01/products.json"
         response = requests.get(products_link, headers=self.headers_shopify)
         products = response.json()["products"]
 
         for product in products:
-            print(f'Updating {product["id"]}')
-            # Update each variant's price
-            for variant in product["variants"]:
-                if int(float(variant["price"])) == int(new_price):
-                    print("price already there")
-                else:
-                    variant_id = variant["id"]
-                    update_url = f"https://{self.post_dict[self.version]['shop_name']}.myshopify.com/admin/api/2024-01/variants/{variant_id}.json"
-                    update_data = {"variant": {"id": variant_id, "price": new_price}}
-                    resp = requests.put(
-                        update_url, json=update_data, headers=self.headers_shopify
-                    )
-                    if resp.status_code == 200:
-                        time.sleep(0.5)
+            if product['product_type']=='T-Shirt':
+                print(f'Updating {product["title"]}, {product["product_type"]} to {t_price}')
+                # Update each variant's price
+                for variant in product["variants"]:
+                    if int(float(variant["price"])) == int(t_price):
+                        print("price already there")
                     else:
-                        print("fail")
-                        print(resp.status_code)
-                        print(resp.text)
-            print("success")
+                        variant_id = variant["id"]
+                        update_url = f"https://{self.post_dict[self.version]['shop_name']}.myshopify.com/admin/api/2024-01/variants/{variant_id}.json"
+                        update_data = {"variant": {"id": variant_id, "price": t_price}}
+                        resp = requests.put(
+                            update_url, json=update_data, headers=self.headers_shopify
+                        )
+                        if resp.status_code == 200:
+                            time.sleep(0.5)
+                        else:
+                            print("fail")
+                            print(resp.status_code)
+                            print(resp.text)
+                print("success")
+            # need to actually find out what this product type is this is a guess
+            elif product['product_type']=='Sweater':
+                print(f'Updating {product["title"]}, {product["product_type"]} to {s_price}')
+                # Update each variant's price
+                for variant in product["variants"]:
+                    if int(float(variant["price"])) == int(s_price):
+                        print("price already there")
+                    else:
+                        variant_id = variant["id"]
+                        update_url = f"https://{self.post_dict[self.version]['shop_name']}.myshopify.com/admin/api/2024-01/variants/{variant_id}.json"
+                        update_data = {"variant": {"id": variant_id, "price": s_price}}
+                        resp = requests.put(
+                            update_url, json=update_data, headers=self.headers_shopify
+                        )
+                        if resp.status_code == 200:
+                            time.sleep(0.5)
+                        else:
+                            print("fail")
+                            print(resp.status_code)
+                            print(resp.text)
+                print("success")
