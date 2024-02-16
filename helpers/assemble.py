@@ -254,16 +254,17 @@ def build_cbb(config, test=True):
 
         text_draw = ImageDraw.Draw(text)
 
+        # type checking because sometimes its None sometimes its Nan also we go both or neither on names
         if (
-            config["team1"]["mascot"] is not None
-            and config["team2"]["mascot"] is not None
+            type(config["team1"]["mascot"]) == str
+            and type(config["team2"]["mascot"]) == str
         ):
             game_text = f"{team1r} {config['team1']['mascot']}\n Vs.\n {team2r} {config['team2']['mascot']}\n {gamedate}"
         else:
             game_text = f"{team1r}\n Vs.\n {team2r}\n {gamedate}"
 
         game_font = simple_size_font_recur(
-            text_draw, game_text, W, "Universal_Serif", 75
+            text_draw, game_text, W, "Universal_Serif", 50
         )
 
         text_draw.text((0, 0), game_text, font=game_font, fill="black")

@@ -3,7 +3,7 @@ import requests
 from PIL import Image
 from openai import OpenAI
 import random
-
+import math
 
 def dalle_image(client, prompt, v):
     response = client.images.generate(
@@ -42,10 +42,11 @@ def generate_main(prompt, dalle_key, test=True, dalle=3, retry=True):
 
 
 def prompt_engineer(sport, team1, team2, mascot1=None, mascot2=None):
-    """ """
-    if mascot1 is None:
+    
+    # type checking because sometimes its nan sometimes its None
+    if type(mascot1)!=str:
         mascot1 = ""
-    if mascot2 is None:
+    if type(mascot2)!=str:
         mascot2 = ""
 
     styles = [

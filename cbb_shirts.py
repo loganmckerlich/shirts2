@@ -86,7 +86,7 @@ def daily_run(
                                     save_image=save_image,
                                 )
                             else:
-                                pass
+                                title = 'na'
                         else:
                             title = process_game(
                                 game,
@@ -128,7 +128,7 @@ def daily_run(
                                     save_image=save_image,
                                 )
                             else:
-                                pass
+                                title = 'na'
                         else:
                             title = process_game(
                                 game,
