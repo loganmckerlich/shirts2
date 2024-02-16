@@ -175,8 +175,8 @@ def generate_t_d_t_cbb(game_config):
         + f"AI image representing the basketball game "
         + mid
         + f"between {game_config['team1']['name']} and {game_config['team2']['name']}, {mid2} {game_config['date']}"
-        +""
-        + {game_config['team1']['name']}+' '+{game_config['team1']['mascot']}+' '+'basketball shirt'+{game_config['team2']['name']}+' '+{game_config['team2']['mascot']}+' '+'basketball shirt'
+        + ""
+        + f"{game_config['team1']['name']} {game_config['team1']['mascot']} basketball shirt {game_config['team2']['name']} {game_config['team2']['mascot']} basketball shirt"
         + f"\n||{game_config['team1']['name']}|| ||{game_config['team2']['name']}||"
         + f"ROUND: ||{game_config['desc']}||"
     )

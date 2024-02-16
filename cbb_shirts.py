@@ -151,9 +151,8 @@ def daily_run(
     ify_user.cover_image_wrapper()
 
     # organize store
-    team_names = list(teams.name)
     # delete all my collections and rebuild them with all products
-    ify_user.reset_collections(team_names)
+    ify_user.reset_collections(teams)
 
 
 if __name__ == "__main__":

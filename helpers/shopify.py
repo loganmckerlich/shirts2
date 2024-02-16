@@ -123,9 +123,13 @@ class shopify_printify:
                     {"id": id, "price": product_type["price"], "is_enabled": True}
                     for id in product_type["variant_ids"]
                 ]
+                if product_type['name'] == 'sweater':
+                    descrip = self.post_dict["description"].replace('shirt','crewneck')
+                else:
+                    descrip = self.post_dict["description"]
                 data = {
                     "title": self.post_dict["title"],
-                    "description": self.post_dict["description"],
+                    "description": descrip,
                     "tags": self.post_dict["tags"].split(
                         ", "
                     ),  # Assuming tags are comma-separated in the CSV
@@ -199,10 +203,10 @@ class shopify_printify:
                         print("Failed to publish product in Printify")
                         print(response2.status_code)
                         print(response2.text)
-            else:
-                print("unable to send image to printify")
-                print(img_response.status_code)
-                print(img_response.text)
+        else:
+            print("unable to send image to printify")
+            print(img_response.status_code)
+            print(img_response.text)
 
     def image_module(item):
         url_title = (
@@ -598,7 +602,7 @@ class shopify_printify:
                             print(resp.text)
                 print("success")
             # need to actually find out what this product type is this is a guess
-            elif product['product_type']=='Sweater':
+            elif product['product_type']=='Sweatshirt':
                 print(f'Updating {product["title"]}, {product["product_type"]} to {s_price}')
                 # Update each variant's price
                 for variant in product["variants"]:
