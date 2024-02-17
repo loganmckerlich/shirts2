@@ -90,6 +90,8 @@ def daily_run(
                                     ify_user=ify_user,
                                     save_image=save_image,
                                 )
+                                print(f"Created {title}")
+                                created +=1
                             else:
                                 title = 'na'
                         else:
@@ -102,8 +104,8 @@ def daily_run(
                                 ify_user=ify_user,
                                 save_image=save_image,
                             )
-                        print(f"Created {title}")
-                        created +=1
+                            print(f"Created {title}")
+                            created +=1
                     except Exception as e:
                         print(f"Failed")
                         print(e)
@@ -135,6 +137,8 @@ def daily_run(
                                     ify_user=ify_user,
                                     save_image=save_image,
                                 )
+                                print(f"Created {title}")
+                                created +=1
                             else:
                                 title = 'na'
                         else:
@@ -147,8 +151,8 @@ def daily_run(
                                 ify_user=ify_user,
                                 save_image=save_image,
                             )
-                        print(f"Created {title}")
-                        created +=1
+                            print(f"Created {title}")
+                            created +=1
                     except Exception as e:
                         print(f"Failed")
                         print(e)
@@ -175,8 +179,8 @@ if __name__ == "__main__":
         fake_date=runtime["fake_date"],
         limit=runtime["limit"],
         do_yesterday=runtime["do_yesterday"],
-        do_today=runtime["do_today"],
-        check_each=runtime["check_each"],
+        do_today=True,
+        check_each=True,
         just_ranked=runtime["just_ranked"],
         save_image=runtime["save_image"],
     )
