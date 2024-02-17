@@ -407,8 +407,8 @@ class shopify_printify:
                 else:
                     logo_content[team1] = self.post_dict["default_logo"]
             # this catches teams that exist and have a 'logo' but its just nan
-            if type(logo_content[team2]) ==  float:
-                logo_content[team2] = self.post_dict["default_logo"]
+            if type(logo_content[team1]) ==  float:
+                logo_content[team1] = self.post_dict["default_logo"]
 
             # team 2 product
             if team2 not in team_content.keys():
