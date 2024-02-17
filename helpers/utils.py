@@ -171,7 +171,8 @@ def generate_t_d_t_cbb(game_config):
         mid2 = "to be played "
 
     description = (
-        before
+        "Unisex! Sizes are in mens"
+        + before
         + f"AI image representing the basketball game "
         + mid
         + f"between {game_config['team1']['name']} and {game_config['team2']['name']}, {mid2} {game_config['date']}"
