@@ -42,6 +42,9 @@ def daily_run(
     just_ranked=False,
     save_image=True,
 ):
+    created = 0
+    with open("info/2024_qualifiers.yml","r") as f:
+        qualifiers = yaml.safe_load(f)
     design_config, shop_config = hf.get_config("cbb")
     main_config = hf.combine_configs(design_config, shop_config)
     ify_user = hf.shopify_printify(main_config, "cbb")
@@ -70,6 +73,8 @@ def daily_run(
                     (not just_ranked)
                     or (game["team1Rank"] is not None)
                     or (game["team2Rank"] is not None)
+                    or (game["team1"] in qualifiers)
+                    or (game["team2"] in qualifiers) 
                 ):
                     try:
                         if check_each:
@@ -85,6 +90,8 @@ def daily_run(
                                     ify_user=ify_user,
                                     save_image=save_image,
                                 )
+                                print(f"Created {title}")
+                                created +=1
                             else:
                                 title = 'na'
                         else:
@@ -97,7 +104,8 @@ def daily_run(
                                 ify_user=ify_user,
                                 save_image=save_image,
                             )
-                        print(f"Created {title}")
+                            print(f"Created {title}")
+                            created +=1
                     except Exception as e:
                         print(f"Failed")
                         print(e)
@@ -112,6 +120,8 @@ def daily_run(
                     (not just_ranked)
                     or (game["team1Rank"] is not None)
                     or (game["team2Rank"] is not None)
+                    or (game["team1"] in qualifiers)
+                    or (game["team2"] in qualifiers) 
                 ):
                     try:
                         if check_each:
@@ -127,6 +137,8 @@ def daily_run(
                                     ify_user=ify_user,
                                     save_image=save_image,
                                 )
+                                print(f"Created {title}")
+                                created +=1
                             else:
                                 title = 'na'
                         else:
@@ -139,20 +151,23 @@ def daily_run(
                                 ify_user=ify_user,
                                 save_image=save_image,
                             )
-                        print(f"Created {title}")
+                            print(f"Created {title}")
+                            created +=1
                     except Exception as e:
                         print(f"Failed")
                         print(e)
                         print(traceback.format_exc())
                 else:
                     print("skipped because no ranked team and were in that mode")
-    print("5 m pause before store organizing")
-    time.sleep(60 * 5)
-    ify_user.cover_image_wrapper()
+    print(f"Created {created} new designs. This cost ${(created*4)/100}")
+    if created>0:
+        print("5 m pause before store organizing")
+        time.sleep(60 * 5)
+        ify_user.cover_image_wrapper()
 
-    # organize store
-    # delete all my collections and rebuild them with all products
-    ify_user.reset_collections(teams)
+        # organize store
+        # delete all my collections and rebuild them with all products
+        ify_user.reset_collections(teams)
 
 
 if __name__ == "__main__":
@@ -164,8 +179,8 @@ if __name__ == "__main__":
         fake_date=runtime["fake_date"],
         limit=runtime["limit"],
         do_yesterday=runtime["do_yesterday"],
-        do_today=runtime["do_today"],
-        check_each=runtime["check_each"],
+        do_today=True,
+        check_each=True,
         just_ranked=runtime["just_ranked"],
         save_image=runtime["save_image"],
     )

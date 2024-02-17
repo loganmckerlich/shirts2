@@ -73,6 +73,33 @@ new_teams:
     logos: https://1000logos.net/wp-content/uploads/2021/07/Pittsburgh-Panthers-logo.png
     division: Null
     long_name: Null
+  - team_id: Null
+    name: UNC Wilmington
+    abrev: UNCW
+    color: "#003366"
+    alt_color: Null
+    mascot: Seahawks
+    logos: https://1000logos.net/wp-content/uploads/2021/07/NC-Wilmington-Seahawks-logo.png
+    division: Null
+    long_name: Null
+  - team_id: Null
+    name: Sam Houston
+    abrev: SHSU
+    color: "#FE5100"
+    alt_color: Null
+    mascot: Bear Cats
+    logos: https://1000logos.net/wp-content/uploads/2022/02/Sam-Houston-State-Bearkats-logo.png
+    division: Null
+    long_name: Null
+  - team_id: Null
+    name: Oakland
+    abrev: PITT
+    color: "#B59A57"
+    alt_color: Null
+    mascot: Golden Grizzlies
+    logos: https://1000logos.net/wp-content/uploads/2021/07/Oakland-Golden-Grizzlies-Logo.png
+    division: Null
+    long_name: Null
 edit_teams:
 # these exist in cfb data but are incomplete, only need values in spots with nulls from cfb
   - team_id: Null
@@ -165,3 +192,5 @@ edit_teams:
     logos: https://1000logos.net/wp-content/uploads/2021/07/Saint-Marys-Gaels-logo.png
     division: Null
     long_name: Null
+remove_teams:
+ - 3198.0

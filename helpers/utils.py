@@ -143,7 +143,7 @@ def generate_t_d_t(game_config):
         mid = f"{game_config['game']['score'][0]} to {game_config['game']['score'][1]} "
         mid2 = "played at "
     else:
-        before = "Generated before the game has been played. "
+        before = "Created before the game has been played. "
         mid = ""
         mid2 = "to be played "
 
@@ -166,17 +166,17 @@ def generate_t_d_t_cbb(game_config):
         mid = f"{game_config['team1']['score']} to {game_config['team2']['score']} "
         mid2 = "played at "
     else:
-        before = "Generated before the game has been played, Score Not yet available. "
+        before = "Created before the game has been played, Score Not yet available. "
         mid = ""
         mid2 = "to be played "
 
     description = (
-        "Unisex! Sizes are in mens"
+        "Unisex! Sizes are in mens.\n "
         + before
         + f"AI image representing the basketball game "
         + mid
-        + f"between {game_config['team1']['name']} and {game_config['team2']['name']}, {mid2} {game_config['date']}"
-        + ""
+        + f"between {game_config['team1']['name']} and {game_config['team2']['name']}, {mid2} {game_config['date']} "
+        + "\n"
         + f"{game_config['team1']['name']} {game_config['team1']['mascot']} basketball shirt {game_config['team2']['name']} {game_config['team2']['mascot']} basketball shirt"
         + f"\n||{game_config['team1']['name']}|| ||{game_config['team2']['name']}||"
         + f"ROUND: ||{game_config['desc']}||"

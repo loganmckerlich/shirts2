@@ -3,8 +3,6 @@ from .image_generation import generate_main, prompt_engineer
 import requests
 import pandas as pd
 import numpy as np
-from unidecode import unidecode
-
 
 def size_font_recur(img_draw, team1, team2, W, font, size):
     mainfont = ImageFont.truetype(
