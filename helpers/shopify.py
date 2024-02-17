@@ -180,6 +180,7 @@ class shopify_printify:
                     print(response1.status_code)
 
                 if publish:
+                    # I think I can add a step maybe just before publishing to edit which photos it publishes
                     # this part does the publishing
                     printify_publish = f"{self.post_dict['base_url']}/shops/{self.post_dict[self.version]['shop_id']}/products/{json.loads(response1.text)['id']}/publish.json"
 
@@ -209,6 +210,7 @@ class shopify_printify:
             print(img_response.text)
 
     def image_module(item):
+        # this is an attempt at reordering the images in printify before publishing, didnt work but I havent given up as it would be nice
         url_title = (
             item["title"].replace(" ", "-").replace(",", "").replace(".", "").lower()
         )
@@ -283,6 +285,7 @@ class shopify_printify:
             )
 
     def update_images2(self, prods):
+        # this reorders images once in shopify
         for prod in prods:
             try:
                 prod_id = prod["id"]
@@ -360,21 +363,21 @@ class shopify_printify:
         self.update_images2(prods)
         print(f"cover image set to back of shirt for {len(prods)} shirts")
 
-    def create_week_collections(self, response1):
+    def create_week_collections(self, all_products):
         week_content = {}
         rs = ["regular-season" + " Week " + str(x) for x in range(0, 13)]
         ps = ["postseason" + " Week " + str(x) for x in range(0, 13)]
         rs.extend(ps)
         for week in rs:
             week_content[week] = []
-            for product in response1.json()["products"]:
+            for product in all_products:
                 if week in product["title"]:
                     week_content[week].append(product["id"])
 
         # this returns a dict of week:[ids for collection]
         return week_content
 
-    def create_team_collections(self, response1, teams):
+    def create_team_collections(self, all_products, teams):
         """
         teams should just be a list of every team
         """
@@ -382,30 +385,48 @@ class shopify_printify:
         logo_content= {}
         "Kansas State Vs Florida Atlantic"
 
-        for product in response1.json()["products"]:
+        for product in all_products:
             # my desc has team wrapped in || this prevents kansas for trigger kansas and kansasa state etc
             team1 = product["title"].split(" Vs ")[0]
             team2 = product["title"].split(" Vs ")[1].split(".")[0]
+
+            # team 1 product
             if team1 not in team_content.keys():
+                # team collection has not yet been started, add a list with this id under the team
                 team_content[team1] = [product["id"]]
+            else:
+                # team collection has been started, just add this ID to it
+                team_content[team1].append(product["id"])
+
+            # team1 logo
+            if team1 not in logo_content.keys():
                 if team1 in list(teams.name):
                     logo_content[team1] = teams.loc[teams.name==team1].logos.values[0]
                 elif team1.upper() in list(teams.abrev):
                     logo_content[team1] = teams.loc[teams.abrev==team1.upper()].logos.values[0]
+                else:
+                    logo_content[team1] = self.post_dict["default_logo"]
+            # this catches teams that exist and have a 'logo' but its just nan
+            if type(logo_content[team2]) ==  float:
+                logo_content[team2] = self.post_dict["default_logo"]
 
-            else:
-                team_content[team1].append(product["id"])
-
+            # team 2 product
             if team2 not in team_content.keys():
                 team_content[team2] = [product["id"]]
+            else:
+                team_content[team2].append(product["id"])
+
+            # team 2 logo
+            if team2 not in logo_content.keys():
                 if team2 in list(teams.name):
                     logo_content[team2] = teams.loc[teams.name==team2].logos.values[0]
                 elif team2.upper() in list(teams.abrev):
                     logo_content[team2] = teams.loc[teams.abrev==team2.upper()].logos.values[0]
-            else:
-                team_content[team2].append(product["id"])
-
-        # this returns a dict of team:[ids for collection]
+                else:
+                    logo_content[team2] = self.post_dict["default_logo"]
+            if type(logo_content[team2]) ==  float:
+                logo_content[team2] = self.post_dict["default_logo"]
+        # this returns a dict of team:[ids for collection] and a dict of team:logo
         return team_content,logo_content
 
     def create_round_collections(self, response1):
@@ -446,9 +467,14 @@ class shopify_printify:
                     "sort_order": "created-desc",
                 }
             }
-        response1 = requests.post(
-            link, headers=self.headers_shopify, json=collection_data
-        )
+        try:
+            response1 = requests.post(
+                link, headers=self.headers_shopify, json=collection_data
+            )
+        except Exception as e:
+            print(link)
+            print(collection_data)
+            raise e
         if response1.status_code == 201:
             print(f"collection created {title}")
         else:
@@ -479,15 +505,25 @@ class shopify_printify:
                 time.sleep(0.75)
                 self.post_collection(id_list, team, collection_link)
 
+
+    def recur_get_products(self,products_link,products=[]):
+        response = requests.get(products_link, headers=self.headers_shopify)
+        products.extend(response.json()["products"])
+        if 'next' in response.links.keys():
+            # theres another page of products
+            time.sleep(1)
+            return self.recur_get_products(response.links['next']['url'],products=products)
+        else:
+            return products
+
     def create_collections_cbb(self, teams, rounds=False):
-        products_link = f"https://{self.post_dict[self.version]['shop_name']}.myshopify.com/admin/api/2024-01/products.json"
+        products_link = f"https://{self.post_dict[self.version]['shop_name']}.myshopify.com/admin/api/2024-01/products.json?limit=250"
+        all_products = self.recur_get_products(products_link)
 
-        response1 = requests.get(products_link, headers=self.headers_shopify)
-
-        team_content,logo_content = self.create_team_collections(response1, teams)
+        team_content,logo_content = self.create_team_collections(all_products, teams)
 
         if rounds:
-            round_content = self.create_round_collections(response1)
+            round_content = self.create_round_collections(all_products)
 
         collection_link = f"https://{self.post_dict[self.version]['shop_name']}.myshopify.com/admin/api/2023-04/custom_collections.json"
         print('Creating collection for each team')
@@ -542,7 +578,7 @@ class shopify_printify:
                 for collection in collections:
                     time.sleep(1)
                     collection_id = collection["id"]
-                    delete_endpoint = f"https://{self.post_dict[self.version]['shop_name']}.myshopify.com//admin/api/2021-07/custom_collections/{collection_id}.json"
+                    delete_endpoint = f"https://{self.post_dict[self.version]['shop_name']}.myshopify.com//admin/api/2021-07/custom_collections/{collection_id}.json?limit=250"
                     delete_response = requests.delete(
                         delete_endpoint, headers=self.headers_shopify
                     )
@@ -562,10 +598,10 @@ class shopify_printify:
                 print('No more collections')
                 return
         else:
-            print(f"Error: {response.status_code} - {response.text}")    
+            print(f"Error: {response.status_code} - {response.text}")
 
     def delete_collections(self):
-        url = f"https://{self.post_dict[self.version]['shop_name']}.myshopify.com/admin/api/2021-07/custom_collections.json"
+        url = f"https://{self.post_dict[self.version]['shop_name']}.myshopify.com/admin/api/2021-07/custom_collections.json?limit=250"
         # Make the API request to get the list of collections
 
         response = requests.get(url, headers=self.headers_shopify)
@@ -583,9 +619,8 @@ class shopify_printify:
 
     def set_prices(self, t_price, s_price):
         print(f"about to set every t shirt in the store to ${t_price} and every sweater to ${s_price}")
-        products_link = f"https://{self.post_dict[self.version]['shop_name']}.myshopify.com/admin/api/2024-01/products.json"
-        response = requests.get(products_link, headers=self.headers_shopify)
-        products = response.json()["products"]
+        products_link = f"https://{self.post_dict[self.version]['shop_name']}.myshopify.com/admin/api/2024-01/products.json?limit=250"
+        products = self.recur_get_products(products_link)
 
         for product in products:
             if product['product_type']=='T-Shirt':
