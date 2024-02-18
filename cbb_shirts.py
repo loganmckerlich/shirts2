@@ -179,7 +179,7 @@ if __name__ == "__main__":
         fake_date=runtime["fake_date"],
         limit=runtime["limit"],
         do_yesterday=runtime["do_yesterday"],
-        do_today=runtime["do_yesterday"],
+        do_today=runtime["do_today"],
         check_each=runtime["check_each"],
         just_ranked=runtime["just_ranked"],
         save_image=runtime["save_image"],
