@@ -43,7 +43,7 @@ def daily_run(
     save_image=True,
 ):
     created = 0
-    with open("info/2024_qualifiers.yml","r") as f:
+    with open("info/2024_qualifiers.yml", "r") as f:
         qualifiers = yaml.safe_load(f)
     design_config, shop_config = hf.get_config("cbb")
     main_config = hf.combine_configs(design_config, shop_config)
@@ -74,7 +74,7 @@ def daily_run(
                     or (game["team1Rank"] is not None)
                     or (game["team2Rank"] is not None)
                     or (game["team1"] in qualifiers)
-                    or (game["team2"] in qualifiers) 
+                    or (game["team2"] in qualifiers)
                 ):
                     try:
                         if check_each:
@@ -90,10 +90,10 @@ def daily_run(
                                     ify_user=ify_user,
                                     save_image=save_image,
                                 )
-                                print(f"Created {title}")
-                                created +=1
+                                created += 1
+                                print(f"Created {title}, {created} products so far")
                             else:
-                                title = 'na'
+                                title = "na"
                         else:
                             title = process_game(
                                 game,
@@ -104,8 +104,8 @@ def daily_run(
                                 ify_user=ify_user,
                                 save_image=save_image,
                             )
-                            print(f"Created {title}")
-                            created +=1
+                            created += 1
+                            print(f"Created {title}, {created} products so far")
                     except Exception as e:
                         print(f"Failed")
                         print(e)
@@ -121,7 +121,7 @@ def daily_run(
                     or (game["team1Rank"] is not None)
                     or (game["team2Rank"] is not None)
                     or (game["team1"] in qualifiers)
-                    or (game["team2"] in qualifiers) 
+                    or (game["team2"] in qualifiers)
                 ):
                     try:
                         if check_each:
@@ -137,10 +137,10 @@ def daily_run(
                                     ify_user=ify_user,
                                     save_image=save_image,
                                 )
-                                print(f"Created {title}")
-                                created +=1
+                                created += 1
+                                print(f"Created {title}, {created} products so far")
                             else:
-                                title = 'na'
+                                title = "na"
                         else:
                             title = process_game(
                                 game,
@@ -151,8 +151,8 @@ def daily_run(
                                 ify_user=ify_user,
                                 save_image=save_image,
                             )
-                            print(f"Created {title}")
-                            created +=1
+                            created += 1
+                            print(f"Created {title}, {created} products so far")
                     except Exception as e:
                         print(f"Failed")
                         print(e)
@@ -160,14 +160,22 @@ def daily_run(
                 else:
                     print("skipped because no ranked team and were in that mode")
     print(f"Created {created} new designs. This cost ${(created*4)/100}")
-    if created>0:
-        print("5 m pause before store organizing")
+    if created > 0:
+        ify_user.check_last_endpoint_recur()
+        print("5 additional m pause before store organizing")
         time.sleep(60 * 5)
         ify_user.cover_image_wrapper()
 
         # organize store
         # delete all my collections and rebuild them with all products
-        ify_user.reset_collections(teams)
+        ify_user.reset_collections(
+            teams,
+            exclude=[
+                "All Products",
+                "College Basketball T Shirts",
+                "College Basketball Crewnecks",
+            ],
+        )
 
 
 if __name__ == "__main__":

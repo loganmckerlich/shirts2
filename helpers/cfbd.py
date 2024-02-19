@@ -28,7 +28,9 @@ class cfbp_handler:
         yaml_data = read_yaml("info/data_quality.yml")
         new_teams_data = yaml_data.get("new_teams", [])
         edit_teams_data = yaml_data.get("edit_teams", [])
-        remove_teams = yaml_data.get("remove_teams", []) # this is mainly for dupes, uses cfbd ID column
+        remove_teams = yaml_data.get(
+            "remove_teams", []
+        )  # this is mainly for dupes, uses cfbd ID column
         remove_teams = [int(x) for x in remove_teams]
         new_teams_df = pd.DataFrame(new_teams_data)
         edit_teams_df = pd.DataFrame(edit_teams_data)
@@ -91,7 +93,7 @@ class cfbp_handler:
 
         new_teams, edit_teams, remove_teams = self.manual_adds()
 
-        all_teams_df = all_teams_df.loc[all_teams_df.id.isin(remove_teams)==False]
+        all_teams_df = all_teams_df.loc[all_teams_df.id.isin(remove_teams) == False]
 
         # add in my manual adds
         all_teams_df = pd.concat([all_teams_df, new_teams])
