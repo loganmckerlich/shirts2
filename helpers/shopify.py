@@ -267,6 +267,7 @@ class shopify_printify:
     def update_images2(self, prods, team=None):
         # this reorders images once in shopify
         for prod in prods:
+            print(f'Attempting to swap image for {team}')
             try:
                 prod_id = prod["id"]
                 prod_gql = prod["admin_graphql_api_id"]
@@ -333,6 +334,8 @@ class shopify_printify:
                 alt_resp = requests.put(alt_url, headers=self.headers_shopify, json=d)
                 if alt_resp.status_code != 200:
                     print(f"Failed to add alt text")
+                    print(alt_resp.status_code)
+                    print(alt_resp.text)
 
                 if alt_resp.headers["X-RateLimit-Remaining"] == 0:
                     # hopefully its a window thing and in a minute, the couple I started with arent included
@@ -347,7 +350,7 @@ class shopify_printify:
         all_prods = self.recursive_get_prods()
         prods = []
         for prod in all_prods:
-            team = prods["title"]
+            team = prod["title"]
             # on feb 18 I added it so when I update image I add alt text, this can be used to determine which have yet to be updated
             # basically from now on Ill know I need to switch the image If I dont see alt text
             # this is cleaner than it was, but I learned that My printify responses can give me my shopify ID so I could run through a bunch
