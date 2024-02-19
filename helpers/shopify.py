@@ -180,6 +180,7 @@ class shopify_printify:
                     print(response1.status_code)
 
                 if publish:
+                    # limited to posting one product per api post
                     # I think I can add a step maybe just before publishing to edit which photos it publishes
                     # this part does the publishing
                     printify_publish = f"{self.post_dict['base_url']}/shops/{self.post_dict[self.version]['shop_id']}/products/{json.loads(response1.text)['id']}/publish.json"
@@ -198,78 +199,48 @@ class shopify_printify:
                     response2 = requests.post(
                         printify_publish, headers=self.headers_printify, json=update_data
                     )
+
                     if response2.status_code == 200:
                         print("Product published successfully in Printify")
+                        if response2.headers['X-RateLimit-Remaining'] == 0:
+                            # hopefully its a window thing and in a minute, the couple I started with arent included
+                            print("Approaching rate limit, pausing for a minute")
+                            time.sleep(60)
+                    elif response2.status_code == 429:
+                        print("timed out, will pause for 10 mins then try to get going again")
+                        time.sleep(60*10)
+                        response2 = requests.post(
+                        printify_publish, headers=self.headers_printify, json=update_data
+                        )
+                        if response2.status_code == 200:
+                            print("Product published successfully in Printify")
+                        else:
+                            print("Failed to publish product in Printify")
+                            print(response2.status_code)
+                            print(response2.text)
                     else:
                         print("Failed to publish product in Printify")
                         print(response2.status_code)
                         print(response2.text)
+
+            self.last_endpoint = f"{self.post_dict['base_url']}/shops/{self.post_dict[self.version]['shop_id']}/products/{json.loads(response1.text)['id']}.json"
+            
         else:
             print("unable to send image to printify")
             print(img_response.status_code)
             print(img_response.text)
 
-    def image_module(item):
-        # this is an attempt at reordering the images in printify before publishing, didnt work but I havent given up as it would be nice
-        url_title = (
-            item["title"].replace(" ", "-").replace(",", "").replace(".", "").lower()
-        )
-
-        variant = 12100
-        b1a = f'https://images-api.printify.com/mockup/{item["id"]}/{variant}/92571/{url_title}.jpg?camera_label=back'
-        b2a = f'https://images-api.printify.com/mockup/{item["id"]}/{variant}/92570/{url_title}.jpg?camera_label=front'
-        b3a = f'https://images-api.printify.com/mockup/{item["id"]}/{variant}/92572/{url_title}.jpg?camera_label=person-1'
-
-        variant = 12070  # other color
-        b1b = f'https://images-api.printify.com/mockup/{item["id"]}/{variant}/92571/{url_title}.jpg?camera_label=back'
-        b2b = f'https://images-api.printify.com/mockup/{item["id"]}/{variant}/92570/{url_title}.jpg?camera_label=front'
-        b3b = f'https://images-api.printify.com/mockup/{item["id"]}/{variant}/92572/{url_title}.jpg?camera_label=person-1'
-
-        new_base = [
-            {
-                "src": f"{b1a}",
-                "variant_ids": [12100, 12101, 12102, 12103, 12104],
-                "position": "back",
-                "is_default": True,
-                "is_selected_for_publishing": True,
-            },
-            {
-                "src": f"{b2a}",
-                "variant_ids": [12100, 12101, 12102, 12103, 12104],
-                "position": "front",
-                "is_default": False,
-                "is_selected_for_publishing": True,
-            },
-            {
-                "src": f"{b3a}",
-                "variant_ids": [12100, 12101, 12102, 12103, 12104],
-                "position": "other",
-                "is_default": False,
-                "is_selected_for_publishing": True,
-            },
-            {
-                "src": f"{b1b}",
-                "variant_ids": [12070, 12071, 12072, 12073, 12074],
-                "position": "back",
-                "is_default": True,
-                "is_selected_for_publishing": True,
-            },
-            {
-                "src": f"{b2b}",
-                "variant_ids": [12070, 12071, 12072, 12073, 12074],
-                "position": "front",
-                "is_default": False,
-                "is_selected_for_publishing": True,
-            },
-            {
-                "src": f"{b3b}",
-                "variant_ids": [12070, 12071, 12072, 12073, 12074],
-                "position": "other",
-                "is_default": False,
-                "is_selected_for_publishing": True,
-            },
-        ]
-        return new_base
+    def check_last_endpoint_recur(self):
+        # this checks if my last published product is done publishing yet
+        url = self.last_endpoint
+        response = requests.get(url=url, headers=self.headers_printify)
+        if 'external' in json.loads(response.text).keys() and json.loads(response.text)['external']['id'] != '':
+            print('Last Product is published')
+            return True
+        else:
+            # wait 25 secs then check again
+            time.sleep(25)
+            return self.check_last_endpoint_recur()
 
     def recursive_get_prods(self, since_id=0, all_products=[]):
         url = f"https://{self.post_dict[self.version]['shop_name']}.myshopify.com/admin/api/2023-01/products.json?since_id={since_id}"
@@ -284,7 +255,7 @@ class shopify_printify:
                 since_id=products[-1]["id"], all_products=all_products
             )
 
-    def update_images2(self, prods):
+    def update_images2(self, prods, team = None):
         # this reorders images once in shopify
         for prod in prods:
             try:
@@ -340,6 +311,19 @@ class shopify_printify:
                 response = requests.post(
                     graphql_url, headers=self.headers_shopify, json={"query": q}
                 )
+
+                # add alt text, this will also let us know if we need to update image
+                d = {"image":{"id":image2,"position":1,"alt":f"Custom Basketball Merch {team}"}}
+                alt_url = f"https://{self.post_dict[self.version]['shop_name']}.myshopify.com/admin/api/2024-01/products/{prod_gql}/images/{image2}.json"
+                alt_resp = requests.put(alt_url,headers=self.headers_shopify,json=d)
+                if alt_resp.status_code!=200:
+                    print(f'Failed to add alt text')
+
+                if alt_resp.headers['X-RateLimit-Remaining'] == 0:
+                    # hopefully its a window thing and in a minute, the couple I started with arent included
+                    print("Approaching rate limit, pausing for a minute")
+                    time.sleep(60)
+                
             except:
                 print("failed to update cover")
 
@@ -348,19 +332,16 @@ class shopify_printify:
         all_prods = self.recursive_get_prods()
         prods = []
         for prod in all_prods:
-            if pd.to_datetime(prod["published_at"]).date() == dt.date.today():
-                dif = pd.to_datetime(prod["published_at"]) - pd.to_datetime(
-                    prod["updated_at"]
-                )
-                seconds_in_day = 24 * 60 * 60
-                dif_s = (int(dif.days) * int(seconds_in_day)) + dif.seconds
-                mins = dif_s / (60)
-                # this is not great logic I suspect theres a better way
-                if mins < 20:
-                    # if there are more than 20 mins between publish and update it has probably been updated already
-                    prods.append(prod)
+            team = prods['title']
+            # on feb 18 I added it so when I update image I add alt text, this can be used to determine which have yet to be updated
+            # basically from now on Ill know I need to switch the image If I dont see alt text
+            # this is cleaner than it was, but I learned that My printify responses can give me my shopify ID so I could run through a bunch
+            # of calls that runs for all of the printify IDs and then gives me a list of the shopify IDs that I could feed here.
+            # This might be worse tho, cus this one is more of a catch all like if I cancel a run or something, should just detect stuff that hasnt been through
+            if (prod['images'][0]['alt'] is None) and (pd.to_datetime(prod["published_at"]).date()>pd.to_datetime('2024-02-18').date()):
+                prods.append(prod)
 
-        self.update_images2(prods)
+        self.update_images2(prods, team)
         print(f"cover image set to back of shirt for {len(prods)} shirts")
 
     def create_week_collections(self, all_products):
@@ -478,7 +459,7 @@ class shopify_printify:
         if response1.status_code == 201:
             print(f"collection created {title}")
         else:
-            print("could not create collection")
+            print(f"could not create collection {title}")
             print(collects)
             print(json.loads(response1.text))
 

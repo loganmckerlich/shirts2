@@ -29,7 +29,7 @@ def process_game(game, teams, main_config, test, pref, ify_user, save_image):
             main_config["design"] = design
             main_config["text"] = text
             ify_user.post(publish=True)
-        return title
+        return title,
 
 
 def daily_run(
@@ -90,7 +90,7 @@ def daily_run(
                                     ify_user=ify_user,
                                     save_image=save_image,
                                 )
-                                print(f"Created {title}")
+                                print(f"Created {title}, {created} products so far")
                                 created +=1
                             else:
                                 title = 'na'
@@ -104,7 +104,7 @@ def daily_run(
                                 ify_user=ify_user,
                                 save_image=save_image,
                             )
-                            print(f"Created {title}")
+                            print(f"Created {title}, {created} products so far")
                             created +=1
                     except Exception as e:
                         print(f"Failed")
@@ -137,7 +137,7 @@ def daily_run(
                                     ify_user=ify_user,
                                     save_image=save_image,
                                 )
-                                print(f"Created {title}")
+                                print(f"Created {title}, {created} products so far")
                                 created +=1
                             else:
                                 title = 'na'
@@ -151,7 +151,7 @@ def daily_run(
                                 ify_user=ify_user,
                                 save_image=save_image,
                             )
-                            print(f"Created {title}")
+                            print(f"Created {title}, {created} products so far")
                             created +=1
                     except Exception as e:
                         print(f"Failed")
@@ -161,7 +161,8 @@ def daily_run(
                     print("skipped because no ranked team and were in that mode")
     print(f"Created {created} new designs. This cost ${(created*4)/100}")
     if created>0:
-        print("5 m pause before store organizing")
+        ify_user.check_last_endpoint_recur()
+        print("5 additional m pause before store organizing")
         time.sleep(60 * 5)
         ify_user.cover_image_wrapper()
 
@@ -171,16 +172,24 @@ def daily_run(
 
 
 if __name__ == "__main__":
+    import pandas as pd
     print("starting")
     with open("info/cbb_runtime_params.yml", "r") as f:
         runtime = yaml.safe_load(f)
     daily_run(
         test=runtime["test"],
-        fake_date=runtime["fake_date"],
+        fake_date=pd.to_datetime('2011-03-17'),
         limit=runtime["limit"],
         do_yesterday=runtime["do_yesterday"],
         do_today=runtime["do_today"],
-        check_each=runtime["check_each"],
+        check_each=True,
         just_ranked=runtime["just_ranked"],
         save_image=runtime["save_image"],
     )
+
+# make it so I dont hit rate limits on my prinitfy post, limit is 200 in 30 m, if im effecient I feel i can be under
+    # right now I use 6 (image,image,post,pubish,post,publish) api calls to post one shirt
+    # will timeout after 33 shirts
+    # when it times out it just stops publishing
+# need to run image thing after publishing is complete
+# make it so that the whole image switch is better, when posting many shirts theres a larger delay maybe put in a seperate workflow
