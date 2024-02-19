@@ -454,32 +454,42 @@ class shopify_printify:
         if desc is None:
             desc = title
         collects = [{"product_id": x} for x in id_list]
-        if logo is not None:
-            collection_data = {
-                "custom_collection": {
-                    "title": title,
-                    "image": {"src": logo, "alt": f"{title} Logo"},
-                    "collects": collects,
-                    "body_html": desc,
-                    "sort_order": "created-desc",
-                }
+
+        collection_data_logo = {
+            "custom_collection": {
+                "title": title,
+                "image": {"src": logo, "alt": f"{title} Logo"},
+                "collects": collects,
+                "body_html": desc,
+                "sort_order": "created-desc",
             }
-        else:
-            collection_data = {
-                "custom_collection": {
-                    "title": title,
-                    "collects": collects,
-                    "body_html": desc,
-                    "sort_order": "created-desc",
-                }
+        }
+
+        collection_data_no_logo = {
+            "custom_collection": {
+                "title": title,
+                "collects": collects,
+                "body_html": desc,
+                "sort_order": "created-desc",
             }
+        }
         try:
-            response1 = requests.post(
-                link, headers=self.headers_shopify, json=collection_data
-            )
+            if logo is not None:
+                try:
+                    response1 = requests.post(
+                        link, headers=self.headers_shopify, json=collection_data_logo
+                    )
+                except:
+                    response1 = requests.post(
+                        link, headers=self.headers_shopify, json=collection_data_no_logo
+                    )
+            else:
+                response1 = requests.post(
+                    link, headers=self.headers_shopify, json=collection_data_no_logo
+                )
         except Exception as e:
             print(link)
-            print(collection_data)
+            print(collection_data_logo)
             raise e
         if response1.status_code == 201:
             print(f"collection created {title}")
@@ -516,7 +526,8 @@ class shopify_printify:
         products.extend(response.json()["products"])
         if "next" in response.links.keys():
             # theres another page of products
-            time.sleep(1)
+            if response.headers["X-RateLimit-Remaining"] == 0:
+                time.sleep(1)
             return self.recur_get_products(
                 response.links["next"]["url"], products=products
             )
@@ -557,9 +568,6 @@ class shopify_printify:
                     coll_name = coll_name.split("<")[0].replace("|", "")
 
                     self.post_collection(id_list, coll_name, collection_link)
-        # create the all collection for main page
-        # I think main jsut stays around regardless
-        # self.post_collection(all_list, 'All', collection_link, "All of our custom basketball merch", None)
 
     def create_collections_rand(self, teams):
         products_link = f"https://{self.post_dict[self.version]['shop_name']}.myshopify.com/admin/api/2024-01/products.json"
