@@ -549,11 +549,12 @@ class shopify_printify:
                 time.sleep(0.75)
                 self.post_collection(id_list, team, collection_link)
 
-    def delete_collections_recur(self,response,url):
+    def delete_collections_recur(self,response,url,exclude=['All Products','College Basketball T Shirts','College Basketball Crewnecks']):
         # Check if the request was successful (status code 200)
         if response.status_code == 200:
             # Extract and delete each collection
             collections = response.json()["custom_collections"]
+            collections = [x for x in collections if x not in exclude]
             if len(collections)>0:
                 print(f'Currently {len(collections)} collections, going to delete all')
                 for collection in collections:
