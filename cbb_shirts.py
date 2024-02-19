@@ -29,7 +29,7 @@ def process_game(game, teams, main_config, test, pref, ify_user, save_image):
             main_config["design"] = design
             main_config["text"] = text
             ify_user.post(publish=True)
-        return title,
+        return title
 
 
 def daily_run(
@@ -43,7 +43,7 @@ def daily_run(
     save_image=True,
 ):
     created = 0
-    with open("info/2024_qualifiers.yml","r") as f:
+    with open("info/2024_qualifiers.yml", "r") as f:
         qualifiers = yaml.safe_load(f)
     design_config, shop_config = hf.get_config("cbb")
     main_config = hf.combine_configs(design_config, shop_config)
@@ -74,7 +74,7 @@ def daily_run(
                     or (game["team1Rank"] is not None)
                     or (game["team2Rank"] is not None)
                     or (game["team1"] in qualifiers)
-                    or (game["team2"] in qualifiers) 
+                    or (game["team2"] in qualifiers)
                 ):
                     try:
                         if check_each:
@@ -90,10 +90,10 @@ def daily_run(
                                     ify_user=ify_user,
                                     save_image=save_image,
                                 )
+                                created += 1
                                 print(f"Created {title}, {created} products so far")
-                                created +=1
                             else:
-                                title = 'na'
+                                title = "na"
                         else:
                             title = process_game(
                                 game,
@@ -104,8 +104,8 @@ def daily_run(
                                 ify_user=ify_user,
                                 save_image=save_image,
                             )
+                            created += 1
                             print(f"Created {title}, {created} products so far")
-                            created +=1
                     except Exception as e:
                         print(f"Failed")
                         print(e)
@@ -121,7 +121,7 @@ def daily_run(
                     or (game["team1Rank"] is not None)
                     or (game["team2Rank"] is not None)
                     or (game["team1"] in qualifiers)
-                    or (game["team2"] in qualifiers) 
+                    or (game["team2"] in qualifiers)
                 ):
                     try:
                         if check_each:
@@ -137,10 +137,10 @@ def daily_run(
                                     ify_user=ify_user,
                                     save_image=save_image,
                                 )
+                                created += 1
                                 print(f"Created {title}, {created} products so far")
-                                created +=1
                             else:
-                                title = 'na'
+                                title = "na"
                         else:
                             title = process_game(
                                 game,
@@ -151,8 +151,8 @@ def daily_run(
                                 ify_user=ify_user,
                                 save_image=save_image,
                             )
+                            created += 1
                             print(f"Created {title}, {created} products so far")
-                            created +=1
                     except Exception as e:
                         print(f"Failed")
                         print(e)
@@ -160,7 +160,7 @@ def daily_run(
                 else:
                     print("skipped because no ranked team and were in that mode")
     print(f"Created {created} new designs. This cost ${(created*4)/100}")
-    if created>0:
+    if created > 0:
         ify_user.check_last_endpoint_recur()
         print("5 additional m pause before store organizing")
         time.sleep(60 * 5)
@@ -168,28 +168,27 @@ def daily_run(
 
         # organize store
         # delete all my collections and rebuild them with all products
-        ify_user.reset_collections(teams)
+        ify_user.reset_collections(
+            teams,
+            exclude=[
+                "All Products",
+                "College Basketball T Shirts",
+                "College Basketball Crewnecks",
+            ],
+        )
 
 
 if __name__ == "__main__":
-    import pandas as pd
     print("starting")
     with open("info/cbb_runtime_params.yml", "r") as f:
         runtime = yaml.safe_load(f)
     daily_run(
         test=runtime["test"],
-        fake_date=pd.to_datetime('2011-03-17'),
+        fake_date=runtime["fake_date"],
         limit=runtime["limit"],
         do_yesterday=runtime["do_yesterday"],
         do_today=runtime["do_today"],
-        check_each=True,
+        check_each=runtime["check_each"],
         just_ranked=runtime["just_ranked"],
         save_image=runtime["save_image"],
     )
-
-# make it so I dont hit rate limits on my prinitfy post, limit is 200 in 30 m, if im effecient I feel i can be under
-    # right now I use 6 (image,image,post,pubish,post,publish) api calls to post one shirt
-    # will timeout after 33 shirts
-    # when it times out it just stops publishing
-# need to run image thing after publishing is complete
-# make it so that the whole image switch is better, when posting many shirts theres a larger delay maybe put in a seperate workflow

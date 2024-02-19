@@ -5,6 +5,7 @@ from openai import OpenAI
 import random
 import math
 
+
 def dalle_image(client, prompt, v):
     response = client.images.generate(
         model=f"dall-e-{v}",
@@ -42,11 +43,10 @@ def generate_main(prompt, dalle_key, test=True, dalle=3, retry=True):
 
 
 def prompt_engineer(sport, team1, team2, mascot1=None, mascot2=None):
-    
     # type checking because sometimes its nan sometimes its None
-    if type(mascot1)!=str:
+    if type(mascot1) != str:
         mascot1 = ""
-    if type(mascot2)!=str:
+    if type(mascot2) != str:
         mascot2 = ""
 
     styles = [
