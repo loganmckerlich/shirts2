@@ -5,3 +5,4 @@ private.yml
 art/
 .image_saves/
 privatecopy.yml
+*.ipynb
