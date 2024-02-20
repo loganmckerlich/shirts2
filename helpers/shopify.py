@@ -321,16 +321,18 @@ class shopify_printify:
                 response = requests.post(
                     graphql_url, headers=self.headers_shopify, json={"query": q}
                 )
-
+                if response.status_code==200:
+                    print('Image swapped')
                 # add alt text, this will also let us know if we need to update image
                 d = {
                     "image": {
-                        "id": image2,
+                        "id": prod_id,
                         "position": 1,
                         "alt": f"Custom Basketball Merch {team}",
                     }
                 }
-                alt_url = f"https://{self.post_dict[self.version]['shop_name']}.myshopify.com/admin/api/2024-01/products/{prod_gql}/images/{image2}.json"
+                # make sure image0,image2,prod_id are all the right things
+                alt_url = f"https://{self.post_dict[self.version]['shop_name']}.myshopify.com/admin/api/2024-01/products/{prod_id}/images/{image2}.json"
                 alt_resp = requests.put(alt_url, headers=self.headers_shopify, json=d)
                 if alt_resp.status_code != 200:
                     print(f"Failed to add alt text")
@@ -351,15 +353,17 @@ class shopify_printify:
         prods = []
         for prod in all_prods:
             team = prod["title"]
-            # on feb 18 I added it so when I update image I add alt text, this can be used to determine which have yet to be updated
+            # on feb 19 I added it so when I update image I add alt text, this can be used to determine which have yet to be updated
             # basically from now on Ill know I need to switch the image If I dont see alt text
             # this is cleaner than it was, but I learned that My printify responses can give me my shopify ID so I could run through a bunch
             # of calls that runs for all of the printify IDs and then gives me a list of the shopify IDs that I could feed here.
             # This might be worse tho, cus this one is more of a catch all like if I cancel a run or something, should just detect stuff that hasnt been through
             if (prod["images"][0]["alt"] is None) and (
                 pd.to_datetime(prod["published_at"]).date()
-                > pd.to_datetime("2024-02-18").date()
+                > pd.to_datetime("2024-02-19").date()
             ):
+                # has no alt text = not updated yet
+                # published after 02-19
                 prods.append(prod)
 
         self.update_images2(prods, team)
@@ -474,16 +478,18 @@ class shopify_printify:
             }
         }
         try:
+            status = 0
             if logo is not None:
                 try:
+                    # this is a messy try except, maybe I should just run a quick test on the logo before using it
                     response1 = requests.post(
                         link, headers=self.headers_shopify, json=collection_data_logo
                     )
+                    status = response1.status_code
                 except:
-                    response1 = requests.post(
-                        link, headers=self.headers_shopify, json=collection_data_no_logo
-                    )
-            else:
+                    pass
+
+            elif (logo is not None) or (status!=201):
                 response1 = requests.post(
                     link, headers=self.headers_shopify, json=collection_data_no_logo
                 )
