@@ -251,23 +251,10 @@ class shopify_printify:
             time.sleep(25)
             return self.check_last_endpoint_recur()
 
-    def recursive_get_prods(self, since_id=0, all_products=[]):
-        url = f"https://{self.post_dict[self.version]['shop_name']}.myshopify.com/admin/api/2023-01/products.json?since_id={since_id}"
-        response = requests.get(url=url, headers=self.headers_shopify)
-        products = json.loads(response.text)["products"]
-        if len(products) == 0:
-            return all_products
-        else:
-            # new products were found, there could be more in the next iteration
-            all_products.extend(products)
-            return self.recursive_get_prods(
-                since_id=products[-1]["id"], all_products=all_products
-            )
-
-    def update_images2(self, prods, team=None):
+    def update_images2(self, prods, title=None):
         # this reorders images once in shopify
         for prod in prods:
-            print(f'Attempting to swap image for {team}')
+            print(f'Attempting to swap image for {title}')
             try:
                 prod_id = prod["id"]
                 prod_gql = prod["admin_graphql_api_id"]
@@ -323,33 +310,41 @@ class shopify_printify:
                 )
                 if response.status_code==200:
                     print('Image swapped')
-                # add alt text, this will also let us know if we need to update image
-                d = {
-                    "image": {
-                        "id": prod_id,
-                        "position": 1,
-                        "alt": f"Custom Basketball Merch {team}",
+
+                # This is a better usage of gql
+                alt_text_query = "mutation productUpdateMedia($media: [UpdateMediaInput!]!, $productId: ID!) { productUpdateMedia(media: $media, productId: $productId) { media { alt } } }"
+
+                alt_text_var = {
+                "media": [
+                    {
+                    "alt": title+' back view',
+                    "id": image2
+                    },
+                    {
+                    "alt": title+' front view',
+                    "id": image0
                     }
+                ],
+                "productId": prod_gql
                 }
-                # make sure image0,image2,prod_id are all the right things
-                alt_url = f"https://{self.post_dict[self.version]['shop_name']}.myshopify.com/admin/api/2024-01/products/{prod_id}/images/{image2}.json"
-                alt_resp = requests.put(alt_url, headers=self.headers_shopify, json=d)
+
+                alt_resp = requests.post(
+                    graphql_url, headers=self.headers_shopify, json={"query": alt_text_query, "variables": alt_text_var}
+                )
                 if alt_resp.status_code != 200:
                     print(f"Failed to add alt text")
                     print(alt_resp.status_code)
                     print(alt_resp.text)
 
-                if alt_resp.headers["X-RateLimit-Remaining"] == 0:
-                    # hopefully its a window thing and in a minute, the couple I started with arent included
-                    print("Approaching rate limit, pausing for a minute")
-                    time.sleep(60)
+                # would be good to check rate limits on this but idk how
 
-            except:
+            except Exception as e:
                 print("failed to update cover")
+                print(e)
 
     def cover_image_wrapper(self):
         # redo cover image for all images made today
-        all_prods = self.recursive_get_prods()
+        all_prods = self.recur_get_products(products=[])
         prods = []
         for prod in all_prods:
             team = prod["title"]
@@ -360,8 +355,10 @@ class shopify_printify:
             # This might be worse tho, cus this one is more of a catch all like if I cancel a run or something, should just detect stuff that hasnt been through
             if (prod["images"][0]["alt"] is None) and (
                 pd.to_datetime(prod["published_at"]).date()
-                > pd.to_datetime("2024-02-19").date()
+                > pd.to_datetime("2024-02-20").date()
             ):
+                # dont forget! stuff that runs on the 20 from workflow wont have alt text and will be published after 19 so itll get picked up.
+                # keep updating that date until I get this in main
                 # has no alt text = not updated yet
                 # published after 02-19
                 prods.append(prod)
@@ -527,7 +524,8 @@ class shopify_printify:
                 time.sleep(0.75)
                 self.post_collection(id_list, team, collection_link)
 
-    def recur_get_products(self, products_link, products=[]):
+    def recur_get_products(self, products=[]):
+        products_link = f"https://{self.post_dict[self.version]['shop_name']}.myshopify.com/admin/api/2024-01/products.json?limit=250"
         response = requests.get(products_link, headers=self.headers_shopify)
         products.extend(response.json()["products"])
         if "next" in response.links.keys():
@@ -541,8 +539,7 @@ class shopify_printify:
             return products
 
     def create_collections_cbb(self, teams, rounds=False):
-        products_link = f"https://{self.post_dict[self.version]['shop_name']}.myshopify.com/admin/api/2024-01/products.json?limit=250"
-        all_products = self.recur_get_products(products_link)
+        all_products = self.recur_get_products(products=[])
 
         team_content, logo_content = self.create_team_collections(all_products, teams)
 
@@ -652,8 +649,7 @@ class shopify_printify:
         print(
             f"about to set every t shirt in the store to ${t_price} and every sweater to ${s_price}"
         )
-        products_link = f"https://{self.post_dict[self.version]['shop_name']}.myshopify.com/admin/api/2024-01/products.json?limit=250"
-        products = self.recur_get_products(products_link)
+        products = self.recur_get_products(products=[])
 
         for product in products:
             if product["product_type"] == "T-Shirt":
