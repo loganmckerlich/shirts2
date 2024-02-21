@@ -1,7 +1,7 @@
 name: run
 on:
   schedule:
-    - cron: '30 16 * * *' # this is 8:30am pst. basketball ref usually finishes updating around 7:45
+    - cron: '30 18 * * *' # this is 10:30am pst. basketball ref usually finishes updating around 7:45 but is late fairly often
 
 jobs:
   build:

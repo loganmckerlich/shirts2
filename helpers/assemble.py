@@ -4,6 +4,7 @@ import requests
 import pandas as pd
 import numpy as np
 
+
 def size_font_recur(img_draw, team1, team2, W, font, size):
     mainfont = ImageFont.truetype(
         rf"./fonts/{font}.ttf", size=size, layout_engine=ImageFont.Layout.BASIC
@@ -254,14 +255,14 @@ def build_cbb(config, test=True):
 
         # type checking because sometimes its None sometimes its Nan
         if type(config["team1"]["mascot"]) == str:
-            name_mascot_1 = team1r+' '+config['team1']['mascot']
+            name_mascot_1 = team1r + " " + config["team1"]["mascot"]
         else:
             name_mascot_1 = team1r
         if type(config["team2"]["mascot"]) == str:
-            name_mascot_2 = team2r+' '+config['team2']['mascot']
+            name_mascot_2 = team2r + " " + config["team2"]["mascot"]
         else:
             name_mascot_2 = team2r
-        
+
         game_text = f"{name_mascot_1}\n Vs.\n {name_mascot_2}\n {gamedate}"
 
         game_font = simple_size_font_recur(
