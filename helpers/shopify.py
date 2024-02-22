@@ -335,8 +335,9 @@ class shopify_printify:
                     print(f"Failed to add alt text")
                     print(alt_resp.status_code)
                     print(alt_resp.text)
-
-                # would be good to check rate limits on this but idk how
+                elif json.loads(alt_resp.text)['extensions']['cost']['throttleStatus']['currentlyAvailable'] < 100:
+                    print('Approaching shopify graphql limit, pausing')
+                    time.sleep(1)
 
             except Exception as e:
                 print("failed to update cover")
@@ -344,7 +345,7 @@ class shopify_printify:
 
     def cover_image_wrapper(self):
         # redo cover image for all images made today
-        all_prods = self.recur_get_products(products=[])
+        all_prods = self.recur_get_products(products_link=None,products=[])
         prods = []
         for prod in all_prods:
             team = prod["title"]
@@ -355,7 +356,7 @@ class shopify_printify:
             # This might be worse tho, cus this one is more of a catch all like if I cancel a run or something, should just detect stuff that hasnt been through
             if (prod["images"][0]["alt"] is None) and (
                 pd.to_datetime(prod["published_at"]).date()
-                > pd.to_datetime("2024-02-20").date()
+                > pd.to_datetime("2024-02-21").date()
             ):
                 # dont forget! stuff that runs on the 20 from workflow wont have alt text and will be published after 19 so itll get picked up.
                 # keep updating that date until I get this in main
@@ -524,13 +525,17 @@ class shopify_printify:
                 time.sleep(0.75)
                 self.post_collection(id_list, team, collection_link)
 
-    def recur_get_products(self, products=[]):
-        products_link = f"https://{self.post_dict[self.version]['shop_name']}.myshopify.com/admin/api/2024-01/products.json?limit=250"
+    def recur_get_products(self,products_link=None, products=[]):
+        if products_link is None:
+            products_link = f"https://{self.post_dict[self.version]['shop_name']}.myshopify.com/admin/api/2024-01/products.json?limit=250"
         response = requests.get(products_link, headers=self.headers_shopify)
         products.extend(response.json()["products"])
         if "next" in response.links.keys():
             # theres another page of products
-            if response.headers["X-RateLimit-Remaining"] == 0:
+            call_limit = response.headers["X-Shopify-Shop-Api-Call-Limit"]
+            call_split = [int(x) for x in call_limit.split('/')]
+            remaining_calls = call_split[1]-call_split[0]
+            if remaining_calls == 0:
                 time.sleep(1)
             return self.recur_get_products(
                 response.links["next"]["url"], products=products
@@ -539,7 +544,7 @@ class shopify_printify:
             return products
 
     def create_collections_cbb(self, teams, rounds=False):
-        all_products = self.recur_get_products(products=[])
+        all_products = self.recur_get_products(products_link=None,products=[])
 
         team_content, logo_content = self.create_team_collections(all_products, teams)
 
@@ -649,7 +654,7 @@ class shopify_printify:
         print(
             f"about to set every t shirt in the store to ${t_price} and every sweater to ${s_price}"
         )
-        products = self.recur_get_products(products=[])
+        products = self.recur_get_products(products_link=None,products=[])
 
         for product in products:
             if product["product_type"] == "T-Shirt":
