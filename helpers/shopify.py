@@ -337,7 +337,7 @@ class shopify_printify:
                     print(alt_resp.text)
                 elif json.loads(alt_resp.text)['extensions']['cost']['throttleStatus']['currentlyAvailable'] < 100:
                     print('Approaching shopify graphql limit, pausing')
-                    time.sleep(1)
+                    time.sleep(10)
 
             except Exception as e:
                 print("failed to update cover")
@@ -536,7 +536,7 @@ class shopify_printify:
             call_split = [int(x) for x in call_limit.split('/')]
             remaining_calls = call_split[1]-call_split[0]
             if remaining_calls == 0:
-                time.sleep(1)
+                time.sleep(10)
             return self.recur_get_products(
                 response.links["next"]["url"], products=products
             )
@@ -601,7 +601,7 @@ class shopify_printify:
             if len(collections) > 0:
                 print(f"Currently {len(collections)} collections, going to delete all")
                 for collection in collections:
-                    time.sleep(1)
+                    time.sleep(0.75) #instead of doing this I should just monitor rate limit
                     collection_id = collection["id"]
                     delete_endpoint = f"https://{self.post_dict[self.version]['shop_name']}.myshopify.com//admin/api/2021-07/custom_collections/{collection_id}.json?limit=250"
                     delete_response = requests.delete(
@@ -673,7 +673,7 @@ class shopify_printify:
                             update_url, json=update_data, headers=self.headers_shopify
                         )
                         if resp.status_code == 200:
-                            time.sleep(0.5)
+                            time.sleep(0.5) # should just monitor rate limit
                         else:
                             print("fail")
                             print(resp.status_code)
@@ -696,7 +696,7 @@ class shopify_printify:
                             update_url, json=update_data, headers=self.headers_shopify
                         )
                         if resp.status_code == 200:
-                            time.sleep(0.5)
+                            time.sleep(0.5) # should just monitor rate limit
                         else:
                             print("fail")
                             print(resp.status_code)
