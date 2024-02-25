@@ -457,44 +457,37 @@ class shopify_printify:
             desc = title
         collects = [{"product_id": x} for x in id_list]
 
-        collection_data_logo = {
-            "custom_collection": {
-                "title": title,
-                "image": {"src": logo, "alt": f"{title} Logo"},
-                "collects": collects,
-                "body_html": desc,
-                "sort_order": "created-desc",
-            }
-        }
+        use_logo = False
+        if logo is not None:
+            logo_rendered = requests.get(logo)
+            if logo_rendered.status_code == 200:
+                # only use logo if we have link and its valid
+                use_logo = True
 
-        collection_data_no_logo = {
-            "custom_collection": {
-                "title": title,
-                "collects": collects,
-                "body_html": desc,
-                "sort_order": "created-desc",
+        if use_logo:
+            collection_data= {
+                "custom_collection": {
+                    "title": title,
+                    "image": {"src": logo, "alt": f"{title} Logo"},
+                    "collects": collects,
+                    "body_html": desc,
+                    "sort_order": "created-desc",
+                }
             }
-        }
-        try:
-            status = 0
-            if logo is not None:
-                try:
-                    # this is a messy try except, maybe I should just run a quick test on the logo before using it
-                    response1 = requests.post(
-                        link, headers=self.headers_shopify, json=collection_data_logo
-                    )
-                    status = response1.status_code
-                except:
-                    pass
+        else:
+            collection_data = {
+                "custom_collection": {
+                    "title": title,
+                    "collects": collects,
+                    "body_html": desc,
+                    "sort_order": "created-desc",
+                }
+            }
 
-            elif (logo is not None) or (status!=201):
-                response1 = requests.post(
-                    link, headers=self.headers_shopify, json=collection_data_no_logo
-                )
-        except Exception as e:
-            print(link)
-            print(collection_data_logo)
-            raise e
+        response1 = requests.post(
+            link, headers=self.headers_shopify, json=collection_data
+        )
+
         if response1.status_code == 201:
             print(f"collection created {title}")
         else:

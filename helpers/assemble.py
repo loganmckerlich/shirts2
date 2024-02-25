@@ -44,6 +44,18 @@ def ar_resize(new, image):
     image = image.resize((int(np.floor(new * ar)), new))
     return image
 
+def type_check_score(score):
+    # check if score is none or nan or float
+    if score is None:
+        return None
+    elif type(score) == float:
+        if str(score) == 'nan':
+            return None
+        else:
+            return int(score)
+    else:
+        return score
+
 
 def build_cbb(config, test=True):
     # total size
@@ -177,12 +189,17 @@ def build_cbb(config, test=True):
 
         _, _, wd, hd = img_draw.textbbox((0, 0), gamedate, font=date_font)
 
+
+        # sometimes even when I should have the score, I get a float or a nan. fix
+        team1_score = type_check_score(config["team1"]["score"])
+        team2_score = type_check_score(config["team2"]["score"])
+
         _, _, w1, h1 = img_draw.textbbox(
-            (0, 0), str(config["team1"]["score"]), font=score_font
+            (0, 0), str(team1_score), font=score_font
         )
 
         _, _, w2, h2 = img_draw.textbbox(
-            (0, 0), str(config["team2"]["score"]), font=score_font
+            (0, 0), str(team2_score), font=score_font
         )
 
         img_draw.text(
@@ -221,10 +238,11 @@ def build_cbb(config, test=True):
             stroke_fill="black",
         )
 
-        if config["team1"]["score"] is not None:
+        if (team1_score is not None) and (team2_score is not None):
+
             img_draw.text(
                 ((W // 4), bv + h1),
-                str(config["team1"]["score"]),
+                str(team1_score),
                 team1color,
                 font=score_font,
                 stroke_width=1,
@@ -233,7 +251,7 @@ def build_cbb(config, test=True):
 
             img_draw.text(
                 (((W // 4) * 3 - w2), bv + h2),
-                str(config["team2"]["score"]),
+                str(team2_score),
                 team2color,
                 font=score_font,
                 stroke_width=1,
