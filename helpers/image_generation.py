@@ -6,18 +6,42 @@ import random
 import math
 
 
-def dalle_image(client, prompt, v):
-    response = client.images.generate(
-        model=f"dall-e-{v}",
-        prompt=prompt,
-        size="1024x1024",
-        quality="standard",
-        n=1,
-    )
+def dalle_image(client, prompt, v, retry):
+    fail = False
+    try:
+        response = client.images.generate(
+            model=f"dall-e-{v}",
+            prompt=prompt,
+            size="1024x1024",
+            quality="standard",
+            n=1,
+        )
+    except:
+        if retry:
+            print('Retrying')
+            try:
+                response = client.images.generate(
+                model=f"dall-e-{v}",
+                prompt=prompt,
+                size="1024x1024",
+                quality="standard",
+                n=1,
+                )
+            except:
+                fail = True
+        else:
+            fail = True
+    
+    if fail:
+        return 'filtered'
+
 
     image_url = response.data[0].url
+    
+    inter = requests.get(image_url, stream=True)
 
-    image = Image.open(requests.get(image_url, stream=True).raw)
+    image = Image.open(inter.raw)
+
     return image
 
 
@@ -28,18 +52,13 @@ def generate_main(prompt, dalle_key, test=True, dalle=3, retry=True):
     else:
         client = OpenAI(api_key=dalle_key)
 
-        try:
-            main_image = dalle_image(client, prompt, v=dalle)
-        except Exception as e:
-            print(prompt)
-            print("failed to generate image")
-            if retry:
-                generate_main(prompt, dalle_key, test, dalle, retry=False)
-            print("Retry failed too, will return none")
-            print(e)
+        main_image = dalle_image(client, prompt, v=dalle, retry= retry)
+
+        if main_image == 'filtered':
+            print("image generation didnt work (likely content filter)")
             return None
 
-    return main_image
+        return main_image
 
 
 def prompt_engineer(sport, team1, team2, mascot1=None, mascot2=None):
