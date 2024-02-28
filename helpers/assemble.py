@@ -239,9 +239,13 @@ def build_cbb(config, test=True):
         )
 
         if (team1_score is not None) and (team2_score is not None):
+            if (team1_score>99) or (team2_score>99):
+                sizing = 6
+            else:
+                sizing = 4
 
             img_draw.text(
-                ((W // 4), bv + h1),
+                ((W // sizing), bv + h1),
                 str(team1_score),
                 team1color,
                 font=score_font,
@@ -250,7 +254,7 @@ def build_cbb(config, test=True):
             )
 
             img_draw.text(
-                (((W // 4) * 3 - w2), bv + h2),
+                (((W // sizing) * (sizing-1) - w2), bv + h2),
                 str(team2_score),
                 team2color,
                 font=score_font,
