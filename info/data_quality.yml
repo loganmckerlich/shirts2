@@ -93,11 +93,29 @@ new_teams:
     long_name: Null
   - team_id: Null
     name: Oakland
-    abrev: PITT
+    abrev: OU
     color: "#B59A57"
     alt_color: Null
     mascot: Golden Grizzlies
     logos: https://1000logos.net/wp-content/uploads/2021/07/Oakland-Golden-Grizzlies-Logo.png
+    division: Null
+    long_name: Null
+  - team_id: Null
+    name: Grambling State
+    abrev: GSU
+    color: "#EAA921"
+    alt_color: Null
+    mascot: Tigers
+    logos: https://1000logos.net/wp-content/uploads/2019/11/Grambling-State-Tigers-logo.png
+    division: Null
+    long_name: Null
+  - team_id: Null
+    name: Little Rock
+    abrev: UALR
+    color: "#6E2639"
+    alt_color: Null
+    mascot: Trojans
+    logos: https://1000logos.net/wp-content/uploads/2021/06/Little-Rock-Trojans-logo.png
     division: Null
     long_name: Null
 edit_teams:

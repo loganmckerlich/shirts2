@@ -7,8 +7,12 @@ import numpy as np
 
 def cbb_cfb_exceptions(df):
     """
-    there are some that dont match up from one source to the other, findd and try to fix
+    there are some that dont match up from one source to the other, find and try to fix
+    basically cfb data calls it x, but basketball reference calls it y
+
+    this could get hairy if i need to do them both in cbb but I dont think ill have to
     """
+
     changes = {"Miami (FL)": "Miami"}
 
     df = df.replace({"team1": changes})
