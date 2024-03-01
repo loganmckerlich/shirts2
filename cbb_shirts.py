@@ -204,10 +204,10 @@ def daily_run(
                 instagram.carousel_post(today_post_list,today_caption)
         
         if len(yesterday_post_list)>0:
-            if len(today_post_list)==1:
-                instagram.single_post(today_post_list[0],yesterday_caption)
+            if len(yesterday_post_list)==1:
+                instagram.single_post(yesterday_post_list[0],yesterday_caption)
             else:
-                instagram.carousel_post(today_post_list,yesterday_caption)
+                instagram.carousel_post(yesterday_post_list,yesterday_caption)
 
         print("5 additional m pause before store organizing")
         time.sleep(60 * 5)
@@ -237,7 +237,7 @@ if __name__ == "__main__":
         limit=runtime["limit"],
         do_yesterday=runtime["do_yesterday"],
         do_today=runtime["do_today"],
-        check_each=runtime['check_each'],
+        check_each=runtime["check_each"],
         just_ranked=runtime["just_ranked"],
         save_image=runtime["save_image"],
     )
