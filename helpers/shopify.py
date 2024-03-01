@@ -267,8 +267,18 @@ class shopify_printify:
                 )
 
                 images = json.loads(response.text)["data"]["product"]["media"]["edges"]
+                # could I get an image url out of this and use that for insta post?
                 image0 = images[0]["node"]["id"]
                 image2 = images[2]["node"]["id"]
+                try:
+                    print(images[0].keys())
+                    print(images[0]["node"].keys())
+                    if "url" in images[0].keys():
+                        print("url in images")
+                    if "url" in images[0]["node"].keys():
+                        print("url in node")
+                except:
+                    print("couldnt find url in image response")
 
                 q = (
                     """
