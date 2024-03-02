@@ -8,7 +8,7 @@ import re
 
 class instagrammer():
 
-    def get_code_from_email(self):
+    def get_code_from_email(self,username):
         print('trying to get the conf code from email')
         mail = imaplib.IMAP4_SSL("imap.gmail.com")
         mail.login(self.challenge_email, self.challenge_password)
@@ -29,7 +29,7 @@ class instagrammer():
                 body = payload.get_payload(decode=True).decode()
                 if "<div" not in body:
                     continue
-                match = re.search(">([^>]*?({u})[^<]*?)<".format(u=self.username), body)
+                match = re.search(">([^>]*?({u})[^<]*?)<".format(u=username), body)
                 if not match:
                     continue
                 print("Match from email:", match.group(1))
@@ -49,13 +49,13 @@ class instagrammer():
             print('It looking for text code, I dont have this setup')
             return False
         elif choice == ChallengeChoice.EMAIL:
-            return self.get_code_from_email()
+            return self.get_code_from_email(username)
         return False
     
     def __init__(self,un,pw,email,emailpw) -> None:
         self.insta = instaClient()
         self.username = un
-        self.challenge_username = email
+        self.challenge_email = email
         self.challenge_password = emailpw
 
         self.insta.challenge_code_handler = self.challenge_code_handler
