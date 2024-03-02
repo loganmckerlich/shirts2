@@ -48,11 +48,13 @@ def type_check_score(score):
     # check if score is none or nan or float
     if score is None:
         return None
-    elif type(score) == float:
+    elif (type(score) == float) or (type(score) == np.float64):
         if str(score) == 'nan':
             return None
         else:
             return int(score)
+    elif '.' in str(score):
+        return int(score)
     else:
         return score
 
