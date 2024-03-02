@@ -1,5 +1,6 @@
 name: run
 on:
+  workflow_dispatch:
   schedule:
     - cron: '30 18 * * *' # this is 10:30am pst. basketball ref usually finishes updating around 7:45 but is late fairly often
 
