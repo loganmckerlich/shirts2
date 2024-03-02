@@ -44,6 +44,7 @@ class instagrammer():
         return False
 
     def challenge_code_handler(self, username, choice):
+        print('Challenge happened')
         if choice == ChallengeChoice.SMS:
             print('It looking for text code, I dont have this setup')
             return False
