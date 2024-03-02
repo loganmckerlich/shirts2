@@ -73,7 +73,12 @@ def daily_run(
     main_config = hf.combine_configs(design_config, shop_config)
     ify_user = hf.shopify_printify(main_config, "cbb")
     cfbd_loader = hf.cfbp_handler(main_config["cfbd_api"], fake_date=fake_date)
-    instagram = hf.instagrammer(un = main_config["instagram"]["username"], pw = main_config["instagram"]["password"])
+    instagram = hf.instagrammer(
+        un = main_config["instagram"]["username"],
+        pw = main_config["instagram"]["password"],
+        email = main_config["instagram"]["eusername"],
+        emailpw =main_config["instagram"]["epassword"]
+        )
 
     if fake_date is not None:
         date = fake_date
