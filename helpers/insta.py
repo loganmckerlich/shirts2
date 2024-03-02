@@ -49,7 +49,7 @@ class instagrammer():
             print('It looking for text code, I dont have this setup')
             return False
         elif choice == ChallengeChoice.EMAIL:
-            return self.get_code_from_email(username)
+            return self.get_code_from_email()
         return False
     
     def __init__(self,un,pw,email,emailpw) -> None:
