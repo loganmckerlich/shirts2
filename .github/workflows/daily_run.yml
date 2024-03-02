@@ -10,8 +10,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     environment:
-      # name: ${{ github.ref_name }}
-      name: insta
+      name: ${{ github.ref_name }}
     steps:
       - name: checkout repo content
         uses: actions/checkout@v3
