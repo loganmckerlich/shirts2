@@ -10,6 +10,15 @@ new_teams:
     division: Null
     long_name: Null
   - team_id: Null
+    name: St. John'S Ny
+    abrev: SJU
+    color: "#BA0C2F"
+    alt_color: Null
+    mascot: Red Storm
+    logos: https://1000logos.net/wp-content/uploads/2022/02/St.-Johns-Red-Storm-logo.png
+    division: Null
+    long_name: Null
+  - team_id: Null
     name: St. John's NY
     abrev: SJU
     color: "#BA0C2F"

@@ -282,10 +282,6 @@ class shopify_printify:
                 # could I get an image url out of this and use that for insta post?
                 image0 = images[0]["node"]["id"]
                 image2 = images[2]["node"]["id"]
-                # try:
-                #     insta_url = images[2]["node"]["url"]
-                # except:
-                #     insta_url = None
 
                 q = (
                     """
@@ -371,7 +367,7 @@ class shopify_printify:
             # of calls that runs for all of the printify IDs and then gives me a list of the shopify IDs that I could feed here.
             # This might be worse tho, cus this one is more of a catch all like if I cancel a run or something, should just detect stuff that hasnt been through
             if (prod["images"][0]["alt"] is None) and (
-                pd.to_datetime(prod["published_at"]).date()
+                pd.to_datetime(prod["created_at"]).date()
                 > pd.to_datetime("2024-02-21").date()
             ):
                 # dont forget! stuff that runs on the 20 from workflow wont have alt text and will be published after 19 so itll get picked up.
