@@ -185,11 +185,11 @@ class shopify_printify:
                     logger.warning(response1.text)
                     logger.warning(response1.status_code)
                 try:
-                    insta_image = json.loads(response1.text)["images"][2]
+                    insta_image = json.loads(response1.text)["images"][2]['src']
                     ii_response = requests.get(insta_image)
                     self.insta_image = Image.open(BytesIO(ii_response.content))
                 except:
-                    logger.warning('failed to get instagram image url')
+                    logger.warning(f'failed to get instagram image url, URL: {insta_image}')
 
                 if publish:
                     # limited to posting one product per api post
