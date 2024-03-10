@@ -6,7 +6,9 @@ import requests
 from PIL import Image
 from unidecode import unidecode
 import os
+import logging
 
+logger = logging.getLogger()
 
 def new_football_season():
     # this checks if its a new season
@@ -15,7 +17,7 @@ def new_football_season():
 
 
 def key_reader(version):
-    print(f'private file size: {os.path.getsize("info/private.yml")}')
+    logger.info(f'private file size: {os.path.getsize("info/private.yml")}')
     with open("info/private.yml", "r") as f:
         private_yml = yaml.safe_load(f)
     cfbd_api_key = private_yml["cfbd_api_key"]
@@ -198,5 +200,5 @@ def generate_t_d_t_cbb(game_config):
 
 def most_frequent(List):
     if len(set(List)) > 1:
-        print("There are multiple weeks represented in these games")
+        logger.info("There are multiple weeks represented in these games")
     return max(set(List), key=List.count)

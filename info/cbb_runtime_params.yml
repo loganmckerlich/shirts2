@@ -6,3 +6,4 @@ do_today: false
 check_each: false
 just_ranked: true # this will also run for the teams in 2024_qualifiers
 save_image: false
+extra_pause: 2

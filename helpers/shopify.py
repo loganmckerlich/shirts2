@@ -5,10 +5,15 @@ import json
 import time
 import datetime as dt
 import pandas as pd
+from PIL import Image
+import logging
+
+logger = logging.getLogger()
 
 
 class shopify_printify:
     def __init__(self, post_dict, version):
+        self.insta_image = None
         self.post_dict = post_dict
         self.headers_printify = {
             "Authorization": f"Bearer {post_dict['printify_access']}",
@@ -89,6 +94,7 @@ class shopify_printify:
             """
 
     def post(self, publish=False):
+        insta_image = None
         upload_url = f"{self.post_dict['base_url']}/uploads/images.json"
         product_url = f"{self.post_dict['base_url']}/shops/{self.post_dict[self.version]['shop_id']}/products.json"
 
@@ -113,12 +119,12 @@ class shopify_printify:
         )
 
         if img_response.status_code == 200 and txt_response.status_code == 200:
-            print("image and text sent to printify")
+            logger.info("image and text sent to printify")
             image_id = img_response.json()["id"]
             text_id = txt_response.json()["id"]
 
             for product_type in self.post_dict["products"]:
-                print(f"doing {product_type['name']}")
+                logger.info(f"doing {product_type['name']}")
                 variants = [
                     {"id": id, "price": product_type["price"], "is_enabled": True}
                     for id in product_type["variant_ids"]
@@ -173,11 +179,17 @@ class shopify_printify:
                     product_url, headers=self.headers_printify, json=data
                 )
                 if response1.status_code == 200:
-                    print("Product posted successfully in Printify")
+                    logger.info("Product posted successfully in Printify")
                 else:
-                    print("Failed to post product in Printify")
-                    print(response1.text)
-                    print(response1.status_code)
+                    logger.warning("Failed to post product in Printify")
+                    logger.warning(response1.text)
+                    logger.warning(response1.status_code)
+                try:
+                    insta_image = json.loads(response1.text)["images"][2]
+                    ii_response = requests.get(insta_image)
+                    self.insta_image = Image.open(BytesIO(ii_response.content))
+                except:
+                    logger.warning('failed to get instagram image url')
 
                 if publish:
                     # limited to posting one product per api post
@@ -203,38 +215,38 @@ class shopify_printify:
                     )
 
                     if response2.status_code == 200:
-                        print("Product published successfully in Printify")
+                        logger.info("Product published successfully in Printify")
                         if response2.headers["X-RateLimit-Remaining"] == 0:
                             # hopefully its a window thing and in a minute, the couple I started with arent included
-                            print("Approaching rate limit, pausing for a minute")
+                            logger.warning("Approaching rate limit, pausing for a minute")
                             time.sleep(60)
                     elif response2.status_code == 429:
-                        print(
-                            "timed out, will pause for 10 mins then try to get going again"
+                        logger.warning(
+                            "timed out, will pause for 5 mins then try to get going again"
                         )
-                        time.sleep(60 * 10)
+                        time.sleep(60 * 5)
                         response2 = requests.post(
                             printify_publish,
                             headers=self.headers_printify,
                             json=update_data,
                         )
                         if response2.status_code == 200:
-                            print("Product published successfully in Printify")
+                            logger.info("Product published successfully in Printify")
                         else:
-                            print("Failed to publish product in Printify")
-                            print(response2.status_code)
-                            print(response2.text)
+                            logger.warning("Failed to publish product in Printify")
+                            logger.warning(response2.status_code)
+                            logger.warning(response2.text)
                     else:
-                        print("Failed to publish product in Printify")
-                        print(response2.status_code)
-                        print(response2.text)
+                        logger.warning("Failed to publish product in Printify")
+                        logger.warning(response2.status_code)
+                        logger.warning(response2.text)
 
             self.last_endpoint = f"{self.post_dict['base_url']}/shops/{self.post_dict[self.version]['shop_id']}/products/{json.loads(response1.text)['id']}.json"
 
         else:
-            print("unable to send image to printify")
-            print(img_response.status_code)
-            print(img_response.text)
+            logger.warning("unable to send image to printify")
+            logger.warning(img_response.status_code)
+            logger.warning(img_response.text)
 
     def check_last_endpoint_recur(self):
         # this checks if my last published product is done publishing yet
@@ -244,7 +256,7 @@ class shopify_printify:
             "external" in json.loads(response.text).keys()
             and json.loads(response.text)["external"]["id"] != ""
         ):
-            print("Last Product is published")
+            logger.info("Last Product is published")
             return True
         else:
             # wait 25 secs then check again
@@ -254,7 +266,7 @@ class shopify_printify:
     def update_images2(self, prods, title=None):
         # this reorders images once in shopify
         for prod in prods:
-            print(f'Attempting to swap image for {title}')
+            logger.info(f'Attempting to swap image for {title}')
             try:
                 prod_id = prod["id"]
                 prod_gql = prod["admin_graphql_api_id"]
@@ -270,12 +282,6 @@ class shopify_printify:
                 # could I get an image url out of this and use that for insta post?
                 image0 = images[0]["node"]["id"]
                 image2 = images[2]["node"]["id"]
-                try:
-                    print(images[0]["node"])
-                    if "url" in images[0]["node"].keys():
-                        print("url in node")
-                except:
-                    print("couldnt find url in image response")
 
                 q = (
                     """
@@ -316,7 +322,7 @@ class shopify_printify:
                     graphql_url, headers=self.headers_shopify, json={"query": q}
                 )
                 if response.status_code==200:
-                    print('Image swapped')
+                    logger.info('Image swapped')
 
                 # This is a better usage of gql
                 alt_text_query = "mutation productUpdateMedia($media: [UpdateMediaInput!]!, $productId: ID!) { productUpdateMedia(media: $media, productId: $productId) { media { alt } } }"
@@ -339,16 +345,15 @@ class shopify_printify:
                     graphql_url, headers=self.headers_shopify, json={"query": alt_text_query, "variables": alt_text_var}
                 )
                 if alt_resp.status_code != 200:
-                    print(f"Failed to add alt text")
-                    print(alt_resp.status_code)
-                    print(alt_resp.text)
+                    logger.warning(f"Failed to add alt text")
+                    logger.warning(alt_resp.status_code)
+                    logger.warning(alt_resp.text)
                 elif json.loads(alt_resp.text)['extensions']['cost']['throttleStatus']['currentlyAvailable'] < 100:
-                    print('Approaching shopify graphql limit, pausing')
+                    logger.info('Approaching shopify graphql limit, pausing')
                     time.sleep(10)
 
             except Exception as e:
-                print("failed to update cover")
-                print(e)
+                logger.warning("failed to update cover",exc_info=True)
 
     def cover_image_wrapper(self):
         # redo cover image for all images made today
@@ -372,7 +377,7 @@ class shopify_printify:
                 prods.append(prod)
 
         self.update_images2(prods, team)
-        print(f"cover image set to back of shirt for {len(prods)} shirts")
+        logger.info(f"cover image set to back of shirt for {len(prods)} shirts")
 
     def create_week_collections(self, all_products):
         week_content = {}
@@ -496,11 +501,11 @@ class shopify_printify:
         )
 
         if response1.status_code == 201:
-            print(f"collection created {title}")
+            logger.info(f"collection created {title}")
         else:
-            print(f"could not create collection {title}")
-            print(collects)
-            print(json.loads(response1.text))
+            logger.warning(f"could not create collection {title}")
+            logger.warning(collects)
+            logger.warning(json.loads(response1.text))
 
     def create_collections_cfb(self, teams):
         products_link = f"https://{self.post_dict[self.version]['shop_name']}.myshopify.com/admin/api/2024-01/products.json"
@@ -512,7 +517,7 @@ class shopify_printify:
         team_content, logo_content = self.create_team_collections(response1, teams)
 
         collection_link = f"https://{self.post_dict[self.version]['shop_name']}.myshopify.com/admin/api/2023-04/custom_collections.json"
-        print("will create collection for each team and week")
+        logger.info("will create collection for each team and week")
         for week in week_content.keys():
             id_list = week_content[week]
             if len(id_list) > 0:
@@ -552,7 +557,7 @@ class shopify_printify:
             round_content = self.create_round_collections(all_products)
 
         collection_link = f"https://{self.post_dict[self.version]['shop_name']}.myshopify.com/admin/api/2023-04/custom_collections.json"
-        print("Creating collection for each team")
+        logger.info("Creating collection for each team")
         all_list = []
         for team in team_content.keys():
             id_list = team_content[team]
@@ -599,7 +604,7 @@ class shopify_printify:
             collections = response.json()["custom_collections"]
             collections = [x for x in collections if x not in exclude]
             if len(collections) > 0:
-                print(f"Currently {len(collections)} collections, going to delete all")
+                logger.info(f"Currently {len(collections)} collections, going to delete all")
                 for collection in collections:
                     time.sleep(0.75) #instead of doing this I should just monitor rate limit
                     collection_id = collection["id"]
@@ -610,20 +615,19 @@ class shopify_printify:
 
                     # Check if the delete request was successful (status code 200)
                     if delete_response.status_code == 200:
-                        # print(f"Collection with ID {collection_id} deleted successfully.")
                         pass
                     else:
-                        print(
+                        logger.warning(
                             f"Error deleting collection {collection_id}: {delete_response.status_code} - {delete_response.text}"
                         )
-                print("Deleted all those, going to recur again to see if theres more")
+                logger.info("Deleted all those, going to recur again to see if theres more")
                 response2 = requests.get(url, headers=self.headers_shopify)
                 self.delete_collections_recur(response2, url, exclude)
             else:
-                print("No more collections")
+                logger.info("No more collections")
                 return
         else:
-            print(f"Error: {response.status_code} - {response.text}")
+            logger.warning(f"Error: {response.status_code} - {response.text}")
 
     def delete_collections(self, exclude):
         url = f"https://{self.post_dict[self.version]['shop_name']}.myshopify.com/admin/api/2021-07/custom_collections.json?limit=250"
@@ -651,20 +655,20 @@ class shopify_printify:
             self.create_collections_cbb(teams)
 
     def set_prices(self, t_price, s_price):
-        print(
+        logger.info(
             f"about to set every t shirt in the store to ${t_price} and every sweater to ${s_price}"
         )
         products = self.recur_get_products(products_link=None,products=[])
 
         for product in products:
             if product["product_type"] == "T-Shirt":
-                print(
+                logger.info(
                     f'Updating {product["title"]}, {product["product_type"]} to {t_price}'
                 )
                 # Update each variant's price
                 for variant in product["variants"]:
                     if int(float(variant["price"])) == int(t_price):
-                        print("price already there")
+                        logger.info("price already there")
                     else:
                         variant_id = variant["id"]
                         update_url = f"https://{self.post_dict[self.version]['shop_name']}.myshopify.com/admin/api/2024-01/variants/{variant_id}.json"
@@ -675,19 +679,19 @@ class shopify_printify:
                         if resp.status_code == 200:
                             time.sleep(0.5) # should just monitor rate limit
                         else:
-                            print("fail")
-                            print(resp.status_code)
-                            print(resp.text)
-                print("success")
+                            logger.warning("fail")
+                            logger.warning(resp.status_code)
+                            logger.warning(resp.text)
+                logger.info("success")
             # need to actually find out what this product type is this is a guess
             elif product["product_type"] == "Sweatshirt":
-                print(
+                logger.info(
                     f'Updating {product["title"]}, {product["product_type"]} to {s_price}'
                 )
                 # Update each variant's price
                 for variant in product["variants"]:
                     if int(float(variant["price"])) == int(s_price):
-                        print("price already there")
+                        logger.info("price already there")
                     else:
                         variant_id = variant["id"]
                         update_url = f"https://{self.post_dict[self.version]['shop_name']}.myshopify.com/admin/api/2024-01/variants/{variant_id}.json"
@@ -698,7 +702,7 @@ class shopify_printify:
                         if resp.status_code == 200:
                             time.sleep(0.5) # should just monitor rate limit
                         else:
-                            print("fail")
-                            print(resp.status_code)
-                            print(resp.text)
-                print("success")
+                            logger.warning("fail")
+                            logger.warning(resp.status_code)
+                            logger.warning(resp.text)
+                logger.info("success")
