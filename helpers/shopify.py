@@ -217,10 +217,11 @@ class shopify_printify:
 
                     if response2.status_code == 200:
                         logger.info("Product published successfully in Printify")
-                        if response2.headers["X-RateLimit-Remaining"] < 3 :
-                            # hopefully its a window thing and in a minute, the couple I started with arent included
-                            logger.warning("Approaching rate limit, pausing for a minute")
-                            time.sleep(60)
+                        # commenting this out because more effecient to just hit rate limit then wait
+                        # if response2.headers["X-RateLimit-Remaining"] < 3 :
+                        #     # hopefully its a window thing and in a minute, the couple I started with arent included
+                        #     logger.warning("Approaching rate limit, pausing for a minute")
+                        #     time.sleep(60)
                     elif response2.status_code == 429:
                         logger.warning(
                             f"timed out, will sleep until window resets {response2.headers['X-RateLimit-Reset']} seconds"
@@ -347,11 +348,14 @@ class shopify_printify:
                 alt_resp = requests.post(
                     graphql_url, headers=self.headers_shopify, json={"query": alt_text_query, "variables": alt_text_var}
                 )
-                if alt_resp.status_code != 200:
+                if alt_resp.status_code == 200:
+                    logger.info('Set alt text')
+                elif alt_resp.status_code != 200:
                     logger.warning(f"Failed to add alt text")
                     logger.warning(alt_resp.status_code)
                     logger.warning(alt_resp.text)
-                elif json.loads(alt_resp.text)['extensions']['cost']['throttleStatus']['currentlyAvailable'] < 100:
+                    
+                if json.loads(alt_resp.text)['extensions']['cost']['throttleStatus']['currentlyAvailable'] < 100:
                     logger.info('Approaching shopify graphql limit, pausing')
                     time.sleep(10)
 
