@@ -215,9 +215,7 @@ class cbb:
 if __name__ == "__main__":
     with open("info/cbb_runtime_params.yml", "r") as f:
         runtime = yaml.safe_load(f)
-    cbb_obj = cbb()
-
-    cbb.daily_run(
+    cbb_obj = cbb(
         test=runtime["test"],
         fake_date=runtime["fake_date"],
         limit=runtime["limit"],
@@ -227,4 +225,6 @@ if __name__ == "__main__":
         just_ranked=runtime["just_ranked"],
         save_image=runtime["save_image"],
         extra_pause=runtime["extra_pause"],
-    )
+        )
+
+    cbb.daily_run()
