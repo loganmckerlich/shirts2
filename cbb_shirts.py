@@ -130,22 +130,23 @@ class cbb:
                 self.main_config["text"] = text
                 self.ify_user.post(publish=True)
                 self.created += 1
-                if pref == "pre":
-                    if len(self.today_post_list) < 10:
-                        # insta_image attribute in ify_user is the image of the most recently createdd item, in this case it should be the sweater
-                        self.today_post_list.append(self.ify_user.insta_image)
-                        self.add_hashtag(config["team2"]["name"] + "Bball", "today")
-                        self.add_hashtag(config["team1"]["name"] + "Bball", "today")
-                        self.add_hashtag(config["team2"]["mascot"], "today")
-                        self.add_hashtag(config["team1"]["mascot"], "today")
+                if self.ify_user.insta_image is not None:
+                    if pref == "pre":
+                        if len(self.today_post_list) < 10:
+                            # insta_image attribute in ify_user is the image of the most recently createdd item, in this case it should be the sweater
+                            self.today_post_list.append(self.ify_user.insta_image)
+                            self.add_hashtag(config["team2"]["name"] + "Bball", "today")
+                            self.add_hashtag(config["team1"]["name"] + "Bball", "today")
+                            self.add_hashtag(config["team2"]["mascot"], "today")
+                            self.add_hashtag(config["team1"]["mascot"], "today")
 
-                elif pref == "post":
-                    if len(self.yesterday_post_list) < 10:
-                        self.yesterday_post_list.append(self.ify_user.insta_image)
-                        self.add_hashtag(config["team2"]["name"] + "Bball", "yesterday")
-                        self.add_hashtag(config["team1"]["name"] + "Bball", "yesterday")
-                        self.add_hashtag(config["team2"]["mascot"], "yesterday")
-                        self.add_hashtag(config["team1"]["mascot"], "yesterday")
+                    elif pref == "post":
+                        if len(self.yesterday_post_list) < 10:
+                            self.yesterday_post_list.append(self.ify_user.insta_image)
+                            self.add_hashtag(config["team2"]["name"] + "Bball", "yesterday")
+                            self.add_hashtag(config["team1"]["name"] + "Bball", "yesterday")
+                            self.add_hashtag(config["team2"]["mascot"], "yesterday")
+                            self.add_hashtag(config["team1"]["mascot"], "yesterday")
             logger.info(f"Created {title}, {self.created} products so far")
 
     def iterate_games(self, pref, games):

@@ -184,12 +184,13 @@ class shopify_printify:
                     logger.warning("Failed to post product in Printify")
                     logger.warning(response1.text)
                     logger.warning(response1.status_code)
-                try:
-                    insta_image = json.loads(response1.text)["images"][2]['src']
-                    ii_response = requests.get(insta_image)
-                    self.insta_image = Image.open(BytesIO(ii_response.content))
-                except:
-                    logger.warning(f'failed to get instagram image url, URL: {insta_image}')
+                if product_type['name'] == 'sweater':
+                    try:
+                        insta_image = json.loads(response1.text)["images"][2]['src']
+                        ii_response = requests.get(insta_image)
+                        self.insta_image = Image.open(BytesIO(ii_response.content))
+                    except:
+                        logger.warning(f'failed to get instagram image url, URL: {insta_image}')
 
                 if publish:
                     # limited to posting one product per api post
@@ -264,9 +265,11 @@ class shopify_printify:
             return self.check_last_endpoint_recur()
 
     def update_images2(self, prods, title=None):
+        if title is None:
+            title = [None]*len(prods)
         # this reorders images once in shopify
-        for prod in prods:
-            logger.info(f'Attempting to swap image for {title}')
+        for prod, team in zip(prods,title):
+            logger.info(f'Attempting to swap image for {team}')
             try:
                 prod_id = prod["id"]
                 prod_gql = prod["admin_graphql_api_id"]
@@ -330,11 +333,11 @@ class shopify_printify:
                 alt_text_var = {
                 "media": [
                     {
-                    "alt": title+' back view',
+                    "alt": team+' back view',
                     "id": image2
                     },
                     {
-                    "alt": title+' front view',
+                    "alt": team+' front view',
                     "id": image0
                     }
                 ],
@@ -359,6 +362,7 @@ class shopify_printify:
         # redo cover image for all images made today
         all_prods = self.recur_get_products(products_link=None,products=[])
         prods = []
+        titles = []
         for prod in all_prods:
             team = prod["title"]
             # on feb 19 I added it so when I update image I add alt text, this can be used to determine which have yet to be updated
@@ -375,8 +379,9 @@ class shopify_printify:
                 # has no alt text = not updated yet
                 # published after 02-19
                 prods.append(prod)
+                titles.append(team)
 
-        self.update_images2(prods, team)
+        self.update_images2(prods, titles)
         logger.info(f"cover image set to back of shirt for {len(prods)} shirts")
 
     def create_week_collections(self, all_products):
