@@ -217,15 +217,15 @@ class shopify_printify:
 
                     if response2.status_code == 200:
                         logger.info("Product published successfully in Printify")
-                        if response2.headers["X-RateLimit-Remaining"] == 0:
+                        if response2.headers["X-RateLimit-Remaining"] < 3 :
                             # hopefully its a window thing and in a minute, the couple I started with arent included
                             logger.warning("Approaching rate limit, pausing for a minute")
                             time.sleep(60)
                     elif response2.status_code == 429:
                         logger.warning(
-                            "timed out, will pause for 5 mins then try to get going again"
+                            f"timed out, will sleep until window resets {response2.headers['X-RateLimit-Reset']} seconds"
                         )
-                        time.sleep(60 * 5)
+                        time.sleep(response2.headers['X-RateLimit-Reset'])
                         response2 = requests.post(
                             printify_publish,
                             headers=self.headers_printify,
@@ -234,11 +234,11 @@ class shopify_printify:
                         if response2.status_code == 200:
                             logger.info("Product published successfully in Printify")
                         else:
-                            logger.warning("Failed to publish product in Printify")
+                            logger.warning("Failed to publish because of rate limit, waited for api window to reset, failed again")
                             logger.warning(response2.status_code)
                             logger.warning(response2.text)
                     else:
-                        logger.warning("Failed to publish product in Printify")
+                        logger.warning("Failed to publish product in Printify for some reason other than rate limit")
                         logger.warning(response2.status_code)
                         logger.warning(response2.text)
 
