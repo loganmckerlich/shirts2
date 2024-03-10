@@ -5,10 +5,12 @@ import json
 import time
 import datetime as dt
 import pandas as pd
+from PIL import Image
 
 
 class shopify_printify:
     def __init__(self, post_dict, version):
+        self.insta_image = None
         self.post_dict = post_dict
         self.headers_printify = {
             "Authorization": f"Bearer {post_dict['printify_access']}",
@@ -89,6 +91,7 @@ class shopify_printify:
             """
 
     def post(self, publish=False):
+        insta_image = None
         upload_url = f"{self.post_dict['base_url']}/uploads/images.json"
         product_url = f"{self.post_dict['base_url']}/shops/{self.post_dict[self.version]['shop_id']}/products.json"
 
@@ -178,6 +181,12 @@ class shopify_printify:
                     print("Failed to post product in Printify")
                     print(response1.text)
                     print(response1.status_code)
+                try:
+                    insta_image = json.loads(response1.text)["images"][2]
+                    ii_response = requests.get(insta_image)
+                    self.insta_image = Image.open(BytesIO(ii_response.content))
+                except:
+                    print('failed to get instagram image url')
 
                 if publish:
                     # limited to posting one product per api post
@@ -270,15 +279,10 @@ class shopify_printify:
                 # could I get an image url out of this and use that for insta post?
                 image0 = images[0]["node"]["id"]
                 image2 = images[2]["node"]["id"]
-                try:
-                    print(images[0].keys())
-                    print(images[0]["node"].keys())
-                    if "url" in images[0].keys():
-                        print("url in images")
-                    if "url" in images[0]["node"].keys():
-                        print("url in node")
-                except:
-                    print("couldnt find url in image response")
+                # try:
+                #     insta_url = images[2]["node"]["url"]
+                # except:
+                #     insta_url = None
 
                 q = (
                     """
