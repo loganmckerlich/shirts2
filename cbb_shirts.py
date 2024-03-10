@@ -236,4 +236,4 @@ if __name__ == "__main__":
         extra_pause=runtime["extra_pause"],
         )
 
-    cbb.daily_run()
+    cbb_obj.daily_run()
