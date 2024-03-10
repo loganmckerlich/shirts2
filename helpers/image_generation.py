@@ -4,6 +4,9 @@ from PIL import Image
 from openai import OpenAI
 import random
 import math
+import logging
+
+logger = logging.getLogger()
 
 
 def dalle_image(client, prompt, v, retry):
@@ -18,7 +21,7 @@ def dalle_image(client, prompt, v, retry):
         )
     except:
         if retry:
-            print('Retrying')
+            logger.info('Retrying')
             try:
                 response = client.images.generate(
                 model=f"dall-e-{v}",
@@ -47,7 +50,7 @@ def dalle_image(client, prompt, v, retry):
 
 def generate_main(prompt, dalle_key, test=True, dalle=3, retry=True):
     if test:
-        print("using saved image because test mode")
+        logger.info("using saved image because test mode")
         main_image = Image.open(r"test3.png")
     else:
         client = OpenAI(api_key=dalle_key)
@@ -55,7 +58,7 @@ def generate_main(prompt, dalle_key, test=True, dalle=3, retry=True):
         main_image = dalle_image(client, prompt, v=dalle, retry= retry)
 
         if main_image == 'filtered':
-            print("image generation didnt work (likely content filter)")
+            logger.warning("image generation didnt work (likely content filter)")
             return None
 
         return main_image
@@ -91,6 +94,6 @@ def prompt_engineer(sport, team1, team2, mascot1=None, mascot2=None):
         Generate an image of the {team1} {mascot1} mascot fighting the {team2} {mascot2} mascot.
         It is a fierce battle centered around {sport}. Depict the battle in a {mystyle} animation style.
         """
-    print(f"Prompt: {prompt}")
+    logger.info(f"Prompt: {prompt}")
     no_detail = f"I NEED to test how the tool works with extremely simple prompts. DO NOT add any detail, just use it AS-IS:{prompt}. Remember to use exactly this prompt. If you change even a single word or character, I’ll fire you!"
     return no_detail

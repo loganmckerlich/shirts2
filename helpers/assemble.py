@@ -3,6 +3,9 @@ from .image_generation import generate_main, prompt_engineer
 import requests
 import pandas as pd
 import numpy as np
+import logging
+
+logger = logging.getLogger()
 
 
 def size_font_recur(img_draw, team1, team2, W, font, size):
@@ -120,8 +123,8 @@ def build_cbb(config, test=True):
         main_image = main_image.resize((iw, ih))
 
         if main_image == None:
-            print("image failed to generate")
-            print(prompt)
+            logger.warning("image failed to generate")
+            logger.info(prompt)
             return None, None
 
         try:
@@ -151,9 +154,9 @@ def build_cbb(config, test=True):
             try:
                 # not transparent
                 bg.paste(logo1, (0 + logo_buffer, ih))
-                print(f"{team1} failed transparent worked normal")
+                logger.warning(f"{team1} failed transparent worked normal")
             except:
-                print(f"{team1} fail")
+                logger.warning(f"{team1} fail loggo")
 
         try:
             bg.alpha_composite(logo2, (W - logo_buffer - lw, ih))
@@ -161,9 +164,9 @@ def build_cbb(config, test=True):
             try:
                 # not transparent
                 bg.paste(logo2, (W - logo_buffer - lw, ih))
-                print(f"{team2} failed transparent worked normal")
+                logger.warning(f"{team2} failed transparent worked normal")
             except:
-                print(f"{team2} fail")
+                logger.warning(f"{team2} fail  logo")
 
         img_draw = ImageDraw.Draw(bg)
 

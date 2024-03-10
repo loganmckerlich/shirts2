@@ -3,6 +3,9 @@ import helpers as hf
 import time
 import traceback
 import yaml
+import logging
+
+logger =  logging.getLogger()
 
 
 class cbb:
@@ -71,18 +74,18 @@ class cbb:
             date = fake_date
         else:
             date = (dt.datetime.utcnow() + dt.timedelta(hours=-8)).date()
-        print(f"Today is {date}")
+        logger.info(f"Today is {date}")
 
         self.teams = self.cfbd_loader.get_team_info()
         if do_today:
             self.todays_games = hf.get_day_bball_games(date)
-            print(f"{len(self.todays_games)} Games Today")
+            logger.info(f"{len(self.todays_games)} Games Today")
         if do_yesterday:
             self.yesterdays_games = hf.get_day_bball_games(date - dt.timedelta(days=1))
-            print(f"{len(self.yesterdays_games)} Games Yesterday")
+            logger.info(f"{len(self.yesterdays_games)} Games Yesterday")
 
         if limit is not None:
-            print(f"Limiting to {limit} games")
+            logger.info(f"Limiting to {limit} games")
             self.todays_games = self.todays_games[:limit]
             self.yesterdays_games = self.yesterdays_games[:limit]
 
@@ -109,7 +112,7 @@ class cbb:
                     try:
                         design.save(f".image_saves/{title}.png")
                     except:
-                        print("couldnt save image")
+                        logger.warning("couldnt save image")
                 self.main_config["image"] = design
                 self.main_config["title"] = title.title()
                 self.main_config["description"] = description
@@ -120,6 +123,7 @@ class cbb:
                 self.created += 1
                 if pref == "pre":
                     if len(self.today_post_list) < 10:
+                        # insta_image attribute in ify_user is the image of the most recently createdd item, in this case it should be the sweater
                         self.today_post_list.append(self.ify_user.insta_image)
                         self.add_hashtag(config["team2"]["name"] + "Bball", "today")
                         self.add_hashtag(config["team1"]["name"] + "Bball", "today")
@@ -133,7 +137,7 @@ class cbb:
                         self.add_hashtag(config["team1"]["name"] + "Bball", "yesterday")
                         self.add_hashtag(config["team2"]["mascot"], "yesterday")
                         self.add_hashtag(config["team1"]["mascot"], "yesterday")
-            print(f"Created {title}, {self.created} products so far")
+            logger.info(f"Created {title}, {self.created} products so far")
 
     def iterate_games(self, pref, games):
         if len(games) > 0:
@@ -148,21 +152,20 @@ class cbb:
                 ):
                     try:
                         if self.check_each:
-                            print(game)
+                            logger.info(game)
                             a = input("proceed?")
                             if a == "yes":
                                 self.process_game(game, pref)
                         else:
                             self.process_game(game, pref)
                     except Exception as e:
-                        print(f"Failed")
-                        print(e)
-                        print(traceback.format_exc())
+                        logger.info(f"Failed")
+                        logger.warning(e,exc_info=True)
                 else:
-                    print("skipped because no ranked team and were in that mode")
+                    logger.info("skipped because no ranked team and were in that mode")
 
     def insta_step(self):
-        print("about to make some insta posts")
+        logger.info("about to make some insta posts")
         if len(self.today_post_list) > 0:
             if len(self.today_post_list) == 1:
                 self.instagram.single_post(self.today_post_list[0], self.today_caption)
@@ -186,12 +189,12 @@ class cbb:
             self.iterate_games("post", self.yesterdays_games)
         self.insta_step()
 
-        print(f"Created {self.created} new designs. This cost ${(self.created*4)/100}")
+        logger.info(f"Created {self.created} new designs. This cost ${(self.created*4)/100}")
         if self.created > 0:
-            print("Waiting to see most recent product as published")
+            logger.info("Waiting to see most recent product as published")
             self.ify_user.check_last_endpoint_recur()
 
-            print(f"{self.extra_pause} additional m pause before store organizing")
+            logger.info(f"{self.extra_pause} additional m pause before store organizing")
             time.sleep(60 * self.extra_pause)
 
             # organize store
