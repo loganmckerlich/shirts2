@@ -63,7 +63,13 @@ class instagrammer():
 
         self.insta.challenge_code_handler = self.challenge_code_handler
         self.insta.login(username=un,password=pw)
-
+        
+    def trim_cap(self, caption):
+        if len(caption)>2000:
+            logger.info("trimming caption")
+            caption = caption[0:2000]
+        return caption
+        
         
     def save_image_to_tempfile(self,image):
 
@@ -77,6 +83,7 @@ class instagrammer():
         return temp_file_path
     
     def carousel_post(self,images, caption):
+        caption = self.trim_cap(caption)
         logger.info(f'Attempting Carosel post with {len(images)} images')
         paths=[]
         for image in images:
@@ -87,6 +94,7 @@ class instagrammer():
             logger.warning('failed to post', exc_info=True)
 
     def single_post(self,image, caption):
+        caption = self.trim_cap(caption)
         logger.info(f'Attempting single image post')
         path=self.save_image_to_tempfile(image)
         try:
