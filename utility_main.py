@@ -1,4 +1,13 @@
 import helpers as hf
+import logging
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    handlers=[logging.StreamHandler()],
+)
+
+logger = logging.getLogger()
 
 if __name__ == "__main__":
     design_config, shop_config = hf.get_config("cbb")
@@ -8,7 +17,7 @@ if __name__ == "__main__":
     teams = cfbd_loader.get_team_info()
 
     # ify_user.set_prices(2199)
+    ify_user.reset_collections(teams)
     ify_user.cover_image_wrapper()
-    # ify_user.reset_collections(teams)
     # ify_user.delete_collections()
     # ify_user.create_collections_cbb(teams)

@@ -5,11 +5,14 @@ from instagrapi.mixins.challenge import ChallengeChoice
 import email
 import imaplib
 import re
+import logging
 
-class instagrammer():
+logger = logging.getLogger()
 
-    def get_code_from_email(self,username):
-        print('trying to get the conf code from email')
+
+class instagrammer:
+    def get_code_from_email(self, username):
+        logger.info("trying to get the conf code from email")
         mail = imaplib.IMAP4_SSL("imap.gmail.com")
         mail.login(self.challenge_email, self.challenge_password)
         mail.select("inbox")
@@ -32,66 +35,89 @@ class instagrammer():
                 match = re.search(">([^>]*?({u})[^<]*?)<".format(u=username), body)
                 if not match:
                     continue
-                print("Match from email:", match.group(1))
+                # logger.info("Match from email:", match.group(1))
                 match = re.search(r">(\d{6})<", body)
                 if not match:
-                    print('Skip this email, "code" not found')
+                    # logger.info('Skip this email, "code" not found')
                     continue
                 code = match.group(1)
                 if code:
-                    print('Got code')
+                    logger.info("Got code")
                     return code
         return False
 
     def challenge_code_handler(self, username, choice):
-        print('Challenge happened')
+        logger.info("Challenge happened")
         if choice == ChallengeChoice.SMS:
-            print('It looking for text code, I dont have this setup')
+            logger.warning("It looking for text code, I dont have this setup")
             return False
         elif choice == ChallengeChoice.EMAIL:
             return self.get_code_from_email(username)
         return False
-    
-    def __init__(self,un,pw,email,emailpw) -> None:
+
+    def __init__(self, un, pw, email, emailpw) -> None:
         self.insta = instaClient()
+        self.max_cap = 2000
+        self.extra_tags = "#BallIsLife #ShopSmall #StudentAthlete #HoopsCulture #BasketballDreams #NCAATourney #DunkDreams #BasketballNation #SportsClothing"
         self.username = un
         self.challenge_email = email
         self.challenge_password = emailpw
 
         self.insta.challenge_code_handler = self.challenge_code_handler
-        self.insta.login(username=un,password=pw)
+        self.insta.login(username=un, password=pw)
 
-        
-    def save_rgba_image_to_tempfile(self,image):
-        # Convert RGBA image to RGB
-        rgb_image = Image.new("RGB", image.size, (255, 255, 255))
-        rgb_image.paste(image, (0, 0), image)
-
+    def save_image_to_tempfile(self, image):
         # Create a temporary file
         with tempfile.NamedTemporaryFile(suffix=".jpg", delete=False) as temp_file:
             temp_file_path = temp_file.name
 
-            # Save the RGB image to the temporary file as JPEG
-            rgb_image.save(temp_file_path, format="JPEG")
+            # Save the image to the temporary file as JPEG
+            image.save(temp_file_path, format="JPEG")
 
         return temp_file_path
-    
-    def carousel_post(self,images, caption):
-        print(f'Attempting Carosel post with {len(images)} images')
-        paths=[]
-        for image in images:
-            paths.append(self.save_rgba_image_to_tempfile(image))
-        try:
-            _ = self.insta.album_upload(paths=paths,caption=caption)
-        except Exception as e:
-            print('failed to post')
-            print(e)
 
-    def single_post(self,image, caption):
-        print(f'Attempting single image post')
-        path=self.save_rgba_image_to_tempfile(image)
+    def shorten_string(self, input_string, character_limit):
+        words = input_string.split()
+
+        while len(" ".join(words)) > character_limit:
+            words.pop()
+
+        return " ".join(words)
+
+    def remove_extra_hashtags(self, input_string, tag_limit=30):
+        # 30 is max for a post
+        words = input_string.split()
+        output_string = input_string
+
+        while output_string.count("#") > tag_limit:
+            words.pop()
+            output_string = " ".join(words)
+
+        return output_string
+
+    def prep_cap(self, caption):
+        # add extra tags, then trim down to length
+        caption = caption + " " + self.extra_tags
+        caption = self.shorten_string(caption, self.max_cap)
+        caption = self.remove_extra_hashtags(caption)
+        return caption
+
+    def carousel_post(self, images, caption):
+        caption = self.prep_cap(caption)
+        logger.info(f"Attempting Carosel post with {len(images)} images")
+        paths = []
+        for image in images:
+            paths.append(self.save_image_to_tempfile(image))
         try:
-            _ = self.insta.photo_upload(path=path,caption=caption)
+            _ = self.insta.album_upload(paths=paths, caption=caption)
         except Exception as e:
-            print('Failed to post')
-            print(e)
+            logger.warning("failed to post", exc_info=True)
+
+    def single_post(self, image, caption):
+        caption = self.prep_cap(caption)
+        logger.info(f"Attempting single image post")
+        path = self.save_image_to_tempfile(image)
+        try:
+            _ = self.insta.photo_upload(path=path, caption=caption)
+        except Exception as e:
+            logger.warning("Failed to post", exc_info=True)

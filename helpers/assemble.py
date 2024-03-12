@@ -3,6 +3,9 @@ from .image_generation import generate_main, prompt_engineer
 import requests
 import pandas as pd
 import numpy as np
+import logging
+
+logger = logging.getLogger()
 
 
 def size_font_recur(img_draw, team1, team2, W, font, size):
@@ -44,16 +47,17 @@ def ar_resize(new, image):
     image = image.resize((int(np.floor(new * ar)), new))
     return image
 
+
 def type_check_score(score):
     # check if score is none or nan or float
     if score is None:
         return None
     elif (type(score) == float) or (type(score) == np.float64):
-        if str(score) == 'nan':
+        if str(score) == "nan":
             return None
         else:
             return int(score)
-    elif '.' in str(score):
+    elif "." in str(score):
         return int(score)
     else:
         return score
@@ -120,8 +124,8 @@ def build_cbb(config, test=True):
         main_image = main_image.resize((iw, ih))
 
         if main_image == None:
-            print("image failed to generate")
-            print(prompt)
+            logger.warning("image failed to generate")
+            logger.info(prompt)
             return None, None
 
         try:
@@ -151,9 +155,9 @@ def build_cbb(config, test=True):
             try:
                 # not transparent
                 bg.paste(logo1, (0 + logo_buffer, ih))
-                print(f"{team1} failed transparent worked normal")
+                logger.warning(f"{team1} failed transparent worked normal")
             except:
-                print(f"{team1} fail")
+                logger.warning(f"{team1} fail loggo")
 
         try:
             bg.alpha_composite(logo2, (W - logo_buffer - lw, ih))
@@ -161,9 +165,9 @@ def build_cbb(config, test=True):
             try:
                 # not transparent
                 bg.paste(logo2, (W - logo_buffer - lw, ih))
-                print(f"{team2} failed transparent worked normal")
+                logger.warning(f"{team2} failed transparent worked normal")
             except:
-                print(f"{team2} fail")
+                logger.warning(f"{team2} fail  logo")
 
         img_draw = ImageDraw.Draw(bg)
 
@@ -191,18 +195,13 @@ def build_cbb(config, test=True):
 
         _, _, wd, hd = img_draw.textbbox((0, 0), gamedate, font=date_font)
 
-
         # sometimes even when I should have the score, I get a float or a nan. fix
         team1_score = type_check_score(config["team1"]["score"])
         team2_score = type_check_score(config["team2"]["score"])
 
-        _, _, w1, h1 = img_draw.textbbox(
-            (0, 0), str(team1_score), font=score_font
-        )
+        _, _, w1, h1 = img_draw.textbbox((0, 0), str(team1_score), font=score_font)
 
-        _, _, w2, h2 = img_draw.textbbox(
-            (0, 0), str(team2_score), font=score_font
-        )
+        _, _, w2, h2 = img_draw.textbbox((0, 0), str(team2_score), font=score_font)
 
         img_draw.text(
             (l1, t1 + lh + 5),
@@ -241,7 +240,7 @@ def build_cbb(config, test=True):
         )
 
         if (team1_score is not None) and (team2_score is not None):
-            if (team1_score>99) or (team2_score>99):
+            if (team1_score > 99) or (team2_score > 99):
                 sizing = 6
             else:
                 sizing = 4
@@ -256,7 +255,7 @@ def build_cbb(config, test=True):
             )
 
             img_draw.text(
-                (((W // sizing) * (sizing-1) - w2), bv + h2),
+                (((W // sizing) * (sizing - 1) - w2), bv + h2),
                 str(team2_score),
                 team2color,
                 font=score_font,

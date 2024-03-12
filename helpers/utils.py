@@ -6,6 +6,9 @@ import requests
 from PIL import Image
 from unidecode import unidecode
 import os
+import logging
+
+logger = logging.getLogger()
 
 
 def new_football_season():
@@ -15,19 +18,28 @@ def new_football_season():
 
 
 def key_reader(version):
-    print(f'private file size: {os.path.getsize("info/private.yml")}')
+    logger.info(f'private file size: {os.path.getsize("info/private.yml")}')
     with open("info/private.yml", "r") as f:
         private_yml = yaml.safe_load(f)
     cfbd_api_key = private_yml["cfbd_api_key"]
     dalle_key = private_yml["dalle_key"]
     printify_access = private_yml[version]["printify_access"]
     shopify_access = private_yml[version]["shopify_access"]
-    insta_pw = private_yml[version]['instagram']['password']
-    insta_un = private_yml[version]['instagram']['username']
-    email_pw = private_yml[version]['instagram']['epassword']
-    email_un = private_yml[version]['instagram']['eusername']
+    insta_pw = private_yml[version]["instagram"]["password"]
+    insta_un = private_yml[version]["instagram"]["username"]
+    email_pw = private_yml[version]["instagram"]["epassword"]
+    email_un = private_yml[version]["instagram"]["eusername"]
 
-    return cfbd_api_key, dalle_key, printify_access, shopify_access, insta_pw, insta_un, email_pw, email_un
+    return (
+        cfbd_api_key,
+        dalle_key,
+        printify_access,
+        shopify_access,
+        insta_pw,
+        insta_un,
+        email_pw,
+        email_un,
+    )
 
 
 def get_config(version):
@@ -35,12 +47,21 @@ def get_config(version):
         design_config = yaml.safe_load(f)
     with open("info/shop_config.yml", "r") as f:
         shop_config = yaml.safe_load(f)
-    cfbd_api_key, dalle_key, printify_access, shopify_access, insta_pw, insta_un, email_pw, email_un = key_reader(version)
+    (
+        cfbd_api_key,
+        dalle_key,
+        printify_access,
+        shopify_access,
+        insta_pw,
+        insta_un,
+        email_pw,
+        email_un,
+    ) = key_reader(version)
     design_config["cfbd_api"] = cfbd_api_key
     design_config["dalle_key"] = dalle_key
     shop_config["printify_access"] = printify_access
     shop_config["shopify_access"] = shopify_access
-    shop_config["instagram"] ={}
+    shop_config["instagram"] = {}
     shop_config["instagram"]["username"] = insta_un
     shop_config["instagram"]["password"] = insta_pw
     shop_config["instagram"]["eusername"] = email_un
@@ -198,5 +219,5 @@ def generate_t_d_t_cbb(game_config):
 
 def most_frequent(List):
     if len(set(List)) > 1:
-        print("There are multiple weeks represented in these games")
+        logger.info("There are multiple weeks represented in these games")
     return max(set(List), key=List.count)

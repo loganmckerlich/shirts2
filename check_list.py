@@ -13,12 +13,15 @@ teams = cfbd_loader.get_team_info()
 teams["joiner"] = teams.name.apply(lambda x: unidecode(x).lower())
 
 
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     for team in qualifiers:
         tjoiner = unidecode(team).lower()
-        team_info = teams.loc[teams.joiner==tjoiner].to_dict("records")
-        if len(team_info)==0:
-            print(f'missing {team}')
-        elif (team_info[0]['mascot']==None) or (team_info[0]['color']==None)or(team_info[0]['logos'] == None) :
-            print(f'Incomplete {team}')
+        team_info = teams.loc[teams.joiner == tjoiner].to_dict("records")
+        if len(team_info) == 0:
+            print(f"missing {team}")
+        elif (
+            (team_info[0]["mascot"] == None)
+            or (team_info[0]["color"] == None)
+            or (team_info[0]["logos"] == None)
+        ):
+            print(f"Incomplete {team}")

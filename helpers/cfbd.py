@@ -4,6 +4,9 @@ import numpy as np
 import ast
 import datetime as dt
 import yaml
+import logging
+
+logger = logging.getLogger()
 
 
 def read_yaml(file_path):
@@ -120,7 +123,7 @@ class cfbp_handler:
     def determine_to_do2(self):
         new_games = self.all_games
         if self.fake_date is not None:
-            print("artificially setting to monday past date")
+            logger.info("artificially setting to monday past date")
             today = pd.to_datetime(self.fake_date)
         else:
             today = dt.date.today()
