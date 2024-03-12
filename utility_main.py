@@ -1,14 +1,13 @@
 import helpers as hf
 import logging
+
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
-    handlers=[
-        logging.StreamHandler()
-    ]
+    handlers=[logging.StreamHandler()],
 )
 
-logger =  logging.getLogger()
+logger = logging.getLogger()
 
 if __name__ == "__main__":
     design_config, shop_config = hf.get_config("cbb")

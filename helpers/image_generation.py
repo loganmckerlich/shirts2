@@ -21,26 +21,25 @@ def dalle_image(client, prompt, v, retry):
         )
     except:
         if retry:
-            logger.info('Retrying')
+            logger.info("Retrying")
             try:
                 response = client.images.generate(
-                model=f"dall-e-{v}",
-                prompt=prompt,
-                size="1024x1024",
-                quality="standard",
-                n=1,
+                    model=f"dall-e-{v}",
+                    prompt=prompt,
+                    size="1024x1024",
+                    quality="standard",
+                    n=1,
                 )
             except:
                 fail = True
         else:
             fail = True
-    
-    if fail:
-        return 'filtered'
 
+    if fail:
+        return "filtered"
 
     image_url = response.data[0].url
-    
+
     inter = requests.get(image_url, stream=True)
 
     image = Image.open(inter.raw)
@@ -55,9 +54,9 @@ def generate_main(prompt, dalle_key, test=True, dalle=3, retry=True):
     else:
         client = OpenAI(api_key=dalle_key)
 
-        main_image = dalle_image(client, prompt, v=dalle, retry= retry)
+        main_image = dalle_image(client, prompt, v=dalle, retry=retry)
 
-        if main_image == 'filtered':
+        if main_image == "filtered":
             logger.warning("image generation didnt work (likely content filter)")
             return None
 

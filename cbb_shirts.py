@@ -8,13 +8,10 @@ import logging
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
-    handlers=[
-        logging.StreamHandler()
-    ]
+    handlers=[logging.StreamHandler()],
 )
 
-logger =  logging.getLogger()
-
+logger = logging.getLogger()
 
 
 class cbb:
@@ -36,8 +33,7 @@ class cbb:
             *
             *
             *
-            #MarchMadness #CollegeBasketball #NCAABB #BallIsLife #ShopSmall #StudentAthlete #HoopsCulture
-            #GameDayReady #BasketballDreams #NCAATourney #DunkDreams #BasketballNation #SportsClothing       
+            #MarchMadness #CollegeBasketball #NCAABB #GameDayReady
             """
 
         self.yesterday_caption = """
@@ -45,9 +41,8 @@ class cbb:
             Purchase these designs and more as a shirt ($25.99) or a sweater ($35.99) from the link in my bio
             *
             *
-            *
-            #MarchMadness #CollegeBasketball #NCAABB #BallIsLife #ShopSmall #StudentAthlete #HoopsCulture
-            #GameDayReady #BasketballDreams #NCAATourney #DunkDreams #BasketballNation #SportsClothing      
+            *  
+            #MarchMadness #CollegeBasketball #NCAABB #GameDayReady
             """
 
         self.created = 0
@@ -110,7 +105,6 @@ class cbb:
         config = hf.combine_configs(self.main_config, game_parsed)
         design, text = hf.build_cbb(config, test=self.test)
 
-
         if design != "prompt failed":
             if design is not None:
                 title, description, tags = hf.generate_t_d_t_cbb(game_parsed)
@@ -143,8 +137,12 @@ class cbb:
                     elif pref == "post":
                         if len(self.yesterday_post_list) < 10:
                             self.yesterday_post_list.append(self.ify_user.insta_image)
-                            self.add_hashtag(config["team2"]["name"] + "Bball", "yesterday")
-                            self.add_hashtag(config["team1"]["name"] + "Bball", "yesterday")
+                            self.add_hashtag(
+                                config["team2"]["name"] + "Bball", "yesterday"
+                            )
+                            self.add_hashtag(
+                                config["team1"]["name"] + "Bball", "yesterday"
+                            )
                             self.add_hashtag(config["team2"]["mascot"], "yesterday")
                             self.add_hashtag(config["team1"]["mascot"], "yesterday")
             logger.info(f"Created {title}, {self.created} products so far")
@@ -170,7 +168,7 @@ class cbb:
                             self.process_game(game, pref)
                     except Exception as e:
                         logger.info(f"Failed")
-                        logger.warning(e,exc_info=True)
+                        logger.warning(e, exc_info=True)
                 else:
                     logger.info("skipped because no ranked team and were in that mode")
 
@@ -199,12 +197,16 @@ class cbb:
             self.iterate_games("post", self.yesterdays_games)
         self.insta_step()
 
-        logger.info(f"Created {self.created} new designs. This cost ${(self.created*4)/100}")
+        logger.info(
+            f"Created {self.created} new designs. This cost ${(self.created*4)/100}"
+        )
         if self.created > 0:
             logger.info("Waiting to see most recent product as published")
             self.ify_user.check_last_endpoint_recur()
 
-            logger.info(f"{self.extra_pause} additional m pause before store organizing")
+            logger.info(
+                f"{self.extra_pause} additional m pause before store organizing"
+            )
             time.sleep(60 * self.extra_pause)
 
             # organize store
@@ -235,6 +237,6 @@ if __name__ == "__main__":
         just_ranked=runtime["just_ranked"],
         save_image=runtime["save_image"],
         extra_pause=runtime["extra_pause"],
-        )
+    )
 
     cbb_obj.daily_run()
