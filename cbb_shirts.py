@@ -162,6 +162,7 @@ class cbb:
                     or (game["team2Rank"] is not None)
                     or (game["team1"] in self.qualifiers)
                     or (game["team2"] in self.qualifiers)
+                    or (game["desc"] is not None) # tournament games should always be repped
                 ):
                     try:
                         if self.check_each:
