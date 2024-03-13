@@ -94,10 +94,15 @@ class cbb:
             self.yesterdays_games = self.yesterdays_games[:limit]
 
     def add_hashtag(self, tag, post):
-        if post == "today":
-            self.today_caption = self.today_caption + " #" + tag
-        elif post == "yesterday":
-            self.yesterday_caption = self.yesterday_caption + " #" + tag
+        if tag is not None:
+            tag = tag.replace(' ','')
+            #WashingtonBasketball
+            #HuskiesBasketball
+            tag = tag+'Basketball'
+            if post == "today":
+                self.today_caption = self.today_caption + " #" + tag
+            elif post == "yesterday":
+                self.yesterday_caption = self.yesterday_caption + " #" + tag
 
     def process_game(self, game, pref):
         game_parsed = hf.parse_cbb_game(game, self.teams)
@@ -129,8 +134,8 @@ class cbb:
                         if len(self.today_post_list) < 10:
                             # insta_image attribute in ify_user is the image of the most recently createdd item, in this case it should be the sweater
                             self.today_post_list.append(self.ify_user.insta_image)
-                            self.add_hashtag(config["team2"]["name"] + "Bball", "today")
-                            self.add_hashtag(config["team1"]["name"] + "Bball", "today")
+                            self.add_hashtag(config["team2"]["name"], "today")
+                            self.add_hashtag(config["team1"]["name"], "today")
                             self.add_hashtag(config["team2"]["mascot"], "today")
                             self.add_hashtag(config["team1"]["mascot"], "today")
 
@@ -138,10 +143,10 @@ class cbb:
                         if len(self.yesterday_post_list) < 10:
                             self.yesterday_post_list.append(self.ify_user.insta_image)
                             self.add_hashtag(
-                                config["team2"]["name"] + "Bball", "yesterday"
+                                config["team2"]["name"], "yesterday"
                             )
                             self.add_hashtag(
-                                config["team1"]["name"] + "Bball", "yesterday"
+                                config["team1"]["name"], "yesterday"
                             )
                             self.add_hashtag(config["team2"]["mascot"], "yesterday")
                             self.add_hashtag(config["team1"]["mascot"], "yesterday")
@@ -157,6 +162,7 @@ class cbb:
                     or (game["team2Rank"] is not None)
                     or (game["team1"] in self.qualifiers)
                     or (game["team2"] in self.qualifiers)
+                    or (game["desc"] is not None) # tournament games should always be repped
                 ):
                     try:
                         if self.check_each:
