@@ -94,7 +94,6 @@ class shopify_printify:
             """
 
     def post(self, publish=False):
-        insta_image = None
         upload_url = f"{self.post_dict['base_url']}/uploads/images.json"
         product_url = f"{self.post_dict['base_url']}/shops/{self.post_dict[self.version]['shop_id']}/products.json"
 
@@ -194,6 +193,7 @@ class shopify_printify:
                         logger.warning(
                             f"failed to get instagram image url, URL: {insta_image}"
                         )
+                        self.insta_image = None
 
                 if publish:
                     # limited to posting one product per api post

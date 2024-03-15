@@ -16,7 +16,7 @@ def cbb_cfb_exceptions(df):
     this could get hairy if i need to do them both in cbb but I dont think ill have to
     """
 
-    changes = {"Miami (FL)": "Miami"}
+    changes = {"Miami (FL)": "Miami", "St. John's (NY)" : "St. John's"}
 
     df = df.replace({"team1": changes})
     df = df.replace({"team2": changes})
