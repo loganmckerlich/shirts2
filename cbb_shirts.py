@@ -95,7 +95,7 @@ class cbb:
 
     def add_hashtag(self, tag, post):
         if tag is not None:
-            tag = tag.replace(' ','')
+            tag = tag.replace(' ','').replace('\'','')
             #WashingtonBasketball
             #HuskiesBasketball
             tag = tag+'Basketball'
@@ -131,7 +131,7 @@ class cbb:
                 self.created += 1
                 if self.ify_user.insta_image is not None:
                     if pref == "pre":
-                        if len(self.today_post_list) < 10:
+                        if (len(self.today_post_list) < 10) & (self.ify_user.insta_image is not None) :
                             # insta_image attribute in ify_user is the image of the most recently createdd item, in this case it should be the sweater
                             self.today_post_list.append(self.ify_user.insta_image)
                             self.add_hashtag(config["team2"]["name"], "today")
