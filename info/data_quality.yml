@@ -1,6 +1,15 @@
 new_teams:
 # these dont exist in cfb data
   - team_id: Null
+    name: Saint Peter's
+    abrev: SPC
+    color: "#003C71"
+    alt_color: Null
+    mascot: Peacocks
+    logos: https://1000logos.net/wp-content/uploads/2022/02/Saint-Peters-Peacocks-logo.png
+    division: Null
+    long_name: Null
+  - team_id: Null
     name: Longwood
     abrev: LONG
     color: "#041E42"
