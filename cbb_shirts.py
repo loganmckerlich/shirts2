@@ -67,12 +67,6 @@ class cbb:
         self.cfbd_loader = hf.cfbp_handler(
             self.main_config["cfbd_api"], fake_date=fake_date
         )
-        self.instagram = hf.instagrammer(
-            un=self.main_config["instagram"]["username"],
-            pw=self.main_config["instagram"]["password"],
-            email=self.main_config["instagram"]["eusername"],
-            emailpw=self.main_config["instagram"]["epassword"],
-        )
 
         if fake_date is not None:
             date = fake_date
@@ -179,20 +173,26 @@ class cbb:
                     logger.info("skipped because no ranked team and were in that mode")
 
     def insta_step(self):
+        instagram = hf.instagrammer(
+            un=self.main_config["instagram"]["username"],
+            pw=self.main_config["instagram"]["password"],
+            email=self.main_config["instagram"]["eusername"],
+            emailpw=self.main_config["instagram"]["epassword"],
+        )
         logger.info("about to make some insta posts")
         if len(self.today_post_list) > 0:
             if len(self.today_post_list) == 1:
-                self.instagram.single_post(self.today_post_list[0], self.today_caption)
+                instagram.single_post(self.today_post_list[0], self.today_caption)
             else:
-                self.instagram.carousel_post(self.today_post_list, self.today_caption)
+                instagram.carousel_post(self.today_post_list, self.today_caption)
 
         if len(self.yesterday_post_list) > 0:
             if len(self.yesterday_post_list) == 1:
-                self.instagram.single_post(
+                instagram.single_post(
                     self.yesterday_post_list[0], self.yesterday_caption
                 )
             else:
-                self.instagram.carousel_post(
+                instagram.carousel_post(
                     self.yesterday_post_list, self.yesterday_caption
                 )
 
@@ -201,7 +201,11 @@ class cbb:
             self.iterate_games("pre", self.todays_games)
         if self.do_yesterday:
             self.iterate_games("post", self.yesterdays_games)
-        self.insta_step()
+
+        try:
+            self.insta_step()
+        except:
+            logger.warning("insta step failed", exc_info = True)
 
         logger.info(
             f"Created {self.created} new designs. This cost ${(self.created*4)/100}"
