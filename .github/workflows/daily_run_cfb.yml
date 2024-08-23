@@ -30,6 +30,6 @@ jobs:
           pip install -r requirements.txt
 
       - name: execute py script # run main.py
-        run: python cfb_shirts2.py
+        run: python cfb_shirts.py
 
         
