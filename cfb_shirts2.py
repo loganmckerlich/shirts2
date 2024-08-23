@@ -14,43 +14,43 @@ logging.basicConfig(
 logger = logging.getLogger()
 
 
-class cbb:
+class cfb:
     def __init__(
         self,
         test=False,
         fake_date=None,
         limit=None,
-        do_yesterday=True,
-        do_today=True,
+        do_upcoming=True,
+        do_past=True,
         check_each=False,
         just_ranked=False,
         save_image=True,
         extra_pause=2,
     ):
         self.today_caption = """
-            Check out these college basketball designs. We are designing clothing for every game
+            Check out these college football designs. We are designing clothing for every game
             Purchase these designs and more as a shirt ($25.99) or a sweater ($35.99) from the link in my bio
             *
             *
             *
-            #MarchMadness #CollegeBasketball #NCAABB #GameDayReady
+            #CollegeFootball #CFB #GameDayReady
             """
 
         self.yesterday_caption = """
-            Fresh of the press, created these and more designs based off of yesterdays college basketball schedule!
+            Fresh of the press, created these and more designs based off of yesterdays college football schedule!
             Purchase these designs and more as a shirt ($25.99) or a sweater ($35.99) from the link in my bio
             *
             *
             *  
-            #MarchMadness #CollegeBasketball #NCAABB #GameDayReady
+            #CollegeFootball #CFB #GameDayReady
             """
 
         self.created = 0
         self.test = test
         self.fake_date = fake_date
         self.limit = limit
-        self.do_yesterday = do_yesterday
-        self.do_today = do_today
+        self.do_upcoming = do_upcoming
+        self.do_past_week = do_past
         self.check_each = check_each
         self.just_ranked = just_ranked
         self.save_image = save_image
@@ -58,12 +58,11 @@ class cbb:
 
         self.today_post_list = []
         self.yesterday_post_list = []
-        self.created = 0
-        with open("info/2024_qualifiers.yml", "r") as f:
-            self.qualifiers = yaml.safe_load(f)
-        design_config, shop_config = hf.get_config("cbb")
+
+
+        design_config, shop_config = hf.get_config("cfb")
         self.main_config = hf.combine_configs(design_config, shop_config)
-        self.ify_user = hf.shopify_printify(self.main_config, "cbb")
+        self.ify_user = hf.shopify_printify(self.main_config, "cfb")
         self.cfbd_loader = hf.cfbp_handler(
             self.main_config["cfbd_api"], fake_date=fake_date
         )
@@ -80,89 +79,98 @@ class cbb:
             date = (dt.datetime.utcnow() + dt.timedelta(hours=-8)).date()
         logger.info(f"Today is {date}")
 
+
+        # get new schedule info and return list of games i need to do
+        self.all_games = self.cfbd_loader.get_schedule(2024)
+
         self.teams = self.cfbd_loader.get_team_info()
-        if do_today:
-            self.todays_games = hf.get_day_bball_games(date)
-            logger.info(f"{len(self.todays_games)} Games Today")
-        if do_yesterday:
-            self.yesterdays_games = hf.get_day_bball_games(date - dt.timedelta(days=1))
-            logger.info(f"{len(self.yesterdays_games)} Games Yesterday")
+        
+        self.past_week, self.upcoming = self.cfbd_loader.determine_to_do3()
+
+        logger.info(f"{len(self.past_week)} games from this past week")
+        logger.info(f"{len(self.upcoming)} for games 2 weeks from now")
+
 
         if limit is not None:
             logger.info(f"Limiting to {limit} games")
-            self.todays_games = self.todays_games[:limit]
-            self.yesterdays_games = self.yesterdays_games[:limit]
+            self.past_week = self.past_week[:limit]
+            self.upcoming = self.upcoming[:limit]
+        logger.info(f"Cost for dalle api {(len(self.past_week)+len(self.upcoming))*0.04}$, will pause for 15 seconds if you wanna abort")
+        time.sleep(15)
 
     def add_hashtag(self, tag, post):
         if tag is not None:
             tag = tag.replace(' ','').replace('\'','')
-            #WashingtonBasketball
-            #HuskiesBasketball
-            tag = tag+'Basketball'
+            tag = tag+'Football'
             if post == "today":
                 self.today_caption = self.today_caption + " #" + tag
             elif post == "yesterday":
                 self.yesterday_caption = self.yesterday_caption + " #" + tag
 
+
     def process_game(self, game, pref):
-        game_parsed = hf.parse_cbb_game(game, self.teams)
-
-        config = hf.combine_configs(self.main_config, game_parsed)
-        design, text = hf.build_cbb(config, test=self.test)
-
-        if design != "prompt failed":
+        game = game.to_dict("records")[0]
+        game_config = hf.parse_game(game, self.teams)
+        game_config["game_id"] = game
+        if pref == 'pre':
+            #remove rankings, we are 2 weeks out so rank could change
+            game_config["home_rank"] = None
+            game_config["away_rank"] = None
+        config = hf.combine_configs(self.main_config, game_config)
+        design, text = hf.build_cfb(config, test=self.test)
+        if design != "Prompt Failed":
             if design is not None:
-                title, description, tags = hf.generate_t_d_t_cbb(game_parsed)
+                title, description, tags = hf.generate_t_d_t(game_config)
                 if pref == "pre":
                     title = title + " pre-game"
 
                 if self.save_image:
                     try:
-                        design.save(f".image_saves/cbb/{title}.png")
+                        design.save(f".image_saves/cfb/{title}.png")
                     except:
                         logger.warning("couldnt save image")
+
                 self.main_config["image"] = design
                 self.main_config["title"] = title.title()
                 self.main_config["description"] = description
                 self.main_config["tags"] = tags
                 self.main_config["design"] = design
                 self.main_config["text"] = text
-                self.ify_user.post(publish=True)
+                if not self.test:
+                    self.ify_user.post(publish=True)
+                    logger.info('Didnt post to shopify/printify bc in test mode')
                 self.created += 1
                 if self.ify_user.insta_image is not None:
                     if pref == "pre":
                         if (len(self.today_post_list) < 10) & (self.ify_user.insta_image is not None) :
                             # insta_image attribute in ify_user is the image of the most recently createdd item, in this case it should be the sweater
                             self.today_post_list.append(self.ify_user.insta_image)
-                            self.add_hashtag(config["team2"]["name"], "today")
-                            self.add_hashtag(config["team1"]["name"], "today")
-                            self.add_hashtag(config["team2"]["mascot"], "today")
-                            self.add_hashtag(config["team1"]["mascot"], "today")
+                            self.add_hashtag(config["home_team"]["shortn"], "today")
+                            self.add_hashtag(config["away_team"]["shortn"], "today")
+                            self.add_hashtag(config["home_team"]["mascot"], "today")
+                            self.add_hashtag(config["away_team"]["mascot"], "today")
 
                     elif pref == "post":
                         if len(self.yesterday_post_list) < 10:
                             self.yesterday_post_list.append(self.ify_user.insta_image)
                             self.add_hashtag(
-                                config["team2"]["name"], "yesterday"
+                                config["away_team"]["shortn"], "yesterday"
                             )
                             self.add_hashtag(
-                                config["team1"]["name"], "yesterday"
+                                config["home_team"]["shortn"], "yesterday"
                             )
-                            self.add_hashtag(config["team2"]["mascot"], "yesterday")
-                            self.add_hashtag(config["team1"]["mascot"], "yesterday")
+                            self.add_hashtag(config["away_team"]["mascot"], "yesterday")
+                            self.add_hashtag(config["home_team"]["mascot"], "yesterday")
             logger.info(f"Created {title}, {self.created} products so far")
 
     def iterate_games(self, pref, games):
         if len(games) > 0:
-            for i in range(len(games)):
-                game = games.iloc[i]
+            for gameid in games:
+                game = self.all_games.loc[self.all_games.id == gameid]
                 if (
                     (not self.just_ranked)
-                    or (game["team1Rank"] is not None)
-                    or (game["team2Rank"] is not None)
-                    or (game["team1"] in self.qualifiers)
-                    or (game["team2"] in self.qualifiers)
-
+                    or (game["home_rank"] is not None)
+                    or (game["away_rank"] is not None)
                 ):
                     try:
                         if self.check_each:
@@ -197,16 +205,16 @@ class cbb:
                 )
 
     def daily_run(self):
-        if self.do_today:
-            self.iterate_games("pre", self.todays_games)
-        if self.do_yesterday:
-            self.iterate_games("post", self.yesterdays_games)
+        if self.do_past_week:
+            self.iterate_games("post", self.past_week)
+        if self.do_upcoming:
+            self.iterate_games("pre", self.upcoming)
         self.insta_step()
 
         logger.info(
-            f"Created {self.created} new designs. This cost ${(self.created*4)/100}"
+            f"Created {self.created} new designs. This cost ${(self.created*0.04)}"
         )
-        if self.created > 0:
+        if self.created > 0 and not self.test:
             logger.info("Waiting to see most recent product as published")
             self.ify_user.check_last_endpoint_recur()
 
@@ -221,8 +229,8 @@ class cbb:
                 self.teams,
                 exclude=[
                     "All Products",
-                    "College Basketball T Shirts",
-                    "College Basketball Crewnecks",
+                    "College Football T Shirts",
+                    "College Football Crewnecks",
                 ],
             )
 
@@ -231,14 +239,16 @@ class cbb:
 
 
 if __name__ == "__main__":
-    with open("info/cbb_runtime_params.yml", "r") as f:
+    with open("info/cfb_runtime_params.yml", "r") as f:
         runtime = yaml.safe_load(f)
-    cbb_obj = cbb(
+    cbb_obj = cfb(
         test=runtime["test"],
-        fake_date=runtime["fake_date"],
-        limit=runtime["limit"],
-        do_yesterday=runtime["do_yesterday"],
-        do_today=runtime["do_today"],
+        # fake_date=runtime["fake_date"],
+        fake_date='2024-08-19',
+        # limit=runtime["limit"],
+        limit = 1,
+        do_upcoming=runtime["do_upcoming"],
+        do_past=runtime["do_past_week"],
         check_each=runtime["check_each"],
         just_ranked=runtime["just_ranked"],
         save_image=runtime["save_image"],

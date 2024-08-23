@@ -58,7 +58,13 @@ class instagrammer:
     def __init__(self, un, pw, email, emailpw) -> None:
         self.insta = instaClient()
         self.max_cap = 2000
-        self.extra_tags = "#BallIsLife #ShopSmall #StudentAthlete #HoopsCulture #BasketballDreams #NCAATourney #DunkDreams #BasketballNation #SportsClothing"
+        if 'march' in un:
+            self.extra_tags = "#BallIsLife #ShopSmall #StudentAthlete #HoopsCulture #BasketballDreams #NCAATourney #DunkDreams #BasketballNation #SportsClothing"
+        elif 'cfb' in un:
+            self.extra_tags = "#Football #ShopSmall #StudentAthlete #CFB #CollegeFootball #Football #Touchdown #College #SportsClothing"
+        else:
+            self.extra_tags = "#shirt"
+
         self.username = un
         self.challenge_email = email
         self.challenge_password = emailpw

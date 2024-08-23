@@ -50,7 +50,7 @@ def dalle_image(client, prompt, v, retry):
 def generate_main(prompt, dalle_key, test=True, dalle=3, retry=True):
     if test:
         logger.info("using saved image because test mode")
-        main_image = Image.open(r"test3.png")
+        main_image = Image.open(r"/Users/loganmckerlich/Desktop/DS_portoflio.nosync/shirts/.image_saves/cbb/Auburn vs Alabama. 07 Feb, 2024.png")
     else:
         client = OpenAI(api_key=dalle_key)
 
@@ -60,7 +60,7 @@ def generate_main(prompt, dalle_key, test=True, dalle=3, retry=True):
             logger.warning("image generation didnt work (likely content filter)")
             return None
 
-        return main_image
+    return main_image
 
 
 def prompt_engineer(sport, team1, team2, mascot1=None, mascot2=None):
@@ -86,6 +86,7 @@ def prompt_engineer(sport, team1, team2, mascot1=None, mascot2=None):
         "Renaissance Painting",
         "Charcoal Sketch",
         "Oil Painting",
+        "vintage comic book"
     ]
 
     mystyle = random.choice(styles)

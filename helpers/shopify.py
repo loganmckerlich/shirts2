@@ -398,13 +398,13 @@ class shopify_printify:
 
     def create_week_collections(self, all_products):
         week_content = {}
-        rs = ["regular-season" + " Week " + str(x) for x in range(0, 13)]
-        ps = ["postseason" + " Week " + str(x) for x in range(0, 13)]
+        rs = ["regular-season" + " week " + str(x) for x in range(0, 13)]
+        ps = ["postseason" + " week " + str(x) for x in range(0, 13)]
         rs.extend(ps)
         for week in rs:
             week_content[week] = []
             for product in all_products:
-                if week in product["title"]:
+                if week in product["title"].lower():
                     week_content[week].append(product["id"])
 
         # this returns a dict of week:[ids for collection]
@@ -527,25 +527,28 @@ class shopify_printify:
     def create_collections_cfb(self, teams):
         products_link = f"https://{self.post_dict[self.version]['shop_name']}.myshopify.com/admin/api/2024-01/products.json"
 
-        response1 = requests.get(products_link, headers=self.headers_shopify)
+        all_products = self.recur_get_products(products_link=products_link)
 
-        week_content = self.create_week_collections(response1)
 
-        team_content, logo_content = self.create_team_collections(response1, teams)
+        week_content = self.create_week_collections(all_products)
+
+        team_content, logo_content = self.create_team_collections(all_products, teams)
 
         collection_link = f"https://{self.post_dict[self.version]['shop_name']}.myshopify.com/admin/api/2023-04/custom_collections.json"
-        logger.info("will create collection for each team and week")
-        for week in week_content.keys():
-            id_list = week_content[week]
-            if len(id_list) > 0:
-                time.sleep(0.75)
-                self.post_collection(id_list, week, collection_link)
-
+        logger.info("will create collection for each team")
+        all_list = []
         for team in team_content.keys():
             id_list = team_content[team]
             if len(id_list) > 0:
+                all_list.extend(id_list)
+                desc = f"Custom basketball apparel for all the biggest {team} games"
+                if team in logo_content.keys():
+                    logo = logo_content[team]
+                else:
+                    logo = None
+
                 time.sleep(0.75)
-                self.post_collection(id_list, team, collection_link)
+                self.post_collection(id_list, team, collection_link, desc, logo)
 
     def recur_get_products(self, products_link=None, products=[]):
         if products_link is None:
@@ -667,6 +670,8 @@ class shopify_printify:
             "All Products",
             "College Basketball T Shirts",
             "College Basketball Crewnecks",
+            "College Football T Shirts",
+            "College Football Crewnecks",
         ],
     ):
         self.delete_collections(exclude)

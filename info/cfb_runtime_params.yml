@@ -1,0 +1,9 @@
+test: false
+fake_date: null
+limit: null
+do_upcoming: true
+do_past_week: true
+check_each: false
+just_ranked: true 
+save_image: true
+extra_pause: 2

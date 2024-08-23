@@ -330,6 +330,28 @@ def build_cfb(config, test=False):
 
     game_date = config["game"]["date"]
 
+    rank1 = config["home_team"]["rank"]
+
+    rank2 = config["away_team"]["rank"]
+
+    if (
+        (rank1 is not None) and
+        (rank1 is not np.nan) and
+        (not pd.isna(rank1))
+    ):
+        team1r = " #" + str(int(rank1)) + " " + team1
+    else:
+        team1r = " " + team1
+
+    if (
+        (rank2 is not None) and
+        (rank2 is not np.nan) and
+        (not pd.isna(rank2))
+    ):
+        team2r = "#" + str(int(rank2))+ " " + team2 + " "
+    else:
+        team2r = team2 + " "
+
     prompt = prompt_engineer(
         sport,
         team1full,
@@ -385,7 +407,7 @@ def build_cfb(config, test=False):
 
         img_draw = ImageDraw.Draw(bg)
 
-        mainfont = size_font_recur(img_draw, team1, team2, W, "Freshman", size=150)
+        mainfont = size_font_recur(img_draw, team1r, team2r, W, "Freshman", size=150)
 
         score_font = ImageFont.truetype(
             r"./fonts/Freshman.ttf", size=70, layout_engine=ImageFont.Layout.BASIC
@@ -395,11 +417,11 @@ def build_cfb(config, test=False):
             r"./fonts/alarm_clock.ttf", size=22, layout_engine=ImageFont.Layout.BASIC
         )  # autosize this
 
-        l1, t1, r1, b1 = img_draw.textbbox((0, img_h), team1, font=mainfont)
+        l1, t1, r1, b1 = img_draw.textbbox((0, img_h), team1r, font=mainfont)
 
         lv, tv, rv, bv = img_draw.textbbox((r1 + 5, img_h), "VS", font=mainfont)
 
-        l2, t2, r2, b2 = img_draw.textbbox((rv + 5, img_h), team2, font=mainfont)
+        l2, t2, r2, b2 = img_draw.textbbox((rv + 5, img_h), team2r, font=mainfont)
 
         _, _, wd, hd = img_draw.textbbox((0, 0), gamedate, font=date_font)
 
@@ -409,7 +431,7 @@ def build_cfb(config, test=False):
 
         img_draw.text(
             (l1, t1 + lh + 5),
-            team1,
+            team1r,
             team1color,
             font=mainfont,
             stroke_width=1,
@@ -427,7 +449,7 @@ def build_cfb(config, test=False):
 
         img_draw.text(
             (l2, t2 + lh + 5),
-            team2,
+            team2r,
             team2color,
             font=mainfont,
             stroke_width=1,
@@ -466,7 +488,17 @@ def build_cfb(config, test=False):
 
         text_draw = ImageDraw.Draw(text)
 
-        game_text = f"{team1} Vs. {team2}\n{game_date}"
+        # type checking because sometimes its None sometimes its Nan
+        if type(config["home_team"]["mascot"]) == str:
+            name_mascot_1 = team1r + " " + config["home_team"]["mascot"]
+        else:
+            name_mascot_1 = team1r
+        if type(config["away_team"]["mascot"]) == str:
+            name_mascot_2 = team2r + " " + config["away_team"]["mascot"]
+        else:
+            name_mascot_2 = team2r
+
+        game_text = f"{name_mascot_1}\n Vs.\n {name_mascot_2}\n {gamedate}"
 
         game_font = simple_size_font_recur(
             text_draw, game_text, W, "Universal_Serif", 75
