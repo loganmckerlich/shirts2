@@ -89,9 +89,17 @@ def prompt_engineer(sport, team1, team2, mascot1=None, mascot2=None):
         "vintage comic book"
     ]
 
+    if mascot1.lower() not in team1.lower():
+        team1m = team1+mascot1
+    else:
+        team1m = team1
+
+    if mascot2.lower() not in team2.lower():
+        team2m = team2+mascot2
+
     mystyle = random.choice(styles)
     prompt = f"""
-        Generate an image of the {team1} {mascot1} mascot fighting the {team2} {mascot2} mascot.
+        Generate an image of the {team1m} mascot fighting the {team2m} mascot.
         It is a fierce battle centered around {sport}. Depict the battle in a {mystyle} animation style.
         """
     logger.info(f"Prompt: {prompt}")
