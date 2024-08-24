@@ -243,10 +243,8 @@ if __name__ == "__main__":
         runtime = yaml.safe_load(f)
     cbb_obj = cfb(
         test=runtime["test"],
-        # fake_date=runtime["fake_date"],
-        fake_date='2024-08-19',
-        # limit=runtime["limit"],
-        limit = 1,
+        fake_date=runtime["fake_date"],
+        limit=runtime["limit"],
         do_upcoming=runtime["do_upcoming"],
         do_past=runtime["do_past_week"],
         check_each=runtime["check_each"],
