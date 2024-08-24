@@ -1,4 +1,4 @@
-name: run
+name: run cfb
 on:
   workflow_dispatch:
   schedule:
