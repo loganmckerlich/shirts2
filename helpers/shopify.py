@@ -229,7 +229,7 @@ class shopify_printify:
                         logger.warning(
                             f"timed out, will sleep until window resets {response2.headers['X-RateLimit-Reset']} seconds"
                         )
-                        time.sleep(response2.headers["X-RateLimit-Reset"])
+                        time.sleep(int(response2.headers["X-RateLimit-Reset"]))
                         response2 = requests.post(
                             printify_publish,
                             headers=self.headers_printify,

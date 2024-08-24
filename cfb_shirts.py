@@ -204,6 +204,19 @@ class cfb:
                     self.yesterday_post_list, self.yesterday_caption
                 )
 
+    def clean_store(self):
+        self.ify_user.reset_collections(
+            self.teams,
+            exclude=[
+            "All Products",
+            "College Football T Shirts",
+            "College Football Crewnecks",
+            ],
+            )
+
+        # this is last cus we waiting on stuff
+        self.ify_user.cover_image_wrapper()
+
     def daily_run(self):
         if self.do_past_week:
             self.iterate_games("post", self.past_week)
@@ -225,17 +238,8 @@ class cfb:
 
             # organize store
             # delete all my collections and rebuild them with all products
-            self.ify_user.reset_collections(
-                self.teams,
-                exclude=[
-                    "All Products",
-                    "College Football T Shirts",
-                    "College Football Crewnecks",
-                ],
-            )
+            self.clean_store()
 
-            # this is last cus we waiting on stuff
-            self.ify_user.cover_image_wrapper()
 
 
 if __name__ == "__main__":
@@ -254,3 +258,4 @@ if __name__ == "__main__":
     )
 
     cbb_obj.daily_run()
+    # cbb_obj.clean_store()
