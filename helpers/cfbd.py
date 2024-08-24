@@ -123,7 +123,7 @@ class cfbp_handler:
     def determine_to_do2(self):
         new_games = self.all_games
         if self.fake_date is not None:
-            logger.info("artificially setting to monday past date")
+            logger.info(f"artificially setting to fake date {self.fake_date}")
             today = pd.to_datetime(self.fake_date)
         else:
             today = dt.date.today()
@@ -143,6 +143,46 @@ class cfbp_handler:
         upcoming_games = list(games_2_weeks_out.id)
 
         return new_games, upcoming_games
+    
+    def determine_to_do3(self):
+        # this is for cfb. will run monday at 1am
+        # new_games is anything in past 7 days, mostly from the previous weekend plus a few from early in week
+        # upcoming_games is anything between 7 and 14 days in future
+        new_games = self.all_games
+        if self.fake_date is not None:
+            logger.info(f"artificially setting to fake date {self.fake_date}")
+            today = pd.to_datetime(self.fake_date).date()
+        else:
+            today = dt.date.today()
+
+        # because date is monday before any games occur, we are inclusive on the old end, exclusive on new end
+        games_this_past_week = new_games.loc[
+            (new_games.startdate >= today - pd.Timedelta(weeks=1)) &
+            (new_games.startdate < today)
+        ]
+
+        games_2_weeks_out = new_games.loc[
+            (new_games.startdate >= today + pd.Timedelta(weeks=1)) &
+            (new_games.startdate < today + pd.Timedelta(weeks=2))
+        ]
+
+        new_games = list(games_this_past_week.id)
+        upcoming_games = list(games_2_weeks_out.id)
+
+        return new_games, upcoming_games
+
+    def get_ap_rank(self, year, max_wk, season_typ):
+        rank_instance = cfbd.RankingsApi(cfbd.ApiClient(self.configuration))
+
+        
+        rankings = rank_instance.get_rankings(year, week=max_wk, season_type=season_typ)
+        rows = []
+        for d in rankings[0].polls[2].ranks:
+            row = [d.school,d.rank]
+            rows.append(row)
+        t25 = pd.DataFrame(rows, columns = ['team','rank'])
+        return t25
+
 
     def get_schedule(self, year):
         # this would run daily to add scores as they come
@@ -163,6 +203,7 @@ class cfbp_handler:
                 game_week = game.week
                 complete = game.completed
                 game_type = game.season_type
+                excitement = game.excitement_index
                 game_info = [
                     game_id,
                     htid,
@@ -175,6 +216,7 @@ class cfbp_handler:
                     game_week,
                     complete,
                     game_type,
+                    excitement
                 ]
                 all_game_info.append(game_info)
 
@@ -192,8 +234,9 @@ class cfbp_handler:
                 "week",
                 "complete",
                 "game_type",
+                "excitement_index"
             ],
-        ).sort_values("startdate")
+        ).sort_values(["startdate","excitement_index"])
         all_games_df.startdate = pd.to_datetime(all_games_df.startdate)
         all_games_df = all_games_df.drop_duplicates()
         all_games_df["monday"] = all_games_df["startdate"] - all_games_df[
@@ -209,6 +252,27 @@ class cfbp_handler:
         all_games_df.week = (
             all_games_df["game_type"] + " Week " + all_games_df["week"].astype(str)
         )
+
+        done_weeks = list(all_games_df.query('complete').week.unique())[0:-1]
+
+        max_wk = 1
+        season_typ = 'regular'
+        for r in done_weeks:
+            wknum = int(r.split(' ')[-1])
+            if wknum>max_wk:
+                max_wk = wknum
+            s_typ = r[0]
+            if r[0] == 'p':
+                season_typ = 'postseason'
+                max_wk = 1
+
+        top25 = self.get_ap_rank(year=year,max_wk=max_wk,season_typ=season_typ)
+
+        all_games_df = all_games_df.merge(top25,how='left',left_on = 'home',right_on='team')
+        all_games_df = all_games_df.rename(columns = {'rank':'home_rank'}).drop('team',axis=1)
+        all_games_df = all_games_df.merge(top25,how='left',left_on = 'away',right_on='team')
+        all_games_df = all_games_df.rename(columns = {'rank':'away_rank'}).drop('team',axis=1)
+
 
         self.all_games = all_games_df
         return all_games_df

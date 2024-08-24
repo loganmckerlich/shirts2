@@ -98,6 +98,8 @@ def parse_game(game, teams):
             "color": home.color.values[0],
             "logo": home.logos.values[0],
             "mascot": home.mascot.values[0],
+            "rank":game["home_rank"]
+
         },
         "away_team": {
             "shortn": away.name.values[0],
@@ -105,6 +107,7 @@ def parse_game(game, teams):
             "color": away.color.values[0],
             "logo": away.logos.values[0],
             "mascot": away.mascot.values[0],
+            "rank":game["away_rank"]
         },
         "sport": "football",
         "game": {
